@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dot &amp; Key — widget demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0;
+            background: #FAFAF8;
+            color: #2B2620;
+        }
+
+        .dk-demo-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid #EAE3D8;
+            background: white;
+        }
+
+        .dk-demo-logo {
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            font-size: 15px;
+        }
+
+        .dk-demo-links {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .dk-demo-banner {
+            background: #FBE4D9;
+            color: #6b3b22;
+            font-size: 12.5px;
+            padding: 8px 24px;
+            text-align: center;
+        }
+
+        .dk-demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            padding: 24px;
+        }
+
+        .dk-demo-card {
+            background: white;
+            border: 1px solid #EAE3D8;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .dk-demo-card-img {
+            height: 100px;
+            background: #EAE3D8;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .dk-demo-card-title {
+            font-size: 12.5px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .dk-demo-card-price {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .dk-demo-product-page {
+            padding: 40px 24px;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .dk-demo-product-hero {
+            display: flex;
+            gap: 32px;
+            align-items: flex-start;
+        }
+
+        .dk-demo-product-img {
+            width: 280px;
+            height: 280px;
+            background: #EAE3D8;
+            border-radius: 16px;
+            flex-shrink: 0;
+        }
+
+        .dk-demo-product-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .dk-demo-product-price {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 16px;
+        }
+
+        .dk-demo-product-desc {
+            font-size: 13.5px;
+            line-height: 1.6;
+            color: #444;
+        }
+
+        .dk-mode-switch {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 999999;
+            background: #2B2620;
+            color: white;
+            font-size: 11px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .dk-mode-switch a {
+            color: #FBE4D9;
+            text-decoration: none;
+        }
+
+        .dk-mode-switch a.active {
+            color: white;
+            font-weight: 700;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="dk-mode-switch">
+        Demo mode:
+        <a href="?mode=home" id="link-home">Homepage</a>
+        <a href="?mode=sunscreen-collection" id="link-collection">Sunscreen collection</a>
+        <a href="?mode=product" id="link-product">Product page</a>
+    </div>
+
+    <div class="dk-demo-banner">
+        This is a static demo page for testing widget.js — not the real dotandkey.com.
+    </div>
+
+    <nav class="dk-demo-nav">
+        <div class="dk-demo-logo">DOT &amp; KEY</div>
+        <div class="dk-demo-links">
+            <span>Sunscreens</span><span>Moisturizers</span><span>Serums</span><span>Combos</span>
+        </div>
+    </nav>
+
+    <div id="dk-demo-content"></div>
+
+    <script>
+        // Render different fake page content depending on ?mode= so widget.js's
+        // detectPageContext() and nudgeCopyFor() can be exercised manually.
+        var params = new URLSearchParams(window.location.search);
+        var mode = params.get("mode") || "home";
+        var content = document.getElementById("dk-demo-content");
+
+        var PRODUCTS = [
+            { title: "Cica + Niacinamide Sunscreen", price: 445 },
+            { title: "Watermelon Cooling Sunscreen", price: 445 },
+            { title: "Vitamin C + E Sunscreen", price: 445 },
+            { title: "Mango Detan Sunscreen", price: 445 },
+            { title: "Barrier Repair Moisturizer", price: 599 },
+            { title: "Retinol Night Repair Cream", price: 599 },
+        ];
+
+        function renderGrid() {
+            var grid = document.createElement("div");
+            grid.className = "dk-demo-grid";
+            PRODUCTS.forEach(function (p) {
+                var card = document.createElement("div");
+                card.className = "dk-demo-card";
+                card.innerHTML =
+                    '<div class="dk-demo-card-img"></div>' +
+                    '<div class="dk-demo-card-title">' + p.title + '</div>' +
+                    '<div class="dk-demo-card-price">\u20B9' + p.price + '</div>';
+                grid.appendChild(card);
+            });
+            content.appendChild(grid);
+        }
+
+        if (mode === "product") {
+            document.getElementById("link-product").className = "active";
+            // fake a Shopify-style URL so detectPageContext() picks it up
+            history.replaceState(null, "", "/products/cica-niacinamide-sunscreen-spf-50");
+
+            var wrap = document.createElement("div");
+            wrap.className = "dk-demo-product-page";
+            wrap.innerHTML =
+                '<div class="dk-demo-product-hero">' +
+                '  <div class="dk-demo-product-img"></div>' +
+                '  <div>' +
+                '    <div class="dk-demo-product-title">Cica + Niacinamide Sunscreen</div>' +
+                '    <div class="dk-demo-product-price">\u20B9445</div>' +
+                '    <div class="dk-demo-product-desc">SPF 50+ PA++++ mattifying sunscreen with ' +
+                '    Centella Asiatica and Niacinamide. Calms inflammation, controls excess oil, ' +
+                '    suitable for oily, acne-prone, and sensitive skin.</div>' +
+                '  </div>' +
+                '</div>';
+            content.appendChild(wrap);
+
+            // stub the Shopify-style .json endpoint this demo page doesn't actually
+            // have a backend for, so widget.js's fetch('/products/x.json') call
+            // resolves instead of 404ing (the widget also has a graceful fallback
+            // if this fetch fails, but stubbing it gives a cleaner demo).
+            var realFetch = window.fetch;
+            window.fetch = function (url, opts) {
+                if (typeof url === "string" && url.indexOf(".json") > -1 && url.indexOf("/products/") === 0) {
+                    return Promise.resolve({
+                        ok: true,
+                        json: function () {
+                            return Promise.resolve({
+                                product: {
+                                    title: "Cica + Niacinamide Sunscreen, In-Vivo Tested SPF 50+ PA++++",
+                                    tags: ["fltr_skin_type_Oily", "fltr_skin_concern_Acne"],
+                                },
+                            });
+                        },
+                    });
+                }
+                return realFetch.apply(window, arguments);
+            };
+
+        } else {
+            if (mode === "sunscreen-collection") {
+                document.getElementById("link-collection").className = "active";
+                history.replaceState(null, "", "/collections/sunscreen");
+                var h = document.createElement("h2");
+                h.style.cssText = "padding: 24px 24px 0; font-size: 18px;";
+                h.textContent = "Sunscreens";
+                content.appendChild(h);
+            } else {
+                document.getElementById("link-home").className = "active";
+                history.replaceState(null, "", "/");
+            }
+            renderGrid();
+        }
+    </script>
+
+    <!--
+    The widget itself. data-api-base points at your local FastAPI dev
+    server — change this if you're testing against a deployed instance.
+  -->
+    <script src="widget.js" data-api-base="http://localhost:8000"></script>
+
+</body>
+
+</html>

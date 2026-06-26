@@ -1,0 +1,12 @@
+{
+  "description": "Regression: budget expansion from under_300 to under_600 must NEVER introduce sunscreen products when the category is lip_care. All lip_care products are ≤₹259 so expansion should not even fire here; if it does the category must still be lip_care.",
+  "turns": [
+    "lip balm",
+    "dry skin",
+    "no fragrance",
+    "under 300"
+  ],
+  "expected_category": "lip_care",
+  "expected_max_price": 600.0,
+  "must_not_contain_categories": ["sunscreen", "serum", "moisturizer", "face_wash"]
+}

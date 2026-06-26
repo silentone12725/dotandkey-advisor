@@ -1,0 +1,12 @@
+{
+  "description": "Happy path regression: 4-turn lip balm session must return ONLY lip_care products at or below ₹300. Ensures the full intake flow (category→skin→allergen→budget) produces correct results.",
+  "turns": [
+    "Recommend a lip balm",
+    "Dry lips",
+    "No fragrance",
+    "Under 300"
+  ],
+  "expected_category": "lip_care",
+  "expected_max_price": 300.0,
+  "must_not_contain_categories": ["sunscreen", "serum", "moisturizer", "face_wash"]
+}

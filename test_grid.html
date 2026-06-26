@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 400px; border: 1px solid black; }
+.item { border: 1px solid red; height: 50px; }
+</style>
+</head>
+<body>
+<div class="grid">
+  <div class="item">I am the only item</div>
+</div>
+<script>
+  setTimeout(() => {
+    const item = document.querySelector('.item');
+    console.log(item.getBoundingClientRect().width);
+    fetch('http://localhost:8000/?width=' + item.getBoundingClientRect().width);
+  }, 100);
+</script>
+</body>
+</html>

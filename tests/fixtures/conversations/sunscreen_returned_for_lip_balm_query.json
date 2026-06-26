@@ -1,0 +1,13 @@
+{
+  "description": "Regression: stale sunscreen profile caused 'suggest lip balms under 300' to return sunscreens. Router bypassed intake_profile routing, so keyword_extract was never called and the stale category=sunscreen was used for retrieval.",
+  "turns": [
+    "recommend a sunscreen",
+    "oily skin",
+    "none / not sure",
+    "No budget preference",
+    "suggest me some lip balms under 300"
+  ],
+  "expected_category": "lip_care",
+  "expected_max_price": 300.0,
+  "must_not_contain_categories": ["sunscreen", "serum", "moisturizer", "face_wash"]
+}

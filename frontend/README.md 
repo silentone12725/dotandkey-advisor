@@ -1,0 +1,85 @@
+# Phase 8 — widget.js (the UI hook)
+
+## What's here
+
+```
+frontend/
+  widget.js        -- the embeddable widget itself (vanilla JS, no build step)
+  demo.html         -- standalone test page (homepage / collection / product modes)
+  test_widget.js    -- jsdom smoke tests, run after every widget.js change
+```
+
+## How it works
+
+One `<script>` tag, dropped in once on dotandkey.com:
+
+```html
+<script src="https://cdn.dotandkey.com/advisor/widget.js"
+        data-api-base="https://advisor.dotandkey.com"></script>
+```
+
+- Renders inside a **Shadow DOM** — the host page's CSS can never leak in,
+  and the widget's CSS can never leak out. No class-name collisions with
+  Dot & Key's existing theme, ever.
+- No build step. No webpack/vite/React needed to ship this — it's one
+  plain JS file, which is also why `data-api-base` is read off the
+  script tag itself rather than requiring a config file.
+- Detects page context from `window.location.pathname`: `/products/*` →
+  product mode, everything else → homepage/collection mode.
+- Profile ID is a `crypto.randomUUID()` stored in `localStorage` —
+  no cookies (Safari's ITP caps JS-set cookies at 7 days; localStorage
+  has no such cap, which matters for the 60-day profile TTL).
+
+## Local testing
+
+**1. Fast smoke test (no browser needed)** — run after every change:
+
+```fish
+cd frontend
+npm install jsdom --no-save   # one-time
+node test_widget.js
+```
+
+This runs the actual widget code in a real DOM implementation (jsdom) and
+checks: shadow DOM creation, bubble→panel expand/collapse, SSE token
+streaming, chip rendering from the backend's structured `done` event data,
+product-page detection, and top-pick-vs-remaining card styling. It mocks
+`fetch` — no backend needs to be running for this.
+
+**2. Real browser test** — do this before shipping any change, since
+jsdom can't catch everything (mobile viewport quirks, Safari's localStorage
+behavior in private mode, real animation rendering):
+
+```fish
+# from the project root, with the backend running (./scripts/start_dev.fish)
+cd frontend
+python3 -m http.server 5500
+```
+
+Open `http://localhost:5500/demo.html` — it has a mode switcher (top-left)
+to preview homepage, sunscreen-collection, and product-page contexts. The
+demo page stubs the Shopify `.json` endpoint so product mode works without
+a real Shopify store behind it.
+
+## Known v1 limitations (flagged, not blocking)
+
+- **Add to cart is a stub.** Product SKUs in the graph (`DK_CCNS`) aren't
+  mapped to real Shopify variant IDs yet — that mapping doesn't exist in
+  our data (flagged earlier as a data gap). The button currently shows
+  "Added ✓" and logs to console; wire up Shopify's Storefront API
+  `cartLinesAdd` mutation once that mapping exists. Search `TODO(shopify)`
+  in `widget.js`.
+- **Returning-user "Things have changed" chip** sends a generic message
+  rather than resetting the stored profile — there's no `/profile/reset`
+  endpoint yet. Low priority since the 60-day TTL already handles staleness.
+- **No retry on a dropped SSE connection.** If `/chat`'s stream cuts out
+  mid-response (network blip), the widget shows a generic error and the
+  user has to resend. Acceptable for v1; a reconnect-with-backoff would
+  be the v2 improvement.
+
+## What's NOT done yet (separate phases)
+
+- Admin CRUD API (Phase 9) — dynamic product add/edit via the graph.
+- Semantic response cache (Phase 6) — the ~65% latency win from
+  caching repeated profile→recommendation queries.
+- Real Shopify cart integration (see "Add to cart is a stub" above).

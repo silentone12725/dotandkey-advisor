@@ -1,0 +1,12 @@
+{
+  "description": "Regression: user asks for serum, then switches to face wash. The stale serum category must not survive into the face_wash recommendations.",
+  "turns": [
+    "recommend a serum",
+    "oily skin",
+    "no fragrance",
+    "under 600",
+    "show me face wash"
+  ],
+  "expected_category": "face_wash",
+  "must_not_contain_categories": ["serum", "sunscreen", "moisturizer", "lip_care"]
+}

@@ -1,0 +1,43 @@
+{
+    "manifest_version": 3,
+    "name": "Dot & Key Skin Advisor (Dev)",
+    "version": "1.0.0",
+    "description": "Injects the AI skin advisor widget into dotandkey.com for local dev/testing. Real site, real products — your local backend overlays the chat UI on top.",
+    "host_permissions": [
+        "http://localhost:8000/*",
+        "https://localhost:8000/*"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "https://www.dotandkey.com/*",
+                "https://dotandkey.com/*"
+            ],
+            "js": [
+                "prefetch.js"
+            ],
+            "run_at": "document_start"
+        },
+        {
+            "matches": [
+                "https://www.dotandkey.com/*",
+                "https://dotandkey.com/*"
+            ],
+            "js": [
+                "widget.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "widget.js"
+            ],
+            "matches": [
+                "https://www.dotandkey.com/*",
+                "https://dotandkey.com/*"
+            ]
+        }
+    ]
+}

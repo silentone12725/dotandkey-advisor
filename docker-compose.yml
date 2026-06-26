@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+
+  # FalkorDB (also serves as Redis for session/cache/history)
+  # Exposes :6379 (Redis/FalkorDB) and :3000 (browser UI)
+  falkordb:
+    image: falkordb/falkordb:latest
+    container_name: dotandkey-falkordb
+    ports:
+      - "6379:6379"
+      - "3000:3000"
+    volumes:
+      - falkordb_data:/data
+    restart: unless-stopped
+
+  # FastAPI backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dotandkey-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - falkordb
+    volumes:
+      - .:/app
+    command: uvicorn backend.app:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+
+volumes:
+  falkordb_data:
