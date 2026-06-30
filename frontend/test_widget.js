@@ -1218,6 +1218,102 @@ async function testShadeRegistry() {
 }
 
 // ---------------------------------------------------------------------------
+// Test 10 — "Track my order" hyperlink chip: rendered on homepage open AND
+// surfaced again in chat responses to tracking questions. Must be a real
+// <a href target=_blank> (not a chip that sends a chat message), so a tap
+// goes straight to ClickPost instead of round-tripping through /chat.
+// ---------------------------------------------------------------------------
+
+async function testTrackOrderLinkChip() {
+  section("Test 10: track-order hyperlink chip");
+
+  const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>", {
+    url: "https://www.dotandkey.com/",
+    runScripts: "outside-only",
+    pretendToBeVisual: true,
+  });
+  const window = dom.window;
+  const fetchLog = [];
+
+  function mockFetch(url, opts) {
+    fetchLog.push({ url: url, method: opts && opts.method });
+    if (typeof url === "string" && url.indexOf("/session/init") > -1) {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({
+          profile_id: "test-id", city: "Mumbai", season: "summer",
+          is_returning: false, greeting: "Hey!", weather: { temp: 30, humidity: 60 },
+        }),
+      });
+    }
+    if (typeof url === "string" && url.indexOf("/chat") > -1) {
+      const encoder = new TextEncoder();
+      const events = [
+        'data: {"token": "You can track your order below."}\n\n',
+        'data: {"done": true, "playbook": "track_order", ' +
+        '"link_chips": [{"label": "Track my order", "url": "https://dotandkey.clickpost.ai/"}]}\n\n',
+      ];
+      let i = 0;
+      return Promise.resolve({
+        ok: true,
+        body: {
+          getReader: () => ({
+            read: () => {
+              if (i >= events.length) return Promise.resolve({ done: true });
+              return Promise.resolve({ done: false, value: encoder.encode(events[i++]) });
+            },
+          }),
+        },
+      });
+    }
+    return Promise.reject(new Error("unexpected fetch: " + url));
+  }
+
+  window.fetch = mockFetch;
+  window.crypto = window.crypto || {};
+  window.crypto.randomUUID = () => "33333333-3333-3333-3333-333333333333";
+
+  const widgetSrc = fs.readFileSync(path.join(__dirname, "widget.js"), "utf8");
+  window.eval(widgetSrc);
+
+  const host = window.document.getElementById("dk-advisor-host");
+  const shadow = host.shadowRoot;
+  const bubble = shadow.querySelector(".dk-bubble");
+  bubble.dispatchEvent(new window.Event("click", { bubbles: true }));
+  await new Promise((r) => setTimeout(r, 50));
+
+  const body = shadow.querySelector(".dk-body");
+
+  // Homepage opening: link chip rendered alongside the entry chips
+  const openingLinkChip = Array.from(body.querySelectorAll("a.dk-chip-link"))
+    .find((a) => a.textContent === "Track my order");
+  check("homepage: 'Track my order' link chip rendered on open",
+    !!openingLinkChip);
+  check("homepage: link chip href is the real ClickPost URL",
+    !!openingLinkChip && openingLinkChip.href === "https://dotandkey.clickpost.ai/");
+  check("homepage: link chip opens in a new tab",
+    !!openingLinkChip && openingLinkChip.target === "_blank");
+  check("homepage: link chip has rel=noopener (no window.opener leak)",
+    !!openingLinkChip && openingLinkChip.rel.indexOf("noopener") > -1);
+  check("link chip is a real <a> tag, not a chat-sending div",
+    !!openingLinkChip && openingLinkChip.tagName === "A");
+
+  // User explicitly asks — chat response's link_chips also renders one
+  const input = shadow.querySelector(".dk-input");
+  const sendBtn = shadow.querySelector(".dk-send-btn");
+  input.value = "where is my order";
+  input.dispatchEvent(new window.Event("input", { bubbles: true }));
+  await new Promise((r) => setTimeout(r, 5));
+  sendBtn.dispatchEvent(new window.Event("click", { bubbles: true }));
+  await new Promise((r) => setTimeout(r, 200));
+
+  const linkChipsAfterChat = Array.from(body.querySelectorAll("a.dk-chip-link"))
+    .filter((a) => a.textContent === "Track my order");
+  check("chat: asking 'where is my order' surfaces a second link chip from link_chips",
+    linkChipsAfterChat.length >= 2);
+}
+
+// ---------------------------------------------------------------------------
 // Run all
 // ---------------------------------------------------------------------------
 
@@ -1231,6 +1327,7 @@ async function testShadeRegistry() {
     await testBrandRedesign();
     await testTintShadeAccuracy();
     await testShadeRegistry();
+    await testTrackOrderLinkChip();
   } catch (err) {
     console.error("\nFATAL ERROR during test run:", err);
     failed++;

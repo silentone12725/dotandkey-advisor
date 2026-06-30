@@ -214,6 +214,11 @@
         ".dk-chip:hover { background:var(--dk-pink-soft); border-color:var(--dk-pink); color:var(--dk-pink); }" +
         ".dk-chip.dk-chip-selected { background:var(--dk-pink); border-color:var(--dk-pink); color:white; }" +
         ".dk-chip-confirm { border:none; background:var(--dk-pink); color:white; font-size:12px; font-weight:600; padding:7px 14px; border-radius:999px; cursor:pointer; }" +
+        /* dk-chip-link: a real <a href target=_blank> styled like a chip —
+           used for "Track my order" (opens ClickPost directly) rather than
+           a chip that sends a chat message. text-decoration/display reset
+           since <a> isn't a button by default. */
+        ".dk-chip-link { text-decoration:none; display:inline-flex; align-items:center; gap:4px; }" +
         /* ── combo bundle cards ───────────────────────────────────────────
            Shown ABOVE individual product picks. Full-width cards with a
            distinct coral/pink gradient header band so they stand out as
@@ -654,12 +659,40 @@
         return container;
     }
 
+    /**
+     * Renders a row of hyperlink chips — visually matches renderChips'
+     * .dk-chip style, but each one is a real <a href target=_blank> that
+     * opens an external page directly instead of sending a chat message.
+     * Used for "Track my order" (backend/playbooks/other.py's track_order
+     * emits this as link_chips) and the homepage opening row.
+     */
+    function renderLinkChips(body, linkChipsData) {
+        if (!linkChipsData || !linkChipsData.length) return null;
+
+        var container = el("div", "dk-chips-container");
+        var row = el("div", "dk-chip-row");
+
+        linkChipsData.forEach(function (item) {
+            var link = el("a", "dk-chip dk-chip-link", escapeHtml(item.label));
+            link.href = item.url;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            row.appendChild(link);
+        });
+
+        container.appendChild(row);
+        body.appendChild(container);
+        scrollToBottom(body);
+        return container;
+    }
+
     window.__dkAdvisor._internal.renderBubble = renderBubble;
     window.__dkAdvisor._internal.renderPanel = renderPanel;
     window.__dkAdvisor._internal.appendUserMessage = appendUserMessage;
     window.__dkAdvisor._internal.appendAssistantMessage = appendAssistantMessage;
     window.__dkAdvisor._internal.appendTypingIndicator = appendTypingIndicator;
     window.__dkAdvisor._internal.renderChips = renderChips;
+    window.__dkAdvisor._internal.renderLinkChips = renderLinkChips;
     window.__dkAdvisor._internal.scrollToBottom = scrollToBottom;
 
     // ===========================================================================
@@ -1399,6 +1432,15 @@
         ],
     };
 
+    // Shown alongside the opening chips on every homepage session (new AND
+    // returning user) — a direct hyperlink, not a chat-triggering chip, so
+    // it opens ClickPost in one tap instead of a round trip through /chat.
+    // Mirrors backend/playbooks/other.py's TRACK_ORDER_LINK_CHIP — if that
+    // URL changes, update it here too.
+    var TRACK_ORDER_LINK_CHIP = [
+        { label: "Track my order", url: "https://dotandkey.clickpost.ai/" },
+    ];
+
     // ===========================================================================
     // sendMessage — the core conversational turn
     // ===========================================================================
@@ -1445,6 +1487,9 @@
             if (pendingDone) {
                 if (pendingDone.suggested_chips) {
                     renderChips(els.body, pendingDone.suggested_chips, sendMessage);
+                }
+                if (pendingDone.link_chips && pendingDone.link_chips.length) {
+                    renderLinkChips(els.body, pendingDone.link_chips);
                 }
                 if (pendingDone.combos && pendingDone.combos.length) {
                     renderCombos(els.body, pendingDone.combos);
@@ -1582,6 +1627,7 @@
                 } else {
                     renderChips(els.body, INITIAL_CATEGORY_CHIPS, sendMessage);
                 }
+                renderLinkChips(els.body, TRACK_ORDER_LINK_CHIP);
                 if (state.pageCtx.type === "product" && state.pageCtx.handle) {
                     renderProductModeOffer(state.pageCtx.handle);
                 }

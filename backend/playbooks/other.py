@@ -14,6 +14,7 @@ from typing import AsyncGenerator
 
 from backend.playbooks.base import (
     build_system_prompt,
+    emit_ui_data,
     load_prompt,
     stream_response,
 )
@@ -21,6 +22,8 @@ from backend.playbooks.base import (
 # Dot & Key's order tracking is handled by ClickPost, not a Shopify-native
 # page — confirmed with the project owner (not discoverable from the repo).
 CLICKPOST_TRACKING_URL = "https://dotandkey.clickpost.ai/"
+
+TRACK_ORDER_LINK_CHIP = {"label": "Track my order", "url": CLICKPOST_TRACKING_URL}
 
 
 async def track_order(
@@ -37,11 +40,17 @@ async def track_order(
     uses ClickPost for tracking). Kept deterministic rather than routed
     through stream_response() like the other playbooks here because an
     LLM has no reason to ever touch this URL — there's nothing to phrase.
+
+    Emits a link_chips UI payload (rendered as a real <a href> button by
+    the widget, not just a URL sitting in plain chat text) so the user can
+    tap straight through to ClickPost instead of copying a link out of
+    the message bubble.
     """
     yield (
-        f"You can track your order here: {CLICKPOST_TRACKING_URL} — "
-        "enter your order ID or the phone/email used at checkout to see its status."
+        "You can track your order below — enter your order ID or the "
+        "phone/email used at checkout to see its status."
     )
+    yield emit_ui_data({"link_chips": [TRACK_ORDER_LINK_CHIP]})
 
 
 async def allergen_check(
