@@ -185,6 +185,13 @@ def _build_query(profile, include_season, include_texture,
     # always-on collections for highlight keywords (not filters)
     lines.append("OPTIONAL MATCH (p)-[:CONTAINS_INGREDIENT]->(ing:Ingredient)")
     lines.append("OPTIONAL MATCH (p)-[:HAS_TEXTURE]->(disp_tx:Texture)")
+    # Unfiltered skin-type collection — unlike matched_skin_types (gated to the
+    # profile's requested types), this captures EVERY skin type the product
+    # supports, so the UI can detect "suits all skin types" regardless of which
+    # single skin type the user has on file. See match_keywords.py's
+    # "All Skin Types" chip — without this, a product tagged for all 5 types
+    # would only ever show the 1 type that happens to match the user's profile.
+    lines.append("OPTIONAL MATCH (p)-[:SUITS_SKIN_TYPE]->(all_st:SkinType)")
 
     # single aggregation step
     with_parts = ["p"]
@@ -209,6 +216,7 @@ def _build_query(profile, include_season, include_texture,
 
     with_parts.append("collect(DISTINCT ing.name) AS ingredients")
     with_parts.append("collect(DISTINCT disp_tx.name) AS texture_names")
+    with_parts.append("collect(DISTINCT all_st.name) AS all_skin_types")
 
     lines.append("WITH " + ", ".join(with_parts))
 
@@ -263,7 +271,8 @@ def _build_query(profile, include_season, include_texture,
         "coalesce(p.url, '') AS url, coalesce(p.image_url, '') AS image_url, "
         "matched_skin_types, matched_concerns, free_from, ingredients, "
         "texture_names, coalesce(p.compare_at_price, 0) AS compare_at_price, "
-        f"coalesce(p.variant, '') AS variant, skin_score, concern_score, {_cap_cols}"
+        f"coalesce(p.variant, '') AS variant, skin_score, concern_score, {_cap_cols}, "
+        "all_skin_types"
     )
     lines.append("ORDER BY match_score DESC, p.price ASC")
     # no LIMIT — return all matches
@@ -309,10 +318,13 @@ def _rows_to_products(rows: list) -> list[dict]:
             "skin_score":         int(r[15]) if len(r) > 15 else 0,
             "concern_score":      int(r[16]) if len(r) > 16 else 0,
         }
-        # Capability scores (columns 17+)
+        # Capability scores (columns 17-26)
         for i, ax in enumerate(_CAP_AXES):
             idx = _CAP_BASE_IDX + i
             p[f"cap_{ax}"] = float(r[idx] or 0.0) if len(r) > idx else 0.0
+        # Unfiltered skin-type support (column 27, right after cap scores)
+        all_skin_idx = _CAP_BASE_IDX + len(_CAP_AXES)
+        p["all_skin_types"] = (r[all_skin_idx] or []) if len(r) > all_skin_idx else []
         products.append(p)
     return products
 

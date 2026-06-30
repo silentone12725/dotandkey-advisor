@@ -275,7 +275,42 @@ def _row(sku, title, price, score, url="", image_url="",
             compare_at_price, variant)
 
 
+def _row_full(sku, title, price, score, all_skin_types=None, **kwargs):
+    """Like _row(), but appends skin_score, concern_score, 10 cap_* columns,
+    and all_skin_types — the full current column set (indices 0-27).
+    Used to test that all_skin_types (added for the 'All Skin Types' chip)
+    parses correctly when the live Cypher RETURN includes every column.
+    """
+    base = _row(sku, title, price, score, **kwargs)
+    cap_cols = (0.0,) * 10   # 10 capability axes, all zero for these tests
+    return base + (0, 0) + cap_cols + (all_skin_types or [],)
+
+
 class TestRetrieveFallbackLadder:
+
+    def test_all_skin_types_maps_through_when_present(self):
+        """Regression test: a product graph-tagged for all 5 skin types
+        must surface that via all_skin_types, independent of which single
+        skin type the user's profile requested (matched_skin_types only
+        reflects the profile-filtered overlap, not the full support set).
+        Live-site case: a product titled '...for Oily Skin' that's actually
+        tagged for oily/dry/normal/combination/sensitive."""
+        graph = FakeGraph(responses=[
+            [_row_full("A", "Cica + Niacinamide Serum for Oily Skin", 449, 1,
+                       matched_skin_types=["dry"],
+                       all_skin_types=["oily", "dry", "combination", "normal", "sensitive"])],
+        ])
+        result = retrieve(graph, {"category": "serum", "skin_types": ["dry"]})
+        p = result.top_picks[0]
+        assert p["matched_skin_types"] == ["dry"]   # profile-filtered, unchanged
+        assert set(p["all_skin_types"]) == {"oily", "dry", "combination", "normal", "sensitive"}
+
+    def test_all_skin_types_defaults_to_empty_list_on_legacy_row(self):
+        """A short row (pre-capability-score schema, 15 columns) must not
+        crash — all_skin_types should default safely to []."""
+        graph = FakeGraph(responses=[[_row("A", "Cica Sunscreen", 445, 3)]])
+        result = retrieve(graph, {"category": "sunscreen"})
+        assert result.top_picks[0]["all_skin_types"] == []
 
     def test_matched_attributes_map_through_for_highlights(self):
         """Regression test: the highlight-keyword feature needs matched

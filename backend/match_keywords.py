@@ -71,15 +71,23 @@ FREE_FROM_LABELS = {
 MAX_KEYWORDS = 3
 MAX_EXPLANATION_CHIPS = 5
 
+# The 5 core skin types in the graph (excludes the "all" sentinel tag).
+# A product matching every one of these (or carrying the explicit "all" tag)
+# suits all skin types, regardless of how its title happens to be worded
+# (e.g. "...for Oily Skin" titles that are graph-tagged for all 5 types too —
+# the title is marketing copy, not the actual SUITS_SKIN_TYPE match set).
+_CORE_SKIN_TYPES = {"oily", "dry", "combination", "normal", "sensitive"}
+
 
 def build_keywords(
     matched_concerns: list[str],
     texture: str | None,
     key_ingredients: list[str],
     free_from: list[str],
+    all_skin_types: list[str] | None = None,
 ) -> list[str]:
     """Return up to MAX_KEYWORDS human-readable tags, in priority order:
-    matched concern > texture > key ingredient > allergen-free claim.
+    all-skin-types > matched concern > texture > key ingredient > allergen-free claim.
 
     Pure function — no DB, no LLM, fully deterministic and fast to test.
     Deduplicates (e.g. dryness + dehydration both map to "Hydrating").
@@ -91,6 +99,10 @@ def build_keywords(
         if label and label not in seen:
             seen.add(label)
             tags.append(label)
+
+    skin_types = set(all_skin_types or [])
+    if "all" in skin_types or _CORE_SKIN_TYPES.issubset(skin_types):
+        _add("All Skin Types")
 
     for concern in matched_concerns or []:
         _add(CONCERN_LABELS.get(concern))

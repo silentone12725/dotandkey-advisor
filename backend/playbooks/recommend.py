@@ -196,6 +196,7 @@ def _card_product(p: dict, with_keywords: bool = False,
             texture=p.get("texture", ""),
             key_ingredients=p.get("ingredients", []),
             free_from=p.get("free_from", []),
+            all_skin_types=p.get("all_skin_types", []),
         )
         card["explanation_chips"] = build_explanation_chips(p, user_concerns)
     if explanation is not None:

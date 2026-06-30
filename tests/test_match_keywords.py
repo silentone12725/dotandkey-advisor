@@ -4,10 +4,10 @@ tests/test_match_keywords.py
 Tests for backend/match_keywords.build_keywords() — the deterministic
 "why this matches" tag generator shown under top-pick product cards.
 
-Priority order matters here: concern > texture > ingredient > allergen-
-free, capped at 3, deduplicated. These tests pin that behavior down
-since it's a visible, user-facing ordering decision, not an
-implementation detail.
+Priority order matters here: all-skin-types > concern > texture >
+ingredient > allergen-free, capped at 3, deduplicated. These tests pin
+that behavior down since it's a visible, user-facing ordering decision,
+not an implementation detail.
 """
 
 import sys
@@ -25,6 +25,83 @@ from backend.match_keywords import (
     FREE_FROM_LABELS,
     MAX_KEYWORDS,
 )
+
+
+class TestAllSkinTypesChip:
+    """A product titled e.g. '...for Oily Skin' can still be graph-tagged
+    SUITS_SKIN_TYPE for all 5 core types — the title is marketing copy,
+    not the actual match set. This chip surfaces that so users on a
+    different skin type aren't misled by the title alone. Regression
+    coverage for the live-site case: 'Cica + 10% Niacinamide Face Serum
+    for Oily Skin' tagged for oily/dry/normal/combination/sensitive."""
+
+    def test_all_five_core_types_shows_chip(self):
+        tags = build_keywords(
+            matched_concerns=[], texture="", key_ingredients=[], free_from=[],
+            all_skin_types=["oily", "dry", "combination", "normal", "sensitive"],
+        )
+        assert "All Skin Types" in tags
+
+    def test_explicit_all_tag_shows_chip(self):
+        tags = build_keywords(
+            matched_concerns=[], texture="", key_ingredients=[], free_from=[],
+            all_skin_types=["all"],
+        )
+        assert "All Skin Types" in tags
+
+    def test_four_of_five_types_does_not_show_chip(self):
+        """Missing 'sensitive' — must not claim All Skin Types."""
+        tags = build_keywords(
+            matched_concerns=[], texture="", key_ingredients=[], free_from=[],
+            all_skin_types=["oily", "dry", "combination", "normal"],
+        )
+        assert "All Skin Types" not in tags
+
+    def test_single_skin_type_does_not_show_chip(self):
+        tags = build_keywords(
+            matched_concerns=[], texture="", key_ingredients=[], free_from=[],
+            all_skin_types=["dry"],
+        )
+        assert "All Skin Types" not in tags
+
+    def test_all_skin_types_ranks_before_concern(self):
+        tags = build_keywords(
+            matched_concerns=["acne"], texture="", key_ingredients=[], free_from=[],
+            all_skin_types=["oily", "dry", "combination", "normal", "sensitive"],
+        )
+        assert tags[0] == "All Skin Types"
+        assert tags[1] == "Anti-acne"
+
+    def test_all_skin_types_counts_toward_max_keywords_cap(self):
+        tags = build_keywords(
+            matched_concerns=["acne"], texture="lightweight",
+            key_ingredients=["niacinamide"], free_from=[],
+            all_skin_types=["oily", "dry", "combination", "normal", "sensitive"],
+        )
+        assert len(tags) == MAX_KEYWORDS
+        assert tags == ["All Skin Types", "Anti-acne", "Lightweight"]
+
+    def test_none_all_skin_types_does_not_crash(self):
+        tags = build_keywords(
+            matched_concerns=["acne"], texture="", key_ingredients=[], free_from=[],
+            all_skin_types=None,
+        )
+        assert tags == ["Anti-acne"]
+
+    def test_missing_all_skin_types_arg_defaults_safely(self):
+        """Backward compatible — existing callers that don't pass
+        all_skin_types must keep working unchanged."""
+        tags = build_keywords(
+            matched_concerns=["acne"], texture="", key_ingredients=[], free_from=[],
+        )
+        assert tags == ["Anti-acne"]
+
+    def test_empty_all_skin_types_list_does_not_show_chip(self):
+        tags = build_keywords(
+            matched_concerns=[], texture="", key_ingredients=[], free_from=[],
+            all_skin_types=[],
+        )
+        assert tags == []
 
 
 class TestPriorityOrder:
