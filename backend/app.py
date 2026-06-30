@@ -118,6 +118,7 @@ PLAYBOOK_MAP = {
     "routine_build":   lambda pid, msg, args, pctx: pb_other.routine_build(pid, msg, args, pctx),
     "general_qa":      lambda pid, msg, args, pctx: pb_other.general_qa(pid, msg, args, pctx),
     "handoff":         lambda pid, msg, args, pctx: pb_other.handoff(pid, msg, args, pctx),
+    "track_order":     lambda pid, msg, args, pctx: pb_other.track_order(pid, msg, args, pctx),
     "compare_products":lambda pid, msg, args, pctx: pb_compare.run(pid, msg, args),
     "returning_user":  lambda pid, msg, args, pctx: pb_returning.run(pid, msg, args),
 }

@@ -128,10 +128,24 @@ ROUTER_TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "track_order",
+            "description": (
+                "User wants to track an order or check shipment/delivery status — "
+                "'where is my order', 'track my package', 'order status', "
+                "'has my order shipped'."
+            ),
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "handoff",
             "description": (
-                "User wants human support — asked about orders, returns, "
-                "exchanges, shipping, or expressed frustration wanting escalation."
+                "User wants human support for something OTHER than order tracking — "
+                "returns, exchanges, refunds, shipping questions, or expressed "
+                "frustration wanting escalation. Do NOT use for 'where is my order' "
+                "or other tracking questions — use track_order for those."
             ),
             "parameters": {"type": "object", "properties": {}},
         },
@@ -208,8 +222,15 @@ _ROUTINE_TRIGGERS = [
 _HANDOFF_TRIGGERS = [
     "return", "exchange", "shipping", "delivery", "refund",
     "talk to someone", "speak to", "human", "customer care", "support",
-    "where is my order", "track my order", "my order", "track order",
-    "where is my", "order status",
+]
+
+# Checked before _HANDOFF_TRIGGERS — tracking has a real deterministic
+# answer (the ClickPost link), so it must not fall into the generic
+# "email support" handoff response.
+_TRACKING_TRIGGERS = [
+    "where is my order", "track my order", "track order",
+    "where is my", "order status", "tracking number",
+    "track my package", "track my shipment", "shipment status",
 ]
 
 _COMPARISON_TRIGGERS = [
@@ -236,6 +257,13 @@ def _fast_classify(message: str, profile: dict) -> str | None:
         profile.get("category") and
         (profile.get("skin_types") or profile.get("concerns"))
     )
+
+    # Order tracking — checked before general handoff. Unlike returns/
+    # exchanges/refunds (which genuinely need a human), tracking has a
+    # real deterministic answer (the ClickPost link) and must not be
+    # swallowed by the generic "email support" handoff response.
+    if any(kw in t for kw in _TRACKING_TRIGGERS):
+        return "track_order"
 
     # Handoff — check first, highest priority
     if any(kw in t for kw in _HANDOFF_TRIGGERS):

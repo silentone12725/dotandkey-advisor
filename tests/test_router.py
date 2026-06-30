@@ -148,6 +148,37 @@ class TestHandoffRouting:
         result = _fast_classify("I want to order a sunscreen", PROFILE_READY)
         assert result != "handoff"
 
+    def test_tracking_phrases_route_to_track_order_not_handoff(self):
+        """Regression: 'where is my order' / 'track my order' used to fall
+        into the generic handoff playbook ('email support@dotandkey.com'),
+        a dead end for a question that has a real answer (the ClickPost
+        tracking link). These must route to track_order instead."""
+        for msg in [
+            "where is my order", "track my order", "track order",
+            "order status", "tracking number", "track my package",
+        ]:
+            assert _fast_classify(msg, PROFILE_READY) == "track_order", (
+                f"{msg!r} should route to track_order, not handoff"
+            )
+
+
+class TestTrackingRouting:
+
+    def test_where_is_my_order(self):
+        assert _fast_classify("where is my order?", PROFILE_READY) == "track_order"
+
+    def test_track_my_package(self):
+        assert _fast_classify("can you track my package", PROFILE_READY) == "track_order"
+
+    def test_order_status(self):
+        assert _fast_classify("what's my order status", PROFILE_READY) == "track_order"
+
+    def test_return_request_still_routes_to_handoff(self):
+        """Tracking and handoff are now separate playbooks — confirm
+        non-tracking handoff reasons (returns, refunds, human escalation)
+        are unaffected by splitting tracking out."""
+        assert _fast_classify("I want to return my order", PROFILE_READY) == "handoff"
+
 
 class TestAmbiguousFallsThroughToLLM:
 
