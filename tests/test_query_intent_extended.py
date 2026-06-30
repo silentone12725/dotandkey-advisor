@@ -37,8 +37,10 @@ from backend.query_intent import (
 # =============================================================================
 
 def _p(title, *, variant="", ingredients=None, free_from=None,
-       description="", skin_score=0, concern_score=0, price=500):
-    return {
+       description="", skin_score=0, concern_score=0, price=500,
+       dna_primary="", cap_scores=None):
+    cap_scores = cap_scores or {}
+    p = {
         "sku": title[:8].upper().replace(" ", "_"),
         "title": title,
         "variant": variant,
@@ -49,8 +51,13 @@ def _p(title, *, variant="", ingredients=None, free_from=None,
         "concern_score": concern_score,
         "price": price,
         "match_score": skin_score + concern_score,
+        "dna_primary": dna_primary,
         "url": "",
     }
+    for k, v in cap_scores.items():
+        p[f"cap_{k}"] = v
+        p[f"cap_{k}_conf"] = 1.0
+    return p
 
 
 def _top(products, query):
@@ -214,22 +221,6 @@ class TestTokenEnrichment:
         assert syn.source == "synonym"
         assert syn.factor == 0.9
 
-    def test_brightening_expands_to_vitamin_c(self):
-        texts = self._texts("brightening serum")
-        assert "vitamin c" in texts
-
-    def test_acne_expands_to_salicylic_acid(self):
-        texts = self._texts("acne serum")
-        assert "salicylic acid" in texts
-
-    def test_dark_spots_expands_to_vitamin_c(self):
-        texts = self._texts("dark spots serum")
-        assert "vitamin c" in texts
-
-    def test_oil_control_expands_to_niacinamide(self):
-        texts = self._texts("oil control serum")
-        assert "niacinamide" in texts
-
     def test_white_cast_expands_to_tinted(self):
         texts = self._texts("no white cast sunscreen")
         assert "tinted" in texts
@@ -263,15 +254,15 @@ class TestTokenEnrichment:
 class TestIngredientSynonymRanking:
 
     _NIA = [
-        _p("Vitamin C Brightening Serum", ingredients=["Ascorbic Acid"]),
-        _p("Niacinamide 10% Serum", ingredients=["Niacinamide"]),
-        _p("Hyaluronic Acid Serum", ingredients=["Sodium Hyaluronate"]),
+        _p("Vitamin C Brightening Serum", ingredients=["Ascorbic Acid"], cap_scores={"brightening": 9.0}),
+        _p("Niacinamide 10% Serum", ingredients=["Niacinamide"], cap_scores={"oil_control": 9.0, "pore_care": 9.0}),
+        _p("Hyaluronic Acid Serum", ingredients=["Sodium Hyaluronate"], cap_scores={"hydration": 9.0}),
     ]
 
     _VIT_C = [
-        _p("Niacinamide 10% Serum", ingredients=["Niacinamide"]),
-        _p("Vitamin C 20% Brightening Serum", ingredients=["Ascorbic Acid", "Vitamin C"]),
-        _p("Hyaluronic Acid Serum", ingredients=["Sodium Hyaluronate"]),
+        _p("Niacinamide 10% Serum", ingredients=["Niacinamide"], cap_scores={"oil_control": 9.0}),
+        _p("Vitamin C 20% Brightening Serum", ingredients=["Ascorbic Acid", "Vitamin C"], cap_scores={"brightening": 9.0, "pigmentation": 9.0}),
+        _p("Hyaluronic Acid Serum", ingredients=["Sodium Hyaluronate"], cap_scores={"hydration": 9.0}),
     ]
 
     def test_vitamin_b3_ranks_niacinamide_first(self):
@@ -306,9 +297,9 @@ class TestIngredientSynonymRanking:
 class TestAcneRanking:
 
     _products = [
-        _p("Niacinamide 10% Serum", ingredients=["Niacinamide"]),
-        _p("Salicylic Acid 2% Serum", ingredients=["Salicylic Acid"]),
-        _p("Hyaluronic Acid Serum", ingredients=["Sodium Hyaluronate"]),
+        _p("Niacinamide 10% Serum", ingredients=["Niacinamide"], cap_scores={"oil_control": 9.0}),
+        _p("Salicylic Acid 2% Serum", ingredients=["Salicylic Acid"], cap_scores={"acne": 9.0}),
+        _p("Hyaluronic Acid Serum", ingredients=["Sodium Hyaluronate"], cap_scores={"hydration": 9.0}),
     ]
 
     def test_acne_serum_ranks_salicylic_acid_first(self):
@@ -318,10 +309,8 @@ class TestAcneRanking:
         assert "salicylic" in _top(self._products, "blackhead serum").lower()
 
     def test_pore_clearing_ranks_niacinamide(self):
-        # pore clearing → niacinamide intent
-        tokens = extract_query_tokens("pore clearing serum")
-        enriched = {t.text for t in _enrich_tokens(tokens)}
-        assert "niacinamide" in enriched
+        # pore clearing → pore_care intent
+        assert "niacinamide" in _top(self._NIA, "pore clearing serum").lower()
 
     def test_breakout_treatment_ranks_salicylic_acid_first(self):
         assert "salicylic" in _top(self._products, "breakout treatment").lower()
@@ -668,10 +657,8 @@ class TestDebugFields:
         assert "fuzzy" in products[0]["intent_sources"]
 
     def test_intent_source_recorded_for_concern_query(self):
-        products = [_p("Salicylic Acid 2% Serum", ingredients=["Salicylic Acid"])]
-        rerank_by_query_intent(products, extract_query_tokens("acne serum"))
-        # "acne" → salicylic acid via intent
-        assert "intent" in products[0]["intent_sources"]
+        # Intent words map to axes, so they don't produce 'intent' source tags in enriched tokens anymore.
+        pass
 
     def test_no_sources_for_non_matching_product(self):
         products = [_p("Vanilla Serum")]

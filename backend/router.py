@@ -136,6 +136,29 @@ ROUTER_TOOLS = [
             "parameters": {"type": "object", "properties": {}},
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "compare_products",
+            "description": (
+                "User wants to compare two products, asks why one ranked first, "
+                "what they gain/lose by choosing one over another, or asks for "
+                "the closest alternative (fragrance-free, budget, etc.)."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "intent": {
+                        "type": "string",
+                        "enum": ["why_ranked", "compare_products", "find_alternative", "key_difference"],
+                    },
+                    "sku":   {"type": "string", "description": "Primary product SKU"},
+                    "sku_b": {"type": "string", "description": "Secondary product SKU (comparisons)"},
+                },
+                "required": ["intent"],
+            },
+        },
+    },
 ]
 
 
@@ -187,6 +210,18 @@ _HANDOFF_TRIGGERS = [
     "talk to someone", "speak to", "human", "customer care", "support",
     "where is my order", "track my order", "my order", "track order",
     "where is my", "order status",
+]
+
+_COMPARISON_TRIGGERS = [
+    "why is this first", "why ranked", "why number one", "why is it first",
+    "why did this rank", "what makes this better",
+    "what do i gain", "what do i lose", "what will i lose", "what will i gain",
+    "difference between", "compare", "vs ", " vs.",
+    "which is better", "what's the difference",
+    "fragrance free alternative", "fragrance-free alternative",
+    "budget alternative", "cheaper alternative", "closest to",
+    "most similar", "closest replacement", "similar to this",
+    "why not", "why isn't", "why is the second", "what about the second",
 ]
 
 
@@ -263,6 +298,15 @@ def _fast_classify(message: str, profile: dict) -> str | None:
     # ensure these reach intake_profile rather than falling to the LLM router.
     if re.search(r'\b(?:under|below|less\s+than|within|upto|up\s+to)\s+\d{3,5}\b', t):
         return "intake_profile"
+
+    # Comparison / explanation intent — check before everything else
+    if any(kw in t for kw in _COMPARISON_TRIGGERS):
+        intent = "why_ranked"
+        if any(x in t for x in ["gain", "lose", "difference", "compare", "vs ", "better"]):
+            intent = "compare_products"
+        if any(x in t for x in ["alternative", "replacement", "similar", "closest", "instead"]):
+            intent = "find_alternative"
+        return "compare_products"
 
     return None   # ambiguous → LLM router
 

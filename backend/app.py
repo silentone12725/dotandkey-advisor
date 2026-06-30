@@ -30,6 +30,7 @@ from backend.playbooks.base import try_extract_ui_data
 import backend.playbooks.intake_profile as pb_intake
 import backend.playbooks.recommend       as pb_recommend
 import backend.playbooks.other           as pb_other
+import backend.comparison_queries        as pb_compare
 
 
 # ---------------------------------------------------------------------------
@@ -110,12 +111,13 @@ async def session_init(
 # ---------------------------------------------------------------------------
 
 PLAYBOOK_MAP = {
-    "intake_profile": lambda pid, msg, args, pctx: pb_intake.run(pid, msg, args),
-    "recommend":      lambda pid, msg, args, pctx: pb_recommend.run(pid, msg, args),
-    "allergen_check": lambda pid, msg, args, pctx: pb_other.allergen_check(pid, msg, args, pctx),
-    "routine_build":  lambda pid, msg, args, pctx: pb_other.routine_build(pid, msg, args, pctx),
-    "general_qa":     lambda pid, msg, args, pctx: pb_other.general_qa(pid, msg, args, pctx),
-    "handoff":        lambda pid, msg, args, pctx: pb_other.handoff(pid, msg, args, pctx),
+    "intake_profile":  lambda pid, msg, args, pctx: pb_intake.run(pid, msg, args),
+    "recommend":       lambda pid, msg, args, pctx: pb_recommend.run(pid, msg, args),
+    "allergen_check":  lambda pid, msg, args, pctx: pb_other.allergen_check(pid, msg, args, pctx),
+    "routine_build":   lambda pid, msg, args, pctx: pb_other.routine_build(pid, msg, args, pctx),
+    "general_qa":      lambda pid, msg, args, pctx: pb_other.general_qa(pid, msg, args, pctx),
+    "handoff":         lambda pid, msg, args, pctx: pb_other.handoff(pid, msg, args, pctx),
+    "compare_products":lambda pid, msg, args, pctx: pb_compare.run(pid, msg, args),
 }
 
 
@@ -217,5 +219,24 @@ async def order_webhook(
         category = item.get("product_type", "").lower().replace(" ", "_")
         if sku:
             record_event(x_profile_id, sku, category, "P", price)
+# ---------------------------------------------------------------------------
+# Explainability API
+# ---------------------------------------------------------------------------
 
+@app.get("/explain/{sku}")
+async def explain_product(
+    sku: str,
+    profile_id: str,
+):
+    from falkordb import FalkorDB
+    from backend.explain_api import build_explain_payload
+    
+    db = FalkorDB(
+        host=os.getenv("FALKORDB_HOST", "localhost"),
+        port=int(os.getenv("FALKORDB_PORT", 6379)),
+    )
+    graph = db.select_graph(os.getenv("FALKORDB_GRAPH", "dotandkey"))
+    
+    payload = build_explain_payload(sku, profile_id, graph)
+    return payload
     return {"status": "recorded", "items": len(body.line_items)}

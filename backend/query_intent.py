@@ -156,8 +156,56 @@ _TRUE_SYNONYMS: dict[str, str] = {
 
 
 # ---------------------------------------------------------------------------
-# Intent concepts: user describes a concern/outcome → target ingredient.
-# Values may be a single string or a list for multi-target expansion.
+# Intent to Axis: user describes a concern/outcome → target capability axis.
+# ---------------------------------------------------------------------------
+
+_INTENT_TO_AXIS: dict[str, str] = {
+    # Oil / Pores
+    "oil control":          "oil_control",
+    "pore minimizing":      "pore_care",
+    "enlarged pores":       "pore_care",
+    "pore clearing":        "pore_care",
+    "pore":                 "pore_care",
+    "pores":                "pore_care",
+    # Acne
+    "acne":                 "acne",
+    "acne prone":           "acne",
+    "blackhead":            "acne",
+    "blackheads":           "acne",
+    "breakout":             "acne",
+    "blemish":              "acne",
+    "blemishes":            "acne",
+    # Brightening / Pigmentation
+    "glass skin":           "brightening",
+    "brightening":          "brightening",
+    "glow":                 "brightening",
+    "dull":                 "brightening",
+    "dullness":             "brightening",
+    "dark spots":           "pigmentation",
+    "dark spot":            "pigmentation",
+    "hyperpigmentation":    "pigmentation",
+    "acne marks":           "pigmentation",
+    "acne mark":            "pigmentation",
+    "uneven skin tone":     "pigmentation",
+    # Barrier / Sensitivity
+    "barrier":              "barrier_repair",
+    "skin barrier":         "barrier_repair",
+    "barrier repair":       "barrier_repair",
+    "damaged barrier":      "barrier_repair",
+    "sensitive skin":       "sensitivity",
+    # Hydration
+    "hydration":            "hydration",
+    "hydrating":            "hydration",
+    "moisture":             "hydration",
+    "dry lips":             "lip_repair",
+    "chapped lips":         "lip_repair",
+    "peeling lips":         "lip_repair",
+    "chapped":              "lip_repair",
+    "peeling":              "lip_repair",
+}
+
+# ---------------------------------------------------------------------------
+# Intent concepts (Structural/Ingredient intents): user describes an outcome → target ingredient/attribute.
 # ---------------------------------------------------------------------------
 
 _INTENT_CONCEPTS: dict[str, str | list[str]] = {
@@ -167,42 +215,8 @@ _INTENT_CONCEPTS: dict[str, str | list[str]] = {
     "with coverage":        "tinted",
     "skin tone shades":     "tinted",
     "coverage":             "tinted",
-    # Vitamin C → brightening / pigmentation
-    "glass skin":           ["vitamin c", "hyaluronic acid"],
-    "dark spots":           "vitamin c",
-    "dark spot":            "vitamin c",
-    "hyperpigmentation":    "vitamin c",
-    "acne marks":           "vitamin c",
-    "acne mark":            "vitamin c",
-    "uneven skin tone":     "vitamin c",
-    "brightening":          "vitamin c",
-    "glow":                 "vitamin c",
+    # Antioxidant
     "antioxidant":          "vitamin c",
-    "pigmentation":         "vitamin c",
-    "dull":                 "vitamin c",
-    "dullness":             "vitamin c",
-    "dark":                 "vitamin c",
-    # Niacinamide → pore / oil
-    "oil control":          "niacinamide",
-    "pore minimizing":      "niacinamide",
-    "enlarged pores":       "niacinamide",
-    "pore clearing":        "niacinamide",
-    "pore":                 "niacinamide",
-    "pores":                "niacinamide",
-    # Salicylic acid → acne / blackheads
-    "acne":                 "salicylic acid",
-    "acne prone":           "salicylic acid",
-    "blackhead":            "salicylic acid",
-    "blackheads":           "salicylic acid",
-    "breakout":             "salicylic acid",
-    "blemish":              "salicylic acid",
-    "blemishes":            "salicylic acid",
-    # Ceramide → barrier / sensitive
-    "barrier":              "ceramide",
-    "skin barrier":         "ceramide",
-    "barrier repair":       "ceramide",
-    "damaged barrier":      "ceramide",
-    "sensitive skin":       ["ceramide", "fragrance free"],
     # Allergen / fragrance sensitivity → fragrance free + ceramide
     "eczema":               ["fragrance free", "ceramide"],
     "eczema friendly":      ["fragrance free", "ceramide"],
@@ -210,17 +224,7 @@ _INTENT_CONCEPTS: dict[str, str | list[str]] = {
     "irritated skin":       ["fragrance free", "ceramide"],
     "easily irritated":     ["fragrance free", "ceramide"],
     "react to fragrance":   "fragrance free",
-    # Hyaluronic acid → hydration / dry lips
-    "dry lips":             "hyaluronic acid",
-    "chapped lips":         "hyaluronic acid",
-    "peeling lips":         "hyaluronic acid",
-    "chapped":              "hyaluronic acid",
-    "peeling":              "hyaluronic acid",
-    "hydration":            "hyaluronic acid",
-    "hydrating":            "hyaluronic acid",
-    "moisture":             "hyaluronic acid",
 }
-
 
 # ---------------------------------------------------------------------------
 # Known ingredient/attribute strings for fuzzy matching.
@@ -319,30 +323,61 @@ def _find_fuzzy_canonical(token: str) -> str | None:
 def _score_token(
     t: str,
     factor: float,
+    product: dict,
     title: str,
     variant: str,
     description: str,
     ingredients: list[str],
     free_from: list[str],
 ) -> int:
-    """Score one (possibly enriched) token against pre-normalised product fields."""
+    """Score one (possibly enriched) token against pre-normalised product fields and capability axes."""
     pts = 0
+    
+    # ── 1. Capability Axis Matching ──────────────────────────────────────────
+    axis = _INTENT_TO_AXIS.get(t)
+    if axis:
+        cap_score = product.get(f"cap_{axis}") or 0.0
+        cap_conf = product.get(f"cap_{axis}_conf") or 0.8
+        
+        # Capability base points (max ~100)
+        pts += int(cap_score * cap_conf * 10 * factor)
+        
+        # Identity Boost
+        if product.get("dna_primary") == axis:
+            pts += int(50 * factor)
+        elif product.get("dna_secondary") == axis:
+            pts += int(25 * factor)
+            
+        return pts  # If it mapped to an axis, we use capability points instead of keyword points.
+
+    # ── 2. Keyword String Matching ───────────────────────────────────────────
     if t in title:
         pts += int(BOOST_TITLE * factor)
     if t in variant:
         pts += int(BOOST_VARIANT * factor)
     for ing in ingredients:
         if t in ing or (len(t) >= 4 and ing in t):
-            pts += int(BOOST_INGREDIENT * factor)
+            # Check ingredient roles if available (boost primary/supporting over incidental)
+            roles = product.get("_ingredient_roles") or {}
+            role = roles.get(ing, ("unknown", ""))[0]
+            role_mult = 1.0
+            if role == "primary": role_mult = 1.5
+            elif role == "supporting": role_mult = 1.0
+            elif role == "incidental": role_mult = 0.3
+            
+            pts += int(BOOST_INGREDIENT * factor * role_mult)
             break
+            
     claim_key = t.replace(" free", "").strip()
     for ff in free_from:
         if claim_key in ff or ff in claim_key:
             base = BOOST_FRAGRANCE_FREE if claim_key in _FRAGRANCE_CLAIM_KEYS else BOOST_FREE_FROM
             pts += int(base * factor)
             break
+            
     if t in description:
         pts += int(BOOST_DESCRIPTION * factor)
+        
     return pts
 
 
@@ -453,7 +488,7 @@ def compute_query_intent_score(product: dict, query_tokens: list[str]) -> int:
 
     enriched = _enrich_tokens(query_tokens)
     return sum(
-        _score_token(tok.text, tok.factor, title, variant, description, ingredients, free_from)
+        _score_token(tok.text, tok.factor, product, title, variant, description, ingredients, free_from)
         for tok in enriched
     )
 
@@ -507,7 +542,7 @@ def rerank_by_query_intent(
         sources: list[str] = []
         for tok in enriched:
             pts = _score_token(
-                tok.text, tok.factor,
+                tok.text, tok.factor, p,
                 title, variant, description, ingredients, free_from,
             )
             if pts > 0:

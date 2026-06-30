@@ -27,9 +27,11 @@ from backend.query_intent import (
 # =============================================================================
 
 def _p(title, *, variant="", ingredients=None, free_from=None,
-       description="", skin_score=0, concern_score=0, price=500):
+       description="", skin_score=0, concern_score=0, price=500,
+       dna_primary="", cap_scores=None):
     """Minimal product dict for ranking tests."""
-    return {
+    cap_scores = cap_scores or {}
+    p = {
         "sku": title[:8].upper().replace(" ", "_"),
         "title": title,
         "variant": variant,
@@ -40,8 +42,13 @@ def _p(title, *, variant="", ingredients=None, free_from=None,
         "concern_score": concern_score,
         "price": price,
         "match_score": skin_score + concern_score,
+        "dna_primary": dna_primary,
         "url": "",
     }
+    for k, v in cap_scores.items():
+        p[f"cap_{k}"] = v
+        p[f"cap_{k}_conf"] = 1.0
+    return p
 
 
 # =============================================================================

@@ -7,18 +7,23 @@
 // Node labels
 // -----------------------------------------------------------------------------
 // Product        {sku, title, variant, category_raw, price, compare_at_price,
-//                 description, active, size_g, url, image_url}
-//                 size_g: normalised size in grams/ml (for size-tier filtering)
+//                 description, active, size_g, url, image_url,
+//                 cap_oil_control, cap_hydration, cap_barrier_repair,
+//                 cap_brightening, cap_pigmentation, cap_acne,
+//                 cap_pore_care, cap_sensitivity, cap_sun_protection, cap_lip_repair}
+//                 cap_* float 0.0-10.0 — computed by generate_capability_scores.py
 // Combo          {sku, title, price, compare_at_price, url, image_url, active}
-//                 Represents a real multi-product bundle from the store.
-//                 Skin-type/concern edges mirror the component products' tags.
-// SkinType       {name}            -- oily | dry | combination | normal | sensitive | all
-// Concern        {name}            -- acne | dark_spots | dullness | ...
-// Season         {name}            -- summer | monsoon | post_monsoon | winter
-// Ingredient     {name}            -- vitamin_c | niacinamide | ...
-// AllergenClass  {name}            -- fragrance | alcohol | sulfate | ...
-// Category       {name}            -- sunscreen | moisturizer | face_wash | ...
-// Texture        {name}            -- dewy | matte | gel | lightweight | rich
+// SkinType       {name}
+// Concern        {name}
+// Season         {name}
+// Ingredient     {name}
+// AllergenClass  {name}
+// Category       {name}
+// Texture        {name}
+// Capability     {name}  — oil_control|hydration|barrier_repair|brightening|
+//                          pigmentation|acne|pore_care|sensitivity|
+//                          sun_protection|lip_repair
+// ProductType    {name}  — gel_sunscreen|lip_mask|vitamin_c_serum|...
 
 // -----------------------------------------------------------------------------
 // Relationships
@@ -27,19 +32,51 @@
 // (Product)-[:TARGETS_CONCERN]->(Concern)
 // (Product)-[:BEST_IN_SEASON]->(Season)
 // (Product)-[:CONTAINS_INGREDIENT]->(Ingredient)
-// (Product)-[:FREE_FROM]->(AllergenClass)        -- explicit "free of X" claim
+// (Product)-[:FREE_FROM]->(AllergenClass)
 // (Product)-[:IN_CATEGORY]->(Category)
 // (Product)-[:HAS_TEXTURE]->(Texture)
+// (Product)-[:HAS_TYPE]->(ProductType)        — assigned by build_product_types.py
 //
-// (Combo)-[:INCLUDES]->(Product)                 -- combo components
-// (Combo)-[:SUITS_SKIN_TYPE]->(SkinType)         -- inherited from component tags
+// (Combo)-[:INCLUDES]->(Product)
+// (Combo)-[:SUITS_SKIN_TYPE]->(SkinType)
 // (Combo)-[:TARGETS_CONCERN]->(Concern)
 // (Combo)-[:IN_CATEGORY]->(Category {name:"combo"})
 //
-// Not populated in Phase 0 (require manual curation, added in a later phase):
-// (Product)-[:COMPATIBLE_WITH {routine_order, time: "AM"|"PM"}]->(Product)
-// (Product)-[:CONFLICTS_WITH {reason}]->(Product)
-// (Ingredient)-[:SYNERGIZES_WITH]->(Ingredient)
+// Ingredient Knowledge (build_ingredient_knowledge.py):
+// (Ingredient)-[:TREATS    {strength, confidence, explanation}]->(Concern)
+// (Ingredient)-[:HELPS     {strength, confidence, explanation}]->(Concern)
+// (Ingredient)-[:BEST_FOR  {strength, confidence, explanation}]->(Concern)
+// (Ingredient)-[:PROVIDES  {strength}]->(Capability)
+// (Ingredient)-[:SUPPORTS  {strength}]->(Capability)
+//
+// Ingredient Synergy (build_synergy_graph.py):
+// (Ingredient)-[:SYNERGIZES_WITH {
+//     evidence_strength, confidence, supported_concerns, explanation, source
+// }]->(Ingredient)
+//
+// Product-Product Relations (generate_product_relations.py):
+// (Product)-[:MORE_HYDRATING_THAN         {reason, confidence, source}]->(Product)
+// (Product)-[:BETTER_FOR_OILY_SKIN_THAN   {reason, confidence, source}]->(Product)
+// (Product)-[:BETTER_BARRIER_REPAIR_THAN  {reason, confidence, source}]->(Product)
+// (Product)-[:MORE_BRIGHTENING_THAN       {reason, confidence, source}]->(Product)
+// (Product)-[:BETTER_FOR_PIGMENTATION_THAN{reason, confidence, source}]->(Product)
+// (Product)-[:BETTER_FOR_ACNE_THAN        {reason, confidence, source}]->(Product)
+// (Product)-[:BETTER_PORE_CARE_THAN       {reason, confidence, source}]->(Product)
+// (Product)-[:GENTLER_THAN                {reason, confidence, source}]->(Product)
+// (Product)-[:SIMILAR_TO                  {reason, confidence}]->(Product)
+// (Product)-[:BUDGET_ALTERNATIVE_TO       {reason, confidence}]->(Product)
+// (Product)-[:PREMIUM_ALTERNATIVE_TO      {reason, confidence}]->(Product)
+// (Product)-[:FRAGRANCE_FREE_ALTERNATIVE_TO {reason, confidence}]->(Product)
+//
+// ProductType Ontology (build_product_types.py):
+// (ProductType)-[:HAS_SUBTYPE]->(ProductType)
+// (ProductType)-[:PREPARES_FOR]->(ProductType)
+// (ProductType)-[:FOLLOWED_BY]->(ProductType)
+// (ProductType)-[:PAIRS_WELL_WITH]->(ProductType)
+// (ProductType)-[:NOT_RECOMMENDED_WITH]->(ProductType)
+// (ProductType)-[:MORE_INTENSIVE_THAN]->(ProductType)
+// (ProductType)-[:CAN_REPLACE]->(ProductType)
+// (ProductType)-[:COMPLEMENTS]->(ProductType)
 
 // -----------------------------------------------------------------------------
 // Indexes — sku is the natural key for Product and Combo.
@@ -53,6 +90,8 @@ CREATE INDEX FOR (n:Ingredient) ON (n.name);
 CREATE INDEX FOR (n:AllergenClass) ON (n.name);
 CREATE INDEX FOR (n:Category) ON (n.name);
 CREATE INDEX FOR (n:Texture) ON (n.name);
+CREATE INDEX FOR (n:Capability) ON (n.name);
+CREATE INDEX FOR (n:ProductType) ON (n.name);
 
 // -----------------------------------------------------------------------------
 // Pre-create taxonomy nodes so they exist even before any product references
