@@ -297,7 +297,8 @@ class TestIngredientSynonymRanking:
 class TestAcneRanking:
 
     _products = [
-        _p("Niacinamide 10% Serum", ingredients=["Niacinamide"], cap_scores={"oil_control": 9.0}),
+        _p("Niacinamide 10% Serum", ingredients=["Niacinamide"],
+           cap_scores={"oil_control": 9.0, "pore_care": 9.0}),
         _p("Salicylic Acid 2% Serum", ingredients=["Salicylic Acid"], cap_scores={"acne": 9.0}),
         _p("Hyaluronic Acid Serum", ingredients=["Sodium Hyaluronate"], cap_scores={"hydration": 9.0}),
     ]
@@ -310,7 +311,7 @@ class TestAcneRanking:
 
     def test_pore_clearing_ranks_niacinamide(self):
         # pore clearing → pore_care intent
-        assert "niacinamide" in _top(self._NIA, "pore clearing serum").lower()
+        assert "niacinamide" in _top(self._products, "pore clearing serum").lower()
 
     def test_breakout_treatment_ranks_salicylic_acid_first(self):
         assert "salicylic" in _top(self._products, "breakout treatment").lower()

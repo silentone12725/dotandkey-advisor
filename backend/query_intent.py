@@ -181,6 +181,7 @@ _INTENT_TO_AXIS: dict[str, str] = {
     "glow":                 "brightening",
     "dull":                 "brightening",
     "dullness":             "brightening",
+    "pigmentation":         "pigmentation",
     "dark spots":           "pigmentation",
     "dark spot":            "pigmentation",
     "hyperpigmentation":    "pigmentation",

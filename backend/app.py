@@ -219,6 +219,10 @@ async def order_webhook(
         category = item.get("product_type", "").lower().replace(" ", "_")
         if sku:
             record_event(x_profile_id, sku, category, "P", price)
+
+    return {"status": "recorded", "items": len(body.line_items)}
+
+
 # ---------------------------------------------------------------------------
 # Explainability API
 # ---------------------------------------------------------------------------
@@ -230,13 +234,11 @@ async def explain_product(
 ):
     from falkordb import FalkorDB
     from backend.explain_api import build_explain_payload
-    
+
     db = FalkorDB(
         host=os.getenv("FALKORDB_HOST", "localhost"),
         port=int(os.getenv("FALKORDB_PORT", 6379)),
     )
     graph = db.select_graph(os.getenv("FALKORDB_GRAPH", "dotandkey"))
-    
-    payload = build_explain_payload(sku, profile_id, graph)
-    return payload
-    return {"status": "recorded", "items": len(body.line_items)}
+
+    return build_explain_payload(sku, profile_id, graph)
