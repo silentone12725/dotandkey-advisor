@@ -233,6 +233,16 @@ async def init_session(
     is_returning = bool(existing)
     save_profile(profile_id, {"season": season, "city": city})
 
+    # Seed the structured returning-user flow (see playbooks/returning_user.py)
+    # so the very next message — including the entry-chip click the widget
+    # renders for is_returning — is handled deterministically instead of
+    # falling through to normal classify() and getting misrouted.
+    # Homepage only: a returning user landing on a product page is asking
+    # about THAT product, not resuming a prior session.
+    if is_returning and page_context == "homepage":
+        from backend.playbooks.returning_user import set_returning_step
+        set_returning_step(profile_id, "awaiting_choice")
+
     greeting = await _generate_greeting(
         profile_id, is_returning, city, season, page_context
     )

@@ -27,9 +27,10 @@ from backend.session import init_session
 from backend.context import get_product_context
 from backend.playbooks.base import try_extract_ui_data
 
-import backend.playbooks.intake_profile as pb_intake
+import backend.playbooks.intake_profile  as pb_intake
 import backend.playbooks.recommend       as pb_recommend
 import backend.playbooks.other           as pb_other
+import backend.playbooks.returning_user  as pb_returning
 import backend.comparison_queries        as pb_compare
 
 
@@ -118,6 +119,7 @@ PLAYBOOK_MAP = {
     "general_qa":      lambda pid, msg, args, pctx: pb_other.general_qa(pid, msg, args, pctx),
     "handoff":         lambda pid, msg, args, pctx: pb_other.handoff(pid, msg, args, pctx),
     "compare_products":lambda pid, msg, args, pctx: pb_compare.run(pid, msg, args),
+    "returning_user":  lambda pid, msg, args, pctx: pb_returning.run(pid, msg, args),
 }
 
 
@@ -133,16 +135,28 @@ async def _event_stream(
     raw_profile = load_profile(profile_id)
     parsed_profile = parse_profile(raw_profile) if raw_profile else {}
 
-    # 2. Classify with profile context
-    route = await classify(message, parsed_profile)
-    playbook_name = route["playbook"]
-    router_args   = route["args"]
+    # 2. Stateful override: an in-progress returning-user flow (set by
+    # session.py's init_session) bypasses normal classification entirely.
+    # Without this, multi-step chip flows (e.g. "Something has changed" ->
+    # pick which factors -> answer each one) would get misrouted by
+    # keyword/LLM classification on every turn, since intermediate replies
+    # like "Continue where I left off" don't match any router keyword.
+    active_returning_step = pb_returning.get_returning_step(profile_id)
+    if active_returning_step:
+        playbook_name = "returning_user"
+        router_args   = {"step": active_returning_step}
+        generator = pb_returning.run(profile_id, message, router_args)
+    else:
+        # 3. Classify with profile context
+        route = await classify(message, parsed_profile)
+        playbook_name = route["playbook"]
+        router_args   = route["args"]
 
-    # 3. Get playbook generator
-    playbook_fn = PLAYBOOK_MAP.get(playbook_name, PLAYBOOK_MAP["general_qa"])
-    generator = playbook_fn(profile_id, message, router_args, product_context)
+        # 4. Get playbook generator
+        playbook_fn = PLAYBOOK_MAP.get(playbook_name, PLAYBOOK_MAP["general_qa"])
+        generator = playbook_fn(profile_id, message, router_args, product_context)
 
-    # 4. Stream tokens as SSE events. Tokens that are UI-data sentinels
+    # 5. Stream tokens as SSE events. Tokens that are UI-data sentinels
     # (chip suggestions, product cards) are stripped from the visible
     # stream and merged into the done event instead — see
     # backend/playbooks/base.py: emit_ui_data / try_extract_ui_data.
@@ -156,11 +170,11 @@ async def _event_stream(
         full_response.append(token)
         yield f"data: {json.dumps({'token': token})}\n\n"
 
-    # 5. Send done event with metadata + any structured UI data
+    # 6. Send done event with metadata + any structured UI data
     done_payload = {"done": True, "playbook": playbook_name, **done_extra}
     yield f"data: {json.dumps(done_payload)}\n\n"
 
-    # 6. Persist turn to session history (after streaming, no latency impact)
+    # 7. Persist turn to session history (after streaming, no latency impact)
     complete_response = "".join(full_response)
     append_turn(profile_id, "user",      message)
     append_turn(profile_id, "assistant", complete_response)

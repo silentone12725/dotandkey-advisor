@@ -1394,7 +1394,8 @@
         multi_select: false,
         options: [
             { value: "same", label: "Same as before" },
-            { value: "changed", label: "Things have changed" },
+            { value: "changed", label: "Something has changed" },
+            { value: "concerns", label: "Have concerns with a previous purchase" },
         ],
     };
 
