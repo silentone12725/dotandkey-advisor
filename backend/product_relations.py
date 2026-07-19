@@ -8,8 +8,9 @@ Used by:
   - backend/playbooks/recommend.py (alternative suggestions)
 """
 
-import os
 import logging
+
+from backend.retrieval import get_graph as _get_graph
 
 _log = logging.getLogger(__name__)
 
@@ -43,15 +44,6 @@ REL_LABELS: dict[str, str] = {
     "PREMIUM_ALTERNATIVE_TO":       "Premium alternative to",
     "SIMILAR_TO":                   "Similar to",
 }
-
-
-def _get_graph():
-    from falkordb import FalkorDB
-    db = FalkorDB(
-        host=os.getenv("FALKORDB_HOST", "localhost"),
-        port=int(os.getenv("FALKORDB_PORT", 6379)),
-    )
-    return db.select_graph(os.getenv("FALKORDB_GRAPH", "dotandkey"))
 
 
 def get_comparative_edges(graph, sku: str, rel_types: list[str] | None = None) -> list[dict]:

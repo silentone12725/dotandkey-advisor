@@ -55,6 +55,9 @@ function makeMockFetch(log) {
           is_returning: false,
           greeting: "Hey! What's your skin type?",
           weather: { temp: 30, humidity: 60 },
+          initial_chips: { field: "category", multi_select: false, options: [{ value: "sunscreen", label: "Sunscreen" }] },
+          returning_chips: { field: "returning_check", multi_select: false, options: [{ value: "same", label: "Same as before" }] },
+          track_order: { label: "Track my order", url: "https://dotandkey.clickpost.ai/" },
         }),
       });
     }
@@ -248,13 +251,12 @@ async function testChatStreamAndChips() {
 }
 
 // ---------------------------------------------------------------------------
-// Test 4 — product page: default flow is unchanged, product context is
-// strictly opt-in via the "Get recommendations related to this product"
-// button (regression test for the auto-trigger behavior this replaces)
+// Test 4 — product page: auto-fires loadProductContext on expand, skips
+// greeting + category chips, shows track order chip immediately
 // ---------------------------------------------------------------------------
 
 async function testProductPageMode() {
-  section("Test 4: product page — opt-in flow");
+  section("Test 4: product page — auto-fire recommendations");
 
   const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>", {
     url: "https://www.dotandkey.com/products/cica-niacinamide-sunscreen",
@@ -280,44 +282,34 @@ async function testProductPageMode() {
   bubble.dispatchEvent(new window.Event("click", { bubbles: true }));
   await new Promise((r) => setTimeout(r, 200));
 
-  // ---- default behavior must be IDENTICAL to homepage ----
   const sessionInitCall = fetchLog.find((c) => c.url.indexOf("/session/init") > -1);
-  check("/session/init was called (same as homepage)", !!sessionInitCall);
+  check("/session/init was called", !!sessionInitCall);
 
-  const productCtxCallBeforeOptIn = fetchLog.find((c) => c.url.indexOf("/context/product") > -1);
-  check("/context/product was NOT auto-called on expand",
-    !productCtxCallBeforeOptIn);
+  const productCtxCall = fetchLog.find((c) => c.url.indexOf("/context/product") > -1);
+  check("/context/product auto-called on expand", !!productCtxCall);
 
   const body = shadow.querySelector(".dk-body");
-  const greeting = body.querySelector(".dk-msg-assistant");
-  check("standard greeting rendered (not product-specific)",
-    !!greeting && greeting.textContent.indexOf("skin type") > -1);
+  const msgs = Array.from(body.querySelectorAll(".dk-msg-assistant"));
+  const hasGreeting = msgs.some((m) => m.textContent.indexOf("skin type") > -1);
+  check("no standard greeting on product page", !hasGreeting);
 
-  const categoryChips = body.querySelector(".dk-chip-row");
-  check("standard category chips rendered, same as homepage",
-    !!categoryChips && categoryChips.textContent.indexOf("Sunscreen") > -1);
-
-  // ---- the opt-in offer must be present ----
   const allChipRows = body.querySelectorAll(".dk-chip-row");
-  const offerRow = Array.from(allChipRows).find(
-    (r) => r.textContent.indexOf("recommendations related to this product") > -1
+  const categoryChipRow = Array.from(allChipRows).find(
+    (r) => r.textContent.indexOf("Sunscreen") > -1 &&
+           r.textContent.indexOf("Track") === -1 &&
+           r.textContent.indexOf("Niacinamide") === -1
   );
-  check("opt-in 'get recommendations' button is offered", !!offerRow);
+  check("no category chips on product page", !categoryChipRow);
 
-  // ---- tapping the offer is what triggers product-aware mode ----
-  const offerBtn = offerRow.querySelector(".dk-chip");
-  offerBtn.dispatchEvent(new window.Event("click", { bubbles: true }));
-  await new Promise((r) => setTimeout(r, 60));
+  const trackOrderRow = Array.from(allChipRows).find(
+    (r) => r.textContent.indexOf("Track my order") > -1
+  );
+  check("track order chip shown on product page", !!trackOrderRow);
 
-  const productCtxCallAfterOptIn = fetchLog.find((c) => c.url.indexOf("/context/product") > -1);
-  check("/context/product IS called after tapping the opt-in button",
-    !!productCtxCallAfterOptIn);
-
-  const chipRows = body.querySelectorAll(".dk-chip-row");
-  const questionChipRow = Array.from(chipRows).find(
+  const questionChipRow = Array.from(allChipRows).find(
     (r) => r.textContent.indexOf("Niacinamide") > -1
   );
-  check("product question chips rendered after opt-in", !!questionChipRow);
+  check("product question chips rendered automatically", !!questionChipRow);
 }
 
 // ---------------------------------------------------------------------------
@@ -800,10 +792,10 @@ async function testTintShadeAccuracy() {
   check("link URL includes ?variant= for the default variant (Warm Nude)",
     linkEl.href === "https://www.dotandkey.com/products/vc-lip-balm?variant=2001");
 
-  // Berry Pink is available=false → filtered out by the OOS check, matches PDP behaviour.
-  // Only the 2 available variants get swatches.
+  // Berry Pink is available=false — shown with dk-swatch-oos class but not hidden.
+  // All 3 variants get swatches (OOS shown at full opacity, "Sold out" when selected).
   const swatches = card.querySelectorAll(".dk-swatch");
-  check("two swatches rendered (OOS Berry Pink is filtered, matching PDP)", swatches.length === 2);
+  check("all three swatches rendered including OOS Berry Pink", swatches.length === 3);
 
   const selectedSwatches = card.querySelectorAll(".dk-swatch-selected");
   check("exactly one swatch is pre-selected", selectedSwatches.length === 1);
@@ -1243,6 +1235,9 @@ async function testTrackOrderLinkChip() {
         json: () => Promise.resolve({
           profile_id: "test-id", city: "Mumbai", season: "summer",
           is_returning: false, greeting: "Hey!", weather: { temp: 30, humidity: 60 },
+          initial_chips: { field: "category", multi_select: false, options: [{ value: "sunscreen", label: "Sunscreen" }] },
+          returning_chips: { field: "returning_check", multi_select: false, options: [{ value: "same", label: "Same as before" }] },
+          track_order: { label: "Track my order", url: "https://dotandkey.clickpost.ai/" },
         }),
       });
     }

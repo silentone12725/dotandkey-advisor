@@ -171,29 +171,6 @@ def build_ranking_explanation(
     }
 
 
-def build_comparison_explanation(
-    product_a: dict,
-    product_b: dict,
-    axis: str,
-) -> str:
-    """One sentence explaining why A beats B on a specific capability axis."""
-    caps_a = _get_cap_scores(product_a)
-    caps_b = _get_cap_scores(product_b)
-    score_a = caps_a.get(axis, 0)
-    score_b = caps_b.get(axis, 0)
-    axis_label = CAPABILITY_LABELS.get(axis, axis.title())
-    title_a = product_a.get("title", "Product A")
-    title_b = product_b.get("title", "Product B")
-
-    ev_a = explain_capability(product_a, axis)
-    evidence_str = f" ({ev_a[0]})" if ev_a else ""
-
-    return (
-        f"{title_a} scores higher on {axis_label} ({score_a:.1f} vs {score_b:.1f})"
-        f"{evidence_str}."
-    )
-
-
 def _get_cap_scores(product: dict) -> dict[str, float]:
     """Read cap_* props from product dict, fall back to computing them."""
     scores = {}

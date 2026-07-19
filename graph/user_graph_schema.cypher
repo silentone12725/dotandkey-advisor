@@ -33,3 +33,4 @@
 CREATE INDEX FOR (u:UserProfile) ON (u.id);
 CREATE INDEX FOR (u:UserProfile) ON (u.skin_types);
 CREATE INDEX FOR (p:ProductRef) ON (p.sku);
+CREATE INDEX FOR ()-[c:CHOSE]-() ON (c.category);

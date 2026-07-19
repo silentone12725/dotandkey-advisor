@@ -11,21 +11,8 @@ Handles /context/product:
   - Returns the full context dict to the widget
 """
 
-import os
-from falkordb import FalkorDB
 from backend.questions import generate_product_questions
-
-
-# ---------------------------------------------------------------------------
-# DB connection
-# ---------------------------------------------------------------------------
-
-def _get_graph():
-    db = FalkorDB(
-        host=os.getenv("FALKORDB_HOST", "localhost"),
-        port=int(os.getenv("FALKORDB_PORT", 6379)),
-    )
-    return db.select_graph(os.getenv("FALKORDB_GRAPH", "dotandkey"))
+from backend.retrieval import get_graph as _get_graph
 
 
 # ---------------------------------------------------------------------------
@@ -35,6 +22,9 @@ def _get_graph():
 _PRODUCT_CONTEXT_QUERY = """
 MATCH (p:Product)
 WHERE p.title CONTAINS $title_fragment OR p.title = $title
+WITH p, CASE WHEN p.title = $title THEN 0 ELSE 1 END AS priority
+ORDER BY priority ASC
+LIMIT 1
 OPTIONAL MATCH (p)-[:SUITS_SKIN_TYPE]->(st:SkinType)
 OPTIONAL MATCH (p)-[:TARGETS_CONCERN]->(cn:Concern)
 OPTIONAL MATCH (p)-[:CONTAINS_INGREDIENT]->(ing:Ingredient)
@@ -51,18 +41,17 @@ RETURN p.sku AS sku, p.title AS title, p.price AS price,
        collect(DISTINCT s.name)  AS seasons,
        tx.name AS texture,
        cat.name AS category
-LIMIT 1
 """
 
 _SIMILAR_SAME_CAT_QUERY = """
-MATCH (p:Product)-[:IN_CATEGORY]->(:Category {name: $category})
-MATCH (p)-[:SUITS_SKIN_TYPE]->(st:SkinType)
+MATCH (p:Product)-[:SUITS_SKIN_TYPE]->(st:SkinType)
+MATCH (p)-[:IN_CATEGORY]->(cat:Category)
 WHERE st.name IN $skin_types AND p.sku <> $sku AND p.active = true
-RETURN p.sku AS sku, p.title AS title, p.price AS price,
+RETURN DISTINCT p.sku AS sku, p.title AS title, p.price AS price,
        p.url AS url, p.image_url AS image_url,
-       $category AS category
+       cat.name AS category
 ORDER BY p.price ASC
-LIMIT 3
+LIMIT 4
 """
 
 _SIMILAR_CROSS_CAT_QUERY = """
@@ -71,7 +60,7 @@ MATCH (p)-[:IN_CATEGORY]->(cat:Category)
 MATCH (p)-[:SUITS_SKIN_TYPE]->(st:SkinType)
 WHERE cn.name IN $concerns AND cat.name <> $category
   AND st.name IN $skin_types AND p.active = true
-RETURN p.sku AS sku, p.title AS title, p.price AS price,
+RETURN DISTINCT p.sku AS sku, p.title AS title, p.price AS price,
        p.url AS url, p.image_url AS image_url,
        cat.name AS category
 ORDER BY p.price ASC
@@ -146,14 +135,13 @@ def get_product_context(title: str, current_season: str) -> dict:
     else:
         ctx["questions"] = generate_product_questions(ctx, current_season)
 
-    # Similar products — same category
+    # Similar products — skin-type matched, any category
     similar_same = []
-    if ctx["sku"] and ctx["category"] and ctx["skin_types"]:
+    if ctx["sku"] and ctx["skin_types"]:
         same_res = graph.query(
             _SIMILAR_SAME_CAT_QUERY,
             {
-                "sku":       ctx["sku"],
-                "category":  ctx["category"],
+                "sku":        ctx["sku"],
                 "skin_types": ctx["skin_types"],
             },
         )

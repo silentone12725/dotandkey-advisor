@@ -113,6 +113,7 @@ _ALLERGEN_KEYWORDS: dict[str, list[str]] = {
     # as answered so the question is not asked again (filtered from retrieval
     # in recommend.py since "none" is not a real AllergenClass in the graph).
     "none":       ["none / not sure", "no preference", "no allergen",
+                   "no allergies", "no allergy", "not allergic",
                    "doesn't matter", "no restrictions"],
 }
 

@@ -7,18 +7,29 @@ FastAPI application. All routes:
   POST /context/product   — product page context + questions
   POST /webhook/order     — Shopify purchase webhook (records P events)
   GET  /health            — readiness check
+  GET  /static/widget.js  — widget JS served as static file
+  GET  /{path:path}       — reverse proxy to dotandkey.com with widget injected
 """
 
 import json
+import logging
 import os
+import re
 from typing import AsyncGenerator
 
 from dotenv import load_dotenv
-load_dotenv(override=True)
+load_dotenv(override=False)  # override=False so Docker-injected env vars win over .env
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)s %(name)s %(message)s",
+)
+
+import httpx
 from fastapi import FastAPI, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import HTMLResponse, Response, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from backend.profile import append_turn, record_event
@@ -39,6 +50,8 @@ import backend.comparison_queries        as pb_compare
 # ---------------------------------------------------------------------------
 
 app = FastAPI(title="Dot & Key Skin Advisor API")
+
+_FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
 
 _origins = [o.strip() for o in
             os.getenv("CORS_ORIGINS",
@@ -143,11 +156,13 @@ async def _event_stream(
     # keyword/LLM classification on every turn, since intermediate replies
     # like "Continue where I left off" don't match any router keyword.
     active_returning_step = pb_returning.get_returning_step(profile_id)
-    if active_returning_step:
+    if active_returning_step and not pb_returning.is_product_intent(message):
         playbook_name = "returning_user"
         router_args   = {"step": active_returning_step}
         generator = pb_returning.run(profile_id, message, router_args)
     else:
+        if active_returning_step:
+            pb_returning.clear_returning_step(profile_id)
         # 3. Classify with profile context
         route = await classify(message, parsed_profile)
         playbook_name = route["playbook"]
@@ -257,3 +272,98 @@ async def explain_product(
     graph = db.select_graph(os.getenv("FALKORDB_GRAPH", "dotandkey"))
 
     return build_explain_payload(sku, profile_id, graph)
+
+
+# ---------------------------------------------------------------------------
+# Frontend — widget static file + dotandkey.com reverse proxy
+# ---------------------------------------------------------------------------
+
+_DOTANDKEY = "https://www.dotandkey.com"
+_STRIP_RESP_HEADERS = {
+    "content-encoding", "transfer-encoding", "connection",
+    "content-security-policy", "x-frame-options",
+}
+_STRIP_REQ_HEADERS = {"host", "content-encoding", "transfer-encoding", "connection"}
+
+
+@app.get("/static/widget.js")
+async def serve_widget_js():
+    """Serve widget.js before the wildcard proxy route can intercept it."""
+    from fastapi.responses import FileResponse
+    return FileResponse(
+        os.path.join(_FRONTEND_DIR, "widget.js"),
+        media_type="application/javascript",
+        headers={"Cache-Control": "no-cache"},
+    )
+
+
+@app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
+async def proxy_dotandkey(path: str, request: Request):
+    target = f"{_DOTANDKEY}/{path}"
+    if request.url.query:
+        target += f"?{request.url.query}"
+
+    fwd = {k: v for k, v in request.headers.items()
+           if k.lower() not in _STRIP_REQ_HEADERS}
+    fwd["host"] = "www.dotandkey.com"
+    fwd["accept-encoding"] = "gzip"  # brotli needs extra dep; gzip is enough
+
+    body = await request.body()
+    try:
+        async with httpx.AsyncClient(follow_redirects=True) as client:
+            resp = await client.request(
+                request.method, target, headers=fwd, content=body, timeout=10.0
+            )
+    except Exception as exc:
+        return Response(f"Proxy error: {exc}", status_code=502, media_type="text/plain")
+
+    content_type = resp.headers.get("content-type", "")
+
+    # Pass non-HTML responses (images, CSS, JS, fonts) straight through.
+    # Also skip Shopify pixel sandbox iframes — they are isolated tracking
+    # contexts that don't need the widget and produce noisy duplicate sessions.
+    if "text/html" not in content_type or "web-pixels" in path:
+        headers = {k: v for k, v in resp.headers.items()
+                   if k.lower() not in _STRIP_RESP_HEADERS}
+        return Response(resp.content, status_code=resp.status_code,
+                        headers=headers, media_type=content_type)
+
+    host = request.headers.get("host", "localhost:8000")
+    scheme = request.headers.get("x-forwarded-proto", "http")
+    api_base = f"{scheme}://{host}"
+
+    html = resp.text
+    # Relative URLs on dotandkey.com resolve against the real domain.
+    html = re.sub(r"</head>",
+                  f'<base href="{_DOTANDKEY}/">\n</head>',
+                  html, count=1, flags=re.IGNORECASE)
+
+    # Rewrite href/action attributes that point at dotandkey.com to full proxy
+    # URLs so navigation stays within the injected proxy.  Must use full
+    # absolute URLs (not root-relative paths) because <base href> makes even
+    # root-relative /paths resolve against dotandkey.com's origin.
+    def _proxy_link(m: re.Match) -> str:
+        attr, path = m.group(1), m.group(2)
+        return f'{attr}="{api_base}{path or "/"}"'
+
+    html = re.sub(
+        r'(href|action)="(?:https?:)?//www\.dotandkey\.com(/[^"]*|)"',
+        _proxy_link,
+        html,
+    )
+
+    # Inject widget before </body>.
+    # ?v= uses the file's mtime so the browser always fetches the latest widget.js.
+    import pathlib as _pl
+    _widget_mtime = int(_pl.Path(_FRONTEND_DIR, "widget.js").stat().st_mtime)
+    script = (f'<script src="{api_base}/static/widget.js?v={_widget_mtime}"'
+              f' data-api-base="{api_base}"></script>')
+    html = re.sub(r"</body>", f"{script}\n</body>",
+                  html, count=1, flags=re.IGNORECASE)
+
+    return HTMLResponse(html, status_code=resp.status_code)
+
+
+import pathlib as _pathlib
+if _pathlib.Path(_FRONTEND_DIR).is_dir():
+    app.mount("/static", StaticFiles(directory=_FRONTEND_DIR), name="static")

@@ -49,6 +49,7 @@ from backend.chip_options import chips_for_field
 from backend.sensitivity_memory import detect_sensitivity_flags
 from backend.behavioral_learning import record_behavior
 from backend.query_intent import extract_query_tokens
+from backend.router import _PRODUCT_CATEGORIES, _RECOMMEND_TRIGGERS
 
 # ---------------------------------------------------------------------------
 # Session-scoped flow state
@@ -139,6 +140,20 @@ _FACTOR_PROMPTS: dict[str, str] = {
     "allergen_free": "Anything you'd like the product to be free from?",
     "price_tier":    "What's your budget?",
 }
+
+
+# ---------------------------------------------------------------------------
+# Intent escape hatch
+# ---------------------------------------------------------------------------
+
+def is_product_intent(message: str) -> bool:
+    """True if message looks like a direct product/recommendation request."""
+    t = message.lower()
+    return (
+        any(kw in t for kw in _PRODUCT_CATEGORIES) or
+        any(kw in t for kw in _RECOMMEND_TRIGGERS) or
+        bool(extract_query_tokens(message))
+    )
 
 
 # ---------------------------------------------------------------------------

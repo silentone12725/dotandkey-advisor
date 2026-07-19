@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 from typing import AsyncGenerator, Optional
 
-from backend.llm_adapter import chat, one_shot
+from backend.llm_adapter import chat
 from backend.profile import (
     compact_profile_for_prompt,
     load_history,
@@ -58,18 +58,6 @@ async def stream_response(
     messages = history + [{"role": "user", "content": user_message}]
     async for token in chat(system, messages, max_tokens=max_tokens):
         yield token
-
-
-async def single_response(
-    system: str,
-    profile_id: str,
-    user_message: str,
-    max_tokens: int = 300,
-) -> str:
-    """Single non-streaming LLM call (used for greetings, JSON extraction)."""
-    history = load_session(profile_id)
-    messages = history + [{"role": "user", "content": user_message}]
-    return await one_shot(system, messages, max_tokens=max_tokens)
 
 
 # -----------------------------------------------------------------------------

@@ -78,7 +78,7 @@ def sync_user_profile(profile_id: str, profile: dict) -> None:
     """
     def _cs(val):
         if isinstance(val, list):
-            return ",".join(val)
+            return ",".join(sorted(val))   # sort for order-independent matching
         return val or ""
 
     graph = _get_user_graph()
@@ -102,7 +102,7 @@ def sync_user_profile(profile_id: str, profile: dict) -> None:
 
 
 def record_user_choice(
-    profile_id: str, sku: str, event: str, price: float
+    profile_id: str, sku: str, event: str, price: float, category: str = ""
 ) -> None:
     """Append a CHOSE edge. Creates ProductRef if it doesn't exist yet."""
     graph = _get_user_graph()
@@ -111,13 +111,14 @@ def record_user_choice(
         "MERGE (p:ProductRef {sku: $sku}) "
         "WITH p "
         "MATCH (u:UserProfile {id: $id}) "
-        "CREATE (u)-[:CHOSE {event: $event, price: $price, date: $date}]->(p)",
+        "CREATE (u)-[:CHOSE {event: $event, price: $price, date: $date, category: $cat}]->(p)",
         {
             "sku":   sku,
             "id":    profile_id,
             "event": event,
             "price": price,
             "date":  today,
+            "cat":   category,
         },
     )
 
@@ -158,12 +159,12 @@ def get_collaborative_picks(
         )
         shown_skus = [r[0] for r in shown_res.result_set]
 
-        # Popular picks among similar-skin users for the same category
-        # We join back to the product graph in recommend.py — here we just
-        # return raw SKUs and let the caller filter/rank.
+        # Popular picks among similar-skin users for the same category.
+        # Match category on the CHOSE edge (not UserProfile.category) so
+        # users who've explored multiple categories still match correctly.
         rows = graph.query(
-            "MATCH (other:UserProfile)-[:CHOSE]->(p:ProductRef) "
-            "WHERE other.skin_types = $skin AND other.category = $cat "
+            "MATCH (other:UserProfile)-[c:CHOSE]->(p:ProductRef) "
+            "WHERE other.skin_types = $skin AND c.category = $cat "
             "  AND other.id <> $id "
             "RETURN p.sku AS sku, count(*) AS freq "
             "ORDER BY freq DESC "
@@ -193,7 +194,7 @@ def get_trending_for_skin_type(
     """
     try:
         graph = _get_user_graph()
-        skin_csv = ",".join(skin_types)
+        skin_csv = ",".join(sorted(skin_types))
         rows = graph.query(
             "MATCH (u:UserProfile)-[:CHOSE]->(p:ProductRef) "
             "WHERE u.skin_types = $skin AND u.category = $cat "

@@ -16,11 +16,9 @@ Usage:
 import argparse
 import csv
 import re
-import sys
 from pathlib import Path
 from collections import Counter
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from graph.taxonomy import TAG_MAP, TYPE_TO_CATEGORY, find_allergen_free_claims
 
@@ -380,7 +378,13 @@ def run(args):
         l for l in schema_src.splitlines() if not l.strip().startswith("//")
     )
     for stmt in [s.strip() for s in no_comments.split(";") if s.strip()]:
-        graph.query(stmt)
+        try:
+            graph.query(stmt)
+        except Exception as e:
+            if "already indexed" in str(e).lower():
+                pass  # index exists from a previous ingest run, safe to skip
+            else:
+                raise
 
     print(f"Ingesting {len(products)} products ...")
     for p in products:
@@ -401,10 +405,15 @@ def run(args):
         for sku, info in media.items():
             graph.query(
                 "MATCH (p:Product {sku: $sku}) "
-                "SET p.url = $url, p.image_url = $image_url",
-                {"sku": sku,
-                 "url": info.get("product_url", ""),
-                 "image_url": info.get("image_url", "")},
+                "SET p.url = $url, p.image_url = $image_url, "
+                "p.shade = $shade, p.available = $available",
+                {
+                    "sku": sku,
+                    "url": info.get("product_url", ""),
+                    "image_url": info.get("image_url", ""),
+                    "shade": info.get("shade", ""),
+                    "available": info.get("available", True),
+                },
             )
 
     print("Done.")

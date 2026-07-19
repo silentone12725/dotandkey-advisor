@@ -8,6 +8,7 @@ Usage:
 """
 
 import json
+import os
 import re
 import time
 from pathlib import Path
@@ -19,12 +20,26 @@ import falkordb
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
-GRAPH_HOST = "localhost"
-GRAPH_PORT = 6379
-GRAPH_NAME = "dotandkey"
+GRAPH_HOST = os.getenv("FALKORDB_HOST", "localhost")
+GRAPH_PORT = int(os.getenv("FALKORDB_PORT", "6379"))
+GRAPH_NAME = os.getenv("FALKORDB_GRAPH", "dotandkey")
 SHOPIFY_SUGGEST_URL = "https://www.dotandkey.com/search/suggest.json"
 RATE_LIMIT_S = 0.3
 OUTPUT_PATH = Path(__file__).parent.parent / "data" / "product_media.json"
+
+# Detect non-shade variant titles: sizes (50g, 100ml) and count units (30 Pairs).
+_NON_SHADE_RE = re.compile(
+    r"\d+(\.\d+)?\s*(ml|g|gm|mg|l|pairs?|pcs?|pack|sheets?|tablets?|ct)\b",
+    re.IGNORECASE,
+)
+
+
+def is_shade(title: str) -> bool:
+    """Return True when a variant title names a colour/tint, not a size or count."""
+    if not title or title in ("Default Title", ""):
+        return False
+    return not _NON_SHADE_RE.search(title)
+
 
 # Stop-words to skip when building the search query from the title
 _STOP = {
@@ -139,6 +154,12 @@ def main() -> None:
     unique_titles = list(title_to_skus.keys())
     print(f"[info] {len(unique_titles)} unique titles to look up.")
 
+    # Seed from existing file so manually-patched entries survive a re-run
+    # when Shopify's suggest API can't find them (title mismatch, renamed products).
+    existing: dict[str, dict] = {}
+    if OUTPUT_PATH.exists():
+        existing = json.loads(OUTPUT_PATH.read_text())
+
     media_map: dict[str, dict] = {}
     found = 0
     missed = 0
@@ -166,21 +187,76 @@ def main() -> None:
                     best_score = score
                     best = candidate
 
+            # Retry with a shorter 3-word query when the default 5-word query
+            # returns no candidates (often happens with long parenthetical titles).
+            if (best is None or best_score < 0.2) and len(query.split()) > 3:
+                short_query = title_to_query(title, n_words=3)
+                retry_candidates = search_shopify(short_query, client)
+                for candidate in retry_candidates:
+                    score = title_similarity(title, candidate.get("title", ""))
+                    if score > best_score:
+                        best_score = score
+                        best = candidate
+
             if best is None or best_score < 0.2:
-                print(f"         ✗ no match (candidates={len(candidates)}, best_score={best_score:.2f})")
+                # Fall back to the existing entry so manual patches survive re-runs.
+                for sku in title_to_skus[title]:
+                    if sku in existing:
+                        media_map[sku] = dict(existing[sku])
+                        print(f"         ✗ no match — kept existing entry for {sku}")
+                    else:
+                        print(f"         ✗ no match — skipped {sku} (no existing entry)")
                 missed += 1
             else:
                 raw_url = best.get("url", "")
                 raw_image = best.get("image", "") or ""
                 handle, product_url = clean_url(raw_url)
                 image_url = make_image_url(raw_image)
-                entry = {
-                    "handle": handle,
-                    "image_url": image_url,
-                    "product_url": product_url,
-                }
+
+                # Fetch /products/{handle}.js — the storefront endpoint that
+                # exposes variant.featured_image.src (actual per-shade packshot)
+                # AND variant.available (live stock status) in a single call.
+                # The .json endpoint lacks `available` and uses an image-id
+                # indirection that the .js endpoint makes unnecessary.
+                variant_image_map: dict[str, str] = {}
+                shade_map: dict[str, str] = {}
+                available_map: dict[str, bool] = {}
+                try:
+                    js_resp = client.get(
+                        f"https://www.dotandkey.com/products/{handle}.js",
+                        timeout=10.0,
+                    )
+                    if js_resp.status_code == 200:
+                        js_data = js_resp.json()
+                        # images[] is a list of URL strings in the .js format
+                        raw_first = (js_data.get("images") or [""])[0] or ""
+                        first_img = re.sub(r"^//", "https://", str(raw_first))
+                        for v in js_data.get("variants", []):
+                            v_sku = (v.get("sku") or "").strip()
+                            if not v_sku:
+                                continue
+                            if v.get("available") is not None:
+                                available_map[v_sku] = bool(v["available"])
+                            fi = v.get("featured_image") or {}
+                            raw_src = fi.get("src") or first_img
+                            if raw_src:
+                                src = re.sub(r"^//", "https://", str(raw_src))
+                                variant_image_map[v_sku] = make_image_url(src)
+                            v_title = (v.get("title") or "").strip()
+                            if is_shade(v_title):
+                                shade_map[v_sku] = v_title
+                except Exception:
+                    pass  # fall back to suggest image / no shade / no availability
+                time.sleep(RATE_LIMIT_S)
+
                 for sku in title_to_skus[title]:
-                    media_map[sku] = entry
+                    media_map[sku] = {
+                        "handle": handle,
+                        "image_url": variant_image_map.get(sku, image_url),
+                        "product_url": product_url,
+                        "shade": shade_map.get(sku, ""),
+                        "available": available_map.get(sku, True),
+                    }
                 found += 1
                 print(
                     f"         ✓ handle='{handle}' score={best_score:.2f} "
@@ -188,6 +264,15 @@ def main() -> None:
                 )
 
             time.sleep(RATE_LIMIT_S)
+
+    # Build siblings: for each handle, which SKUs share it (= other shades/sizes).
+    # Stored on each entry so the widget / backend can do cross-shade navigation
+    # without an extra lookup.
+    handle_to_skus: dict[str, list[str]] = {}
+    for sku, info in media_map.items():
+        handle_to_skus.setdefault(info["handle"], []).append(sku)
+    for sku, info in media_map.items():
+        info["siblings"] = sorted(handle_to_skus[info["handle"]])
 
     with open(OUTPUT_PATH, "w", encoding="utf-8") as fh:
         json.dump(media_map, fh, indent=2, ensure_ascii=False)

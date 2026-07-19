@@ -407,5 +407,60 @@ class TestDispatcherFallback:
         assert _ui_data(tokens) is not None
 
 
+# =============================================================================
+# 7. Regression tests
+# =============================================================================
+
+class TestRegressions:
+
+    def test_is_product_intent_clears_returning_step_in_app(self):
+        """Sending a product-intent message when returning_step is set must
+        clear the step so subsequent non-intent replies (e.g. intake answers
+        like "oily") don't fall back into the returning-user flow mid-intake.
+        This mirrors the fix in app.py:
+          if active_returning_step and not pb_returning.is_product_intent(message):
+              ...
+          else:
+              if active_returning_step:
+                  pb_returning.clear_returning_step(profile_id)
+        """
+        pid = _pid("escape_clears_step")
+        ru.set_returning_step(pid, "awaiting_change_factors_selection")
+        assert ru.get_returning_step(pid) == "awaiting_change_factors_selection"
+        # Simulate the app.py escape path
+        if ru.is_product_intent("recommend a sunscreen for oily skin"):
+            ru.clear_returning_step(pid)
+        assert ru.get_returning_step(pid) == "", (
+            "returning_step must be cleared when is_product_intent() escapes the flow"
+        )
+
+    def test_no_allergies_phrase_sets_allergen_free(self):
+        """'no allergies' (common natural-language answer) must match the
+        'none' allergen keyword group so allergen_free is saved as ['none'],
+        which is truthy — allowing intake to hand off to recommend.run().
+        Without this fix allergen_free remained [] (falsy) and the intake
+        looped asking the same question forever."""
+        from backend.playbooks.intake_profile import keyword_extract
+        result = keyword_extract("no allergies")
+        assert "allergen_free" in result, (
+            "keyword_extract must recognise 'no allergies' as setting allergen_free"
+        )
+        assert "none" in result["allergen_free"], (
+            "allergen_free should contain 'none' for 'no allergies'"
+        )
+
+    def test_no_allergy_singular_sets_allergen_free(self):
+        from backend.playbooks.intake_profile import keyword_extract
+        result = keyword_extract("I have no allergy")
+        assert "allergen_free" in result
+        assert "none" in result["allergen_free"]
+
+    def test_not_allergic_sets_allergen_free(self):
+        from backend.playbooks.intake_profile import keyword_extract
+        result = keyword_extract("I'm not allergic to anything")
+        assert "allergen_free" in result
+        assert "none" in result["allergen_free"]
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))

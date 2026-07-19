@@ -1,9 +1,13 @@
-version: "3.9"
+# Demo deployment — `docker compose up` runs everything:
+#   1. falkordb starts and passes healthcheck
+#   2. graph-init seeds the graph (idempotent — skips steps already done)
+#   3. backend starts once graph-init exits 0
+#
+# On subsequent `docker compose up` graph-init exits in seconds (all steps skipped).
+# The falkordb_data volume persists the graph across restarts.
 
 services:
 
-  # FalkorDB (also serves as Redis for session/cache/history)
-  # Exposes :6379 (Redis/FalkorDB) and :3000 (browser UI)
   falkordb:
     image: falkordb/falkordb:latest
     container_name: dotandkey-falkordb
@@ -13,8 +17,29 @@ services:
     volumes:
       - falkordb_data:/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6379", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
 
-  # FastAPI backend
+  graph-init:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dotandkey-graph-init
+    env_file:
+      - .env
+    environment:
+      FALKORDB_HOST: falkordb
+      REDIS_HOST: falkordb
+    depends_on:
+      falkordb:
+        condition: service_healthy
+    command: python3 -m scripts.init_demo --host falkordb
+    restart: "no"
+
   backend:
     build:
       context: .
@@ -24,11 +49,14 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    environment:
+      FALKORDB_HOST: falkordb
+      REDIS_HOST: falkordb
     depends_on:
-      - falkordb
-    volumes:
-      - .:/app
-    command: uvicorn backend.app:app --host 0.0.0.0 --port 8000 --reload
+      falkordb:
+        condition: service_healthy
+      graph-init:
+        condition: service_completed_successfully
     restart: unless-stopped
 
 volumes:

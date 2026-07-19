@@ -1,0 +1,7 @@
+# Automatically merged by Docker Compose in local dev (never committed to prod deploys).
+# Adds hot-reload + source volume mount on top of the base compose file.
+services:
+  backend:
+    volumes:
+      - .:/app
+    command: uvicorn backend.app:app --host 0.0.0.0 --port 8000 --reload

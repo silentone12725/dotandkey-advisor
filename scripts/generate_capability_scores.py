@@ -15,10 +15,8 @@ Run after backfill_ingredient_roles.py:
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from graph.capability_schema import CAPABILITY_AXES, cap_prop
 from graph.capability_scorer import score_product_v2

@@ -9,10 +9,8 @@ Run after csv_to_graph.py (requires Ingredient + Concern nodes to exist):
 """
 
 import argparse
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from graph.ingredient_knowledge import INGREDIENT_CONCERN_EDGES, INGREDIENT_CAPABILITY_EDGES
 from graph.capability_schema import CAPABILITY_AXES

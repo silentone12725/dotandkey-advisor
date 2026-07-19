@@ -20,11 +20,9 @@ Run after generate_capability_scores.py:
 
 import argparse
 import json
-import sys
 from pathlib import Path
 from collections import defaultdict
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from graph.capability_schema import CAPABILITY_AXES, cap_prop
 

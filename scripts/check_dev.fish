@@ -32,10 +32,10 @@ else
 end
 
 # docker
-if docker ps --format '{{.Names}}' | grep -qx falkordb
-    echo "[falkordb]  running"
-else if docker ps -a --format '{{.Names}}' | grep -qx falkordb
-    echo "[falkordb]  stopped — run: docker start falkordb"
+if docker ps --format '{{.Names}}' | grep -qx dotandkey-falkordb
+    echo "[falkordb]  running (compose)"
+else if docker ps -a --format '{{.Names}}' | grep -qx dotandkey-falkordb
+    echo "[falkordb]  stopped — run: docker compose up falkordb -d"
 else
     echo "[falkordb]  not found — run start_dev.fish to create it"
 end

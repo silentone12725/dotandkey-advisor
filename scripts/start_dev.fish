@@ -33,15 +33,12 @@ else
 end
 
 # ── 2. FalkorDB container ────────────────────────────────────────────────
-echo "[2/4] FalkorDB container..."
-if docker ps --format '{{.Names}}' | grep -qx falkordb
+echo "[2/4] FalkorDB container (via docker compose)..."
+if docker ps --format '{{.Names}}' | grep -qx dotandkey-falkordb
     echo "      already running"
-else if docker ps -a --format '{{.Names}}' | grep -qx falkordb
-    echo "      found stopped container — starting it"
-    docker start falkordb > /dev/null
 else
-    echo "      not found — creating new container"
-    docker run -d --name falkordb -p 6379:6379 -p 3000:3000 falkordb/falkordb:latest > /dev/null
+    echo "      starting via docker compose..."
+    docker compose up falkordb -d > /dev/null
 end
 
 # ── 3. wait for redis to actually accept connections ────────────────────

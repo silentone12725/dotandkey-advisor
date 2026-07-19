@@ -39,6 +39,18 @@ PRICE_TIER_TO_MAX: dict[str, float | None] = {
 # so the caller can display a notice ("Expanded from ₹300 to ₹600").
 BUDGET_TIER_LADDER = ["under_300", "under_600", "under_1000", "any"]
 
+
+def get_graph():
+    """Return the product FalkorDB graph. Shared by all backend modules."""
+    import os
+    from falkordb import FalkorDB
+    db = FalkorDB(
+        host=os.getenv("FALKORDB_HOST", "localhost"),
+        port=int(os.getenv("FALKORDB_PORT", 6379)),
+    )
+    return db.select_graph(os.getenv("FALKORDB_GRAPH", "dotandkey"))
+
+
 # size_pref → (min_g, max_g) range — None = no bound
 SIZE_PREF_RANGES: dict[str, tuple[float | None, float | None]] = {
     "travel":   (None, 50.0),

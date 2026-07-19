@@ -19,9 +19,7 @@ Run after csv_to_graph.py:
 
 import argparse
 import re
-import sys
 
-sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent.parent))
 
 
 # ---------------------------------------------------------------------------

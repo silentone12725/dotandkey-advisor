@@ -10,13 +10,16 @@ Supports two call modes:
 """
 
 import json
+import logging
 import os
 from typing import AsyncGenerator, Optional
+
+_log = logging.getLogger(__name__)
 
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
 
-load_dotenv(override=True)
+load_dotenv(override=False)  # override=False so Docker-injected env vars win over .env
 
 
 # ---------------------------------------------------------------------------
@@ -133,7 +136,7 @@ async def chat(
             extra_body=_thinking_disabled_kwargs(),
         )
     except Exception as exc:
-        print(f"[chat] stream create failed: {exc}")
+        _log.error("stream create failed: %s", exc)
         yield f"(advisor error — {type(exc).__name__})"
         return
 
@@ -151,11 +154,11 @@ async def chat(
                 token_count += 1
                 yield text
         except Exception as exc:
-            print(f"[chat] chunk parse error: {exc}")
+            _log.warning("chunk parse error: %s", exc)
             continue
 
     if token_count == 0:
-        print(f"[chat] stream produced zero tokens. model={model}")
+        _log.warning("stream produced zero tokens. model=%s", model)
         yield "(no response — please try again)"
 
 
@@ -198,7 +201,7 @@ async def route(
 
     except Exception as exc:
         # log and fall through to fallback
-        print(f"[router] LLM error: {exc}")
+        _log.error("router LLM error: %s", exc)
 
     return {"tool": "general_qa", "args": {}}
 
@@ -237,7 +240,7 @@ async def one_shot(
         text = getattr(msg, "reasoning_content", None) or ""
 
     if not text:
-        print(f"[llm] empty response. finish_reason={resp.choices[0].finish_reason} ")
-        print(f"[llm] raw message: {msg}")
+        _log.warning("empty response. finish_reason=%s msg=%s",
+                     resp.choices[0].finish_reason, msg)
 
     return text

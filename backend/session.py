@@ -9,11 +9,15 @@ Handles /session/init:
 """
 
 import hashlib
+import ipaddress
 import json
+import logging
 import os
 import time
 from datetime import datetime, timezone
 from typing import Optional
+
+_log = logging.getLogger(__name__)
 
 import httpx
 import redis as redis_lib
@@ -35,10 +39,45 @@ WEATHER_TTL  = 6 * 3600   # 6 hours
 # IP → City
 # ---------------------------------------------------------------------------
 
+def _is_private_ip(ip: str) -> bool:
+    """True for loopback, link-local, private RFC-1918, and Docker bridge ranges."""
+    try:
+        return ipaddress.ip_address(ip).is_private
+    except ValueError:
+        return True   # unparseable (e.g. "testclient") → treat as private
+
+
+async def _resolve_public_ip(client: httpx.AsyncClient) -> str:
+    """Fetch the server's own public IP via ipify.org, cached 24h in Redis."""
+    cache_key = "server:public_ip"
+    try:
+        cached = get_redis().get(cache_key)
+        if cached:
+            return cached if isinstance(cached, str) else cached.decode()
+    except Exception:
+        pass
+    try:
+        resp = await client.get("https://api.ipify.org?format=json", timeout=3.0)
+        pub_ip = resp.json().get("ip", "")
+        if pub_ip:
+            try:
+                get_redis().setex(cache_key, 24 * 3600, pub_ip)
+            except Exception:
+                pass
+            return pub_ip
+    except Exception:
+        pass
+    return ""
+
+
 async def _get_city(client: httpx.AsyncClient, ip: str) -> tuple[str, str]:
     """Returns (city, country_code). Falls back to ('Mumbai', 'IN'). Cached 24h by IP."""
-    if not ip or ip in ("127.0.0.1", "::1", "testclient"):
-        return "Mumbai", "IN"
+    if not ip or _is_private_ip(ip):
+        # Private/loopback IP (localhost, Docker bridge, LAN) — use the server's
+        # own public IP so local dev still shows the developer's real city.
+        ip = await _resolve_public_ip(client)
+        if not ip:
+            return "Mumbai", "IN"
     cache_key = f"ip2city:{ip}"
     try:
         cached = get_redis().get(cache_key)
@@ -202,9 +241,9 @@ async def _generate_greeting(
                 except Exception:
                     pass
             return greeting
-        print(f"[session] LLM returned empty greeting — using fallback")
+        _log.warning("LLM returned empty greeting — using fallback")
     except Exception as exc:
-        print(f"[session] LLM error in greeting: {exc}")
+        _log.error("LLM error in greeting: %s", exc)
 
     fallback = _FALLBACKS.get(season, "What are you looking for today?")
     return fallback.replace("{city}", city)
@@ -247,6 +286,7 @@ async def init_session(
         profile_id, is_returning, city, season, page_context
     )
 
+    from backend.chip_options import CATEGORY_CHIPS
     return {
         "profile_id":   profile_id,
         "city":         city,
@@ -257,4 +297,16 @@ async def init_session(
             "temp":     weather["temp"],
             "humidity": weather["humidity"],
         },
+        "initial_chips": {
+            "field": "category", "multi_select": False, "options": CATEGORY_CHIPS,
+        },
+        "returning_chips": {
+            "field": "returning_check", "multi_select": False,
+            "options": [
+                {"value": "same",     "label": "Same as before"},
+                {"value": "changed",  "label": "Something has changed"},
+                {"value": "concerns", "label": "Have concerns with a previous purchase"},
+            ],
+        },
+        "track_order": {"label": "Track my order", "url": "https://dotandkey.clickpost.ai/"},
     }

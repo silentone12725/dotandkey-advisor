@@ -65,10 +65,8 @@
 
     function detectPageContext() {
         var path = window.location.pathname;
-        if (path.indexOf("/products/") === 0 || path.indexOf("/products/") > -1) {
-            var handle = path.split("/products/")[1];
-            if (handle) handle = handle.split("?")[0].split("/")[0];
-            return { type: "product", handle: handle };
+        if (path.indexOf("/products/") > -1) {
+            return { type: "product", handle: _handleFrom(path) };
         }
         return { type: "homepage" };
     }
@@ -229,10 +227,12 @@
         ".dk-combo-card { background:var(--dk-white); border:1.5px solid var(--dk-pink); border-radius:10px; padding:10px; position:relative; overflow:visible; }" +
         ".dk-combo-badge { position:absolute; top:-8px; left:10px; background:var(--dk-pink); color:white; font-size:9px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; padding:3px 8px; border-radius:3px; }" +
         ".dk-combo-title { font-size:12px; font-weight:700; color:var(--dk-ink); margin:6px 0 6px; line-height:1.3; }" +
-        ".dk-combo-components { display:flex; gap:6px; margin-bottom:7px; }" +
-        ".dk-combo-comp-img { flex:1; height:56px; background:var(--dk-surface); border-radius:6px; overflow:hidden; display:flex; align-items:center; justify-content:center; }" +
-        ".dk-combo-comp-img img { width:100%; height:100%; object-fit:cover; border-radius:6px; }" +
-        ".dk-combo-comp-plus { display:flex; align-items:center; color:var(--dk-ink-muted); font-size:14px; font-weight:300; flex-shrink:0; }" +
+        ".dk-combo-components { display:flex; gap:6px; margin-bottom:7px; align-items:flex-start; }" +
+        ".dk-combo-comp { flex:1; display:flex; flex-direction:column; gap:4px; min-width:0; }" +
+        ".dk-combo-comp-img { width:100%; height:80px; background:var(--dk-surface); border-radius:6px; overflow:hidden; display:flex; align-items:center; justify-content:center; }" +
+        ".dk-combo-comp-img img { width:100%; height:100%; object-fit:contain; border-radius:6px; }" +
+        ".dk-combo-comp-name { font-size:9.5px; color:var(--dk-ink-muted); line-height:1.3; text-align:center; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }" +
+        ".dk-combo-comp-plus { display:flex; align-items:center; color:var(--dk-ink-muted); font-size:14px; font-weight:300; flex-shrink:0; padding-top:28px; }" +
         ".dk-combo-skin-tags { font-size:10px; color:var(--dk-pink); font-weight:600; margin-bottom:7px; }" +
         ".dk-combo-price-row { display:flex; align-items:baseline; gap:6px; margin-bottom:8px; }" +
         ".dk-combo-price { font-size:13px; font-weight:800; color:var(--dk-ink); }" +
@@ -246,7 +246,6 @@
         ".dk-products { display:flex; flex-direction:column; gap:8px; align-self:stretch; }" +
         /* both top-picks and more-options use the same 2-column grid */
         ".dk-product-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }" +
-        ".dk-product-grid-sm { display:grid; grid-template-columns:1fr 1fr; gap:8px; }" +
         ".dk-card { background:var(--dk-white); border:1px solid var(--dk-border); border-radius:10px; padding:8px; position:relative; display:flex; flex-direction:column; }" +
         ".dk-card-top { border-color:var(--dk-ink); }" +
         ".dk-card-badge { position:absolute; top:-8px; left:8px; background:var(--dk-badge); color:white; font-size:9px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; padding:3px 8px; border-radius:3px; }" +
@@ -270,6 +269,7 @@
         ".dk-card-cta.dk-adding { opacity:0.6; cursor:default; }" +
         ".dk-card-cta.dk-added { background:var(--dk-surface); color:var(--dk-ink-muted); border:1px solid var(--dk-border); cursor:default; }" +
         ".dk-card-cta.dk-error { background:transparent; border:1.5px solid var(--dk-sale); color:var(--dk-sale); }" +
+        ".dk-card-cta.dk-oos { background:#e8e8e8; color:#999; cursor:not-allowed; pointer-events:none; }" +
         ".dk-remaining-label { font-size:10.5px; color:var(--dk-ink-muted); font-weight:700; margin:2px 2px 0; text-transform:uppercase; letter-spacing:0.04em; }" +
         ".dk-card-promo { display:inline-flex; align-items:center; background:var(--dk-sale); color:white; font-size:9px; font-weight:700; padding:2px 7px; border-radius:3px; margin-left:0; letter-spacing:0.03em; white-space:nowrap; }" +
         /* dk-product-grid-sm cards are now identical to dk-product-grid cards —
@@ -454,6 +454,24 @@
         if (className) node.className = className;
         if (html !== undefined) node.innerHTML = html;
         return node;
+    }
+
+    var _DK_ORIGIN = "https://www.dotandkey.com";
+    function _absUrl(u) {
+        if (!u) return u;
+        var origin = (typeof window !== "undefined" && window.location) ? window.location.origin : _DK_ORIGIN;
+        var isProxy = origin !== _DK_ORIGIN;
+        // dotandkey.com absolute URL → rewrite to proxy origin when proxied
+        if (u.startsWith(_DK_ORIGIN) && isProxy) return origin + u.slice(_DK_ORIGIN.length);
+        // already an absolute URL for a different domain → use as-is
+        if (u.startsWith("http")) return u;
+        // root-relative or bare-relative path → prefix with correct origin
+        return (isProxy ? origin : _DK_ORIGIN) + (u.startsWith("/") ? u : "/" + u);
+    }
+
+    function _handleFrom(u) {
+        var p = (u || "").split("/products/")[1];
+        return p ? p.split("?")[0].split("/")[0] : "";
     }
 
     // ===========================================================================
@@ -718,8 +736,7 @@
             ? el("a", "dk-card-link")
             : el("div", "dk-card-link");
         if (hasLink) {
-            var href = product.url.startsWith("http") ? product.url : "https://www.dotandkey.com" + product.url;
-            linkWrap.href = href;
+            linkWrap.href = _absUrl(product.url);
             linkWrap.target = "_blank";
             linkWrap.rel = "noopener noreferrer";
         }
@@ -781,8 +798,7 @@
         // can find and pre-select the exact recommended shade rather than
         // defaulting to Shopify's arbitrary first variant.
         if (hasLink) {
-            var vHandle = product.url.split("/products/")[1];
-            if (vHandle) vHandle = vHandle.split("?")[0].split("/")[0];
+            var vHandle = _handleFrom(product.url);
             if (vHandle) {
                 cta._variantHint = (product.variant || "").trim();
                 requestAnimationFrame(function () {
@@ -816,7 +832,7 @@
 
         if (allRest.length) {
             wrap.appendChild(el("div", "dk-remaining-label", "More options"));
-            var restGrid = el("div", "dk-product-grid-sm");
+            var restGrid = el("div", "dk-product-grid");
             allRest.forEach(function (p) {
                 restGrid.appendChild(renderProductCard(p, false));
             });
@@ -832,23 +848,6 @@
         });
     }
 
-    /**
-     * Opens the dotandkey cart drawer and selectively refreshes its contents,
-     * matching the site's own renderContentsCustom pattern exactly:
-     *
-     *   1. GET /?sections=cart-drawer,cart-icon-bubble
-     *      → Shopify returns JSON { "cart-drawer": "<html>", "cart-icon-bubble": "<html>" }
-     *   2. DOMParser extracts the inner HTML of each section's target element
-     *      and injects it into the live DOM (selective refresh, no page reload)
-     *   3. cartDrawer.open() adds "animate"+"active" classes — same as the
-     *      site's own add-to-cart button does
-     *
-     * _initCartDetection already watches the "active" class, so the widget
-     * will automatically slide left when the drawer opens.
-     *
-     * Falls back to a plain event dispatch on localhost/demo where the
-     * Shopify sections endpoint doesn't exist.
-     */
     /**
      * Opens the dotandkey cart drawer and selectively refreshes its contents.
      *
@@ -937,12 +936,8 @@
         btn.classList.add("dk-adding");
         btn.disabled = true;
 
-        var handle = "";
         var productUrl = product.url || "";
-        var urlParts = productUrl.split("/products/");
-        if (urlParts.length > 1) {
-            handle = urlParts[1].split("?")[0].split("/")[0].trim();
-        }
+        var handle = _handleFrom(productUrl);
 
         if (!handle) {
             btn.textContent = "View product";
@@ -951,9 +946,7 @@
             btn.disabled = false;
             if (productUrl) {
                 btn.addEventListener("click", function () {
-                    var href = productUrl.startsWith("http")
-                        ? productUrl : "https://www.dotandkey.com" + productUrl;
-                    window.open(href, "_blank", "noopener,noreferrer");
+                    window.open(_absUrl(productUrl), "_blank", "noopener,noreferrer");
                 }, { once: true });
             }
             return;
@@ -1066,6 +1059,7 @@
         // ── F5: Meltie Lip Balm ───────────────────────────────────────────────
         "strawberry glaze":                         "#E05068",
         "berry crumble":                            "#7A2858",
+        "cocoa crème":                              "#8B5030",
         // ── F6: Lip Plumping Mask ─────────────────────────────────────────────
         "turmeric oil and lingonberry medium tinted": "#C08060",
         // ── F7: Barrier Repair Hydrating Lip Balm Pack of 2 ──────────────────
@@ -1219,13 +1213,10 @@
                 // differences ("Warm Ivory  - 02" vs "Warm Ivory - 02") don't block
                 // a match. Falls back to first available when the hint is absent or
                 // no title matches (e.g. product catalogue changed since last ingest).
-                function _normalise(s) {
-                    return (s || "").toLowerCase().replace(/\s+/g, " ").trim();
-                }
-                var variantHint = _normalise(ctaBtn._variantHint);
+                var variantHint = _normShade(ctaBtn._variantHint);
                 var selVariant = (variantHint
                     ? variants.find(function (v) {
-                        return _normalise(v.title) === variantHint;
+                        return _normShade(v.title) === variantHint && v.available !== false;
                     })
                     : null)
                     || variants.find(function (v) { return v.available !== false; })
@@ -1257,12 +1248,19 @@
                 function _applyVariantDisplay(v) {
                     _pinLink(v);
                     _applyPrice(v);
-                    // Update card packshot to the variant's per-shade product image.
-                    // Uses image_id → product.images lookup (featured_image is null
-                    // on all DK variants in the storefront JSON).
                     if (isTint && cardImgEl) {
                         var cardSrc = _variantImgSrc(v, 400);
                         if (cardSrc) cardImgEl.src = cardSrc;
+                    }
+                    if (v.available === false) {
+                        ctaBtn.classList.remove("dk-added", "dk-error");
+                        ctaBtn.classList.add("dk-oos");
+                        ctaBtn.textContent = "Sold out";
+                        ctaBtn.disabled = true;
+                    } else if (!ctaBtn.classList.contains("dk-added")) {
+                        ctaBtn.classList.remove("dk-oos", "dk-error");
+                        ctaBtn.textContent = "Add to cart";
+                        ctaBtn.disabled = false;
                     }
                 }
 
@@ -1271,10 +1269,8 @@
 
                 function selectVariant(v, itemEl, allItems, itemClass) {
                     selVariant = v;
-                    // Reset CTA so user can re-add a different size/shade
-                    if (ctaBtn.classList.contains("dk-added") ||
-                        ctaBtn.classList.contains("dk-error")) {
-                        ctaBtn.classList.remove("dk-added", "dk-error");
+                    if (ctaBtn.classList.contains("dk-added") || ctaBtn.classList.contains("dk-error") || ctaBtn.classList.contains("dk-oos")) {
+                        ctaBtn.classList.remove("dk-added", "dk-error", "dk-oos");
                         ctaBtn.textContent = "Add to cart";
                         ctaBtn.disabled = false;
                     }
@@ -1287,11 +1283,11 @@
                 variants.forEach(function (v) {
                     var label = (v.title === "Default Title" ? "" : v.title || "").trim();
                     if (!label) return;
-                    // Skip OOS variants — matches PDP behaviour (available=false means hidden)
-                    if (v.available === false) return;
 
                     if (isTint) {
-                        var sw = el("div", "dk-swatch" + (v.id === selVariant.id ? " dk-swatch-selected" : ""));
+                        var sw = el("div", "dk-swatch" +
+                            (v.id === selVariant.id ? " dk-swatch-selected" : "") +
+                            (v.available === false ? " dk-swatch-oos" : ""));
                         sw.style.background = _swatchColor(label);
                         sw.title = label;
                         sw.addEventListener("click", function () {
@@ -1329,13 +1325,14 @@
 
         card.appendChild(el("div", "dk-combo-title", escapeHtml(combo.title)));
 
-        // Component product images side-by-side
+        // Component product images + names side-by-side
         if (combo.components && combo.components.length) {
             var compRow = el("div", "dk-combo-components");
             combo.components.forEach(function (comp, idx) {
                 if (idx > 0) {
                     compRow.appendChild(el("div", "dk-combo-comp-plus", "+"));
                 }
+                var compWrap = el("div", "dk-combo-comp");
                 var imgBox = el("div", "dk-combo-comp-img");
                 if (comp.image_url) {
                     var imgEl = document.createElement("img");
@@ -1344,7 +1341,11 @@
                     imgEl.loading = "lazy";
                     imgBox.appendChild(imgEl);
                 }
-                compRow.appendChild(imgBox);
+                compWrap.appendChild(imgBox);
+                if (comp.title) {
+                    compWrap.appendChild(el("div", "dk-combo-comp-name", escapeHtml(comp.title)));
+                }
+                compRow.appendChild(compWrap);
             });
             card.appendChild(compRow);
         }
@@ -1370,16 +1371,53 @@
         }
         card.appendChild(priceRow);
 
-        // Shop combo CTA — links to the bundle's product page
+        // Shop combo CTA — open bundle page if url available, else add all components to cart
         var cta = el("button", "dk-combo-cta", "Shop this combo →");
         cta.addEventListener("click", function (e) {
             e.preventDefault();
             if (combo.url) {
-                var href = combo.url.startsWith("http")
-                    ? combo.url
-                    : "https://www.dotandkey.com" + combo.url;
-                window.open(href, "_blank", "noopener,noreferrer");
+                window.open(_absUrl(combo.url), "_blank", "noopener,noreferrer");
+                return;
             }
+            // No bundle page — add each component product to cart in one request
+            var handles = (combo.components || []).map(function (c) {
+                return c.url ? _handleFrom(c.url) : null;
+            }).filter(Boolean);
+            if (!handles.length) return;
+            cta.textContent = "Adding...";
+            cta.disabled = true;
+            Promise.all(handles.map(function (h) {
+                return fetch("/products/" + h + ".json")
+                    .then(function (r) { return r.ok ? r.json() : null; })
+                    .then(function (d) {
+                        var v = d && d.product && d.product.variants;
+                        var variant = (v || []).find(function (x) { return x.available !== false; }) || (v && v[0]);
+                        return variant ? variant.id : null;
+                    });
+            })).then(function (ids) {
+                var items = ids.filter(Boolean).map(function (id) { return { id: id, quantity: 1 }; });
+                if (!items.length) throw new Error("no variants");
+                return fetch("/cart/add.js", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                    body: JSON.stringify({ items: items }),
+                });
+            }).then(function (res) {
+                if (!res.ok) throw new Error("cart " + res.status);
+                cta.textContent = "Added ✓";
+                cta.classList.add("dk-added");
+                _triggerCartRefresh();
+            }).catch(function (err) {
+                console.error("[dk-advisor] combo cart add failed:", err);
+                cta.textContent = "Try again";
+                cta.disabled = false;
+                cta.classList.add("dk-error");
+                cta.addEventListener("click", function () {
+                    cta.classList.remove("dk-error");
+                    cta.textContent = "Shop this combo →";
+                    cta.disabled = false;
+                }, { once: true });
+            });
         });
         card.appendChild(cta);
 
@@ -1409,37 +1447,6 @@
     // category there, mirror it here too.
     // ===========================================================================
 
-    var INITIAL_CATEGORY_CHIPS = {
-        field: "category",
-        multi_select: false,
-        options: [
-            { value: "sunscreen", label: "Sunscreen" },
-            { value: "moisturizer", label: "Moisturizer" },
-            { value: "face_wash", label: "Face wash" },
-            { value: "serum", label: "Serum" },
-            { value: "lip_care", label: "Lip care" },
-            { value: "eye_care", label: "Eye care" },
-        ],
-    };
-
-    var RETURNING_USER_CHIPS = {
-        field: "returning_check",
-        multi_select: false,
-        options: [
-            { value: "same", label: "Same as before" },
-            { value: "changed", label: "Something has changed" },
-            { value: "concerns", label: "Have concerns with a previous purchase" },
-        ],
-    };
-
-    // Shown alongside the opening chips on every homepage session (new AND
-    // returning user) — a direct hyperlink, not a chat-triggering chip, so
-    // it opens ClickPost in one tap instead of a round trip through /chat.
-    // Mirrors backend/playbooks/other.py's TRACK_ORDER_LINK_CHIP — if that
-    // URL changes, update it here too.
-    var TRACK_ORDER_LINK_CHIP = [
-        { label: "Track my order", url: "https://dotandkey.clickpost.ai/" },
-    ];
 
     // ===========================================================================
     // sendMessage — the core conversational turn
@@ -1592,45 +1599,44 @@
     // Per design: visiting a product page does NOT change default behavior.
     // ===========================================================================
 
-    function _streamText(msgEl, text, onDone) {
+    function renderText(msgEl, text, opts) {
+        if (!opts || !opts.animate) { msgEl.textContent = text; return; }
         var i = 0;
-        var CHARS_PER_FRAME = 3;
-        function tick() {
-            if (i >= text.length) { if (onDone) onDone(); return; }
-            i = Math.min(i + CHARS_PER_FRAME, text.length);
+        (function tick() {
+            if (i >= text.length) return;
+            i = Math.min(i + 3, text.length);
             msgEl.textContent = text.slice(0, i);
             requestAnimationFrame(tick);
-        }
-        requestAnimationFrame(tick);
+        })();
     }
 
     function initHomeSession() {
         var els = state.els;
         var loadingEl = appendTypingIndicator(els.body);
 
-        var p = (state.sessionPromise && state.sessionPromise.then(function (d) {
-            return d || postJSON("/session/init", { page_context: "homepage" });
-        })) || postJSON("/session/init", { page_context: "homepage" });
-        p
+        state.sessionPromise
+            .then(function (data) {
+                return data || postJSON("/session/init", { page_context: "homepage" });
+            })
             .then(function (data) {
                 loadingEl.remove();
                 state.season = data.season;
                 state.city = data.city;
                 state.isReturning = data.is_returning;
 
-                var greetingMsg = appendAssistantMessage(els.body);
-                _streamText(greetingMsg.msg, data.greeting, function () {
-                    greetingMsg.cursor.remove();
-                });
-                if (data.is_returning) {
-                    renderChips(els.body, RETURNING_USER_CHIPS, sendMessage);
-                } else {
-                    renderChips(els.body, INITIAL_CATEGORY_CHIPS, sendMessage);
-                }
-                renderLinkChips(els.body, TRACK_ORDER_LINK_CHIP);
                 if (state.pageCtx.type === "product" && state.pageCtx.handle) {
-                    renderProductModeOffer(state.pageCtx.handle);
+                    if (data.track_order) renderLinkChips(els.body, [data.track_order]);
+                    loadProductContext(state.pageCtx.handle);
+                    return;
                 }
+
+                var greetingMsg = appendAssistantMessage(els.body);
+                renderText(greetingMsg.msg, data.greeting);
+                greetingMsg.cursor.remove();
+
+                var chips = data.is_returning ? data.returning_chips : data.initial_chips;
+                if (chips) renderChips(els.body, chips, sendMessage);
+                if (data.track_order) renderLinkChips(els.body, [data.track_order]);
             })
             .catch(function (err) {
                 loadingEl.remove();
@@ -1640,15 +1646,6 @@
                 console.error("[dk-advisor] session/init failed:", err);
             });
     }
-
-    // ===========================================================================
-    // Product page mode — strictly opt-in.
-    //
-    // Visiting /products/* no longer auto-fetches product context or shows
-    // product-specific question chips. The widget behaves identically to
-    // the homepage by default. A single button offers the product-aware
-    // flow; everything below this point only runs if the user taps it.
-    // ===========================================================================
 
     function fetchShopifyProductJson(handle) {
         return fetch("/products/" + handle + ".json")
@@ -1666,7 +1663,7 @@
 
         var wrap = el("div", "dk-products");
         if (sameCategory.length) {
-            wrap.appendChild(el("div", "dk-remaining-label", "Similar products"));
+            wrap.appendChild(el("div", "dk-remaining-label", "You might also like"));
             var grid1 = el("div", "dk-product-grid");
             sameCategory.forEach(function (p) { grid1.appendChild(renderProductCard(p, false)); });
             wrap.appendChild(grid1);
@@ -1680,32 +1677,6 @@
         body.appendChild(wrap);
         scrollToBottom(body);
     }
-
-    /**
-     * Renders the opt-in "Get recommendations related to this product"
-     * button. This is the ONLY entry point into product-aware mode.
-     */
-    function renderProductModeOffer(handle) {
-        var els = state.els;
-        var row = el("div", "dk-chip-row");
-        var btn = el("div", "dk-chip", "\u2728 Get recommendations related to this product");
-        btn.addEventListener("click", function () {
-            row.remove();
-            loadProductContext(handle);
-        });
-        row.appendChild(btn);
-        els.body.appendChild(row);
-        scrollToBottom(els.body);
-    }
-
-    /**
-     * Runs the product-aware flow on demand. Session is already
-     * initialized at this point (homepage flow already ran), so this
-     * only needs: fetch the Shopify product JSON, call /context/product,
-     * and render question chips + similar products. No extra LLM call
-     * for the transition line — it's a plain templated string, which
-     * also means tapping the button feels instant.
-     */
     function loadProductContext(handle) {
         var els = state.els;
 
@@ -1814,8 +1785,6 @@
 
         if (!state.initialized) {
             state.initialized = true;
-            // Always the same flow, regardless of page — product-aware mode
-            // is opt-in only (see renderProductModeOffer / loadProductContext).
             initHomeSession();
         }
     }

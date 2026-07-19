@@ -11,10 +11,8 @@ Run after csv_to_graph.py:
 """
 
 import argparse
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from graph.product_type_ontology import (
     ALL_PRODUCT_TYPES, PRODUCT_TYPE_HIERARCHY,

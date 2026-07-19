@@ -8,6 +8,6 @@
 #   chmod +x scripts/stop_dev.fish   (one-time)
 #   ./scripts/stop_dev.fish
 
-echo "Stopping FalkorDB container..."
-docker stop falkordb > /dev/null
-echo "Done. Data is preserved (container not removed) — start_dev.fish will reuse it next time."
+echo "Stopping FalkorDB (via docker compose)..."
+docker compose stop falkordb > /dev/null
+echo "Done. Data is preserved in the falkordb_data volume — start_dev.fish will restart it next time."

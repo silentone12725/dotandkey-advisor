@@ -18,19 +18,14 @@ are populated during ingest by scripts/csv_to_graph.py (build_combos).
 
 import os
 
-MAX_COMBOS = 3
+from backend.retrieval import PRICE_TIER_TO_MAX
 
-# price_tier -> max price cap (mirrors retrieval.py's PRICE_TIER_TO_MAX)
-PRICE_TIER_TO_MAX: dict[str, float | None] = {
-    "under_300":  300.0,
-    "under_600":  600.0,
-    "under_1000": 1000.0,
-    "any":        None,
-}
+MAX_COMBOS = 3
 
 
 def retrieve_combos(graph, profile: dict) -> list[dict]:
-    """Return up to MAX_COMBOS Combo dicts that match the user's skin type.
+    """Return up to MAX_COMBOS Combo dicts that match the user's skin type
+    AND include at least one component in the requested product category.
 
     Falls back gracefully to an empty list if the Combo nodes haven't been
     ingested yet (the graph node label simply won't match any results).
@@ -38,12 +33,13 @@ def retrieve_combos(graph, profile: dict) -> list[dict]:
     Args:
         graph:   FalkorDB graph object (the product graph, not user graph).
         profile: Parsed profile dict from profile.py's parse_profile().
-                 Keys used: skin_types (list), concerns (list), price_tier (str).
+                 Keys used: skin_types, concerns, price_tier, category.
     """
     skin_types = profile.get("skin_types") or []
     concerns   = profile.get("concerns") or []
     price_tier = profile.get("price_tier", "any")
     max_price  = PRICE_TIER_TO_MAX.get(price_tier)
+    category   = profile.get("category", "")
 
     if not skin_types:
         return []
@@ -53,16 +49,25 @@ def retrieve_combos(graph, profile: dict) -> list[dict]:
     # ── Query: find combos matching skin type, collect concern matches ────────
     # Structure:
     #  1. MATCH combos that SUIT at least one of the user's skin types
-    #  2. OPTIONAL MATCH concern overlap
-    #  3. MATCH component products (INCLUDES)
-    #  4. Filter: active, price cap, at least 2 components
-    #  5. Order by skin score DESC, price ASC
+    #  2. MATCH at least one component in the requested category (hard filter)
+    #  3. OPTIONAL MATCH concern overlap
+    #  4. OPTIONAL MATCH all component products (for card rendering)
+    #  5. Filter: active, price cap, at least 2 components
+    #  6. Order by skin score DESC, price ASC
     #
     # FalkorDB rule: all hard MATCHes before OPTIONAL MATCHes.
     lines = [
         "MATCH (c:Combo)-[:SUITS_SKIN_TYPE]->(st:SkinType) "
         "WHERE st.name IN $skin_types",
     ]
+
+    # Require at least one component in the user's requested category so that
+    # sunscreen requests don't surface moisturizer-only combos.
+    if category:
+        params["category"] = category
+        lines.append(
+            "MATCH (c)-[:INCLUDES]->(:Product)-[:IN_CATEGORY]->(:Category {name: $category})"
+        )
 
     if concerns:
         params["concerns"] = concerns
@@ -71,8 +76,7 @@ def retrieve_combos(graph, profile: dict) -> list[dict]:
             "WHERE cn.name IN $concerns"
         )
     else:
-        lines.append("OPTIONAL MATCH (c)-[:TARGETS_CONCERN]->(cn:Concern) "
-                     "WHERE false")   # no concerns → score stays 0
+        lines.append("OPTIONAL MATCH (c)-[:TARGETS_CONCERN]->(cn:Concern)")
 
     # collect component product info
     lines.append(
@@ -117,8 +121,18 @@ def retrieve_combos(graph, profile: dict) -> list[dict]:
     except Exception:
         return []
 
-    combos = []
+    combos: list[dict] = []
+    seen_titles: set[str] = set()
     for r in result.result_set:
+        title = r[1] or ""
+        # Dedup by title — graph may have multiple Combo nodes with identical
+        # names (e.g. from re-ingest). Keep only the first (highest-scoring,
+        # cheapest due to ORDER BY) occurrence.
+        norm = title.strip().lower()
+        if norm in seen_titles:
+            continue
+        seen_titles.add(norm)
+
         # components list may contain nulls if no products matched INCLUDES
         raw_components = r[9] or []
         components = [
@@ -130,7 +144,7 @@ def retrieve_combos(graph, profile: dict) -> list[dict]:
 
         combos.append({
             "sku":              r[0],
-            "title":            r[1],
+            "title":            title,
             "price":            r[2],
             "compare_at_price": r[3] or 0,
             "url":              r[4],

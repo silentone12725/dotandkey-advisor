@@ -8,10 +8,8 @@ Run after generate_capability_scores.py:
 """
 
 import argparse
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from graph.product_dna import compute_product_dna
 from graph.capability_schema import CAPABILITY_AXES, cap_prop

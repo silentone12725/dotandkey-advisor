@@ -2,736 +2,1830 @@
   "DK_NVVCES": {
     "handle": "dot-key-vitamin-c-e-spf-50-pa-face-sunscreen-for-glowing-skin-uv-protection-for-dull-skin",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/VitaminCSunscreenListing1-1_637b02a6-7537-475e-989f-bd472a2e415c.jpg?v=1778839085&width=400",
-    "product_url": "/products/dot-key-vitamin-c-e-spf-50-pa-face-sunscreen-for-glowing-skin-uv-protection-for-dull-skin"
+    "product_url": "/products/dot-key-vitamin-c-e-spf-50-pa-face-sunscreen-for-glowing-skin-uv-protection-for-dull-skin",
+    "shade": "",
+    "available": false,
+    "siblings": [
+      "DK_NVVCES",
+      "DK_VCES"
+    ]
   },
   "DK_VCES": {
     "handle": "dot-key-vitamin-c-e-spf-50-pa-face-sunscreen-for-glowing-skin-uv-protection-for-dull-skin",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/VitaminCSunscreenListing1-1_637b02a6-7537-475e-989f-bd472a2e415c.jpg?v=1778839085&width=400",
-    "product_url": "/products/dot-key-vitamin-c-e-spf-50-pa-face-sunscreen-for-glowing-skin-uv-protection-for-dull-skin"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/VitaminCSunscreenListing1_07f4360f-82c7-4360-99d1-9fd101986a61.jpg?v=1778839085&width=400",
+    "product_url": "/products/dot-key-vitamin-c-e-spf-50-pa-face-sunscreen-for-glowing-skin-uv-protection-for-dull-skin",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_NVVCES",
+      "DK_VCES"
+    ]
   },
   "DK_FNVVCEM": {
-    "handle": "vitamin-c-e-super-bright-moisturizer",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1.webp?v=1770640542&width=400",
-    "product_url": "/products/vitamin-c-e-super-bright-moisturizer"
+    "handle": "vitamin-c-moisturizer",
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard1_583ef82d-c136-490d-aab1-4780f12ee608.jpg?v=1784012119&width=400",
+    "product_url": "/products/vitamin-c-moisturizer",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_FNVVCEM"
+    ]
   },
   "DK_WCPCM": {
     "handle": "watermelon-cool-icy-plunge-clay-mask",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard1_8245e3fb-5c69-4b2f-b9c7-84fb42e52e95.jpg?v=1773820743&width=400",
-    "product_url": "/products/watermelon-cool-icy-plunge-clay-mask"
+    "product_url": "/products/watermelon-cool-icy-plunge-clay-mask",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_WCPCM"
+    ]
   },
   "DK_CCNN": {
     "handle": "break-up-with-acne-combo-2",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/PO_daf3ee91-27a4-4a5d-a274-4b6a5da6db61.jpg?v=1773643233&width=400",
-    "product_url": "/products/break-up-with-acne-combo-2"
+    "product_url": "/products/break-up-with-acne-combo-2",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CCNN"
+    ]
   },
   "DK_CCMS_2": {
     "handle": "spf-50-cica-niacinamide-sunscreen-50g-pack-of-2",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/cica50.jpg?v=1772019056&width=400",
-    "product_url": "/products/spf-50-cica-niacinamide-sunscreen-50g-pack-of-2"
+    "product_url": "/products/spf-50-cica-niacinamide-sunscreen-50g-pack-of-2",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CCMS_2",
+      "DK_CCNS2"
+    ]
   },
   "DK_DFBS": {
     "handle": "dot-key-dragon-fruit-bounce-sunscreen-in-vivo-tested-spf-50-pa-50g",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-1_83caee88-11d2-4437-8e29-7b1da46ffb71.jpg?v=1778838200&width=400",
-    "product_url": "/products/dot-key-dragon-fruit-bounce-sunscreen-in-vivo-tested-spf-50-pa-50g"
+    "product_url": "/products/dot-key-dragon-fruit-bounce-sunscreen-in-vivo-tested-spf-50-pa-50g",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_DFBS"
+    ]
   },
   "DK_NVSDBFW": {
     "handle": "strawberry-bright-niacinamide-gel-face-wash",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1copy3.jpg?v=1772454016&width=400",
-    "product_url": "/products/strawberry-bright-niacinamide-gel-face-wash"
+    "product_url": "/products/strawberry-bright-niacinamide-gel-face-wash",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_NVSDBFW"
+    ]
   },
   "DK_VCEMS": {
     "handle": "vitamin-c-e-mineral-sunscreen",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1a_055631d9-8489-46d1-bddf-bd21e2b6e9aa.jpg?v=1771219495&width=400",
-    "product_url": "/products/vitamin-c-e-mineral-sunscreen"
+    "product_url": "/products/vitamin-c-e-mineral-sunscreen",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_VCEMS"
+    ]
   },
   "DK_VCEFS2": {
     "handle": "10-vitamin-c-e-face-serum-pack-of-2",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/VitaminCSerum.jpg?v=1767698235&width=400",
-    "product_url": "/products/10-vitamin-c-e-face-serum-pack-of-2"
+    "product_url": "/products/10-vitamin-c-e-face-serum-pack-of-2",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_VCEFS2"
+    ]
   },
   "DK_NVMAHS": {
     "handle": "moringa-argan-hair-fall-control-shampoo",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/shampoo-2-1_4827f1a0-3465-4012-a88e-3cb26b07b3a4.webp?v=1706167088&width=400",
-    "product_url": "/products/moringa-argan-hair-fall-control-shampoo"
+    "product_url": "/products/moringa-argan-hair-fall-control-shampoo",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_NVMAHS"
+    ]
   },
   "DK_NVWGFC_2": {
     "handle": "watermelon-gel-face-wash-2-x-100ml",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/image_1_9bd845d7-3ad6-425c-8109-de0424ee97bd.png?v=1753186949&width=400",
-    "product_url": "/products/watermelon-gel-face-wash-2-x-100ml"
+    "product_url": "/products/watermelon-gel-face-wash-2-x-100ml",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_NVWGFC_2"
+    ]
   },
   "DK_SDTS03_2": {
     "handle": "strawberry-dew-tinted-sunscreen-sand-pack-of-2",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Untitled-1_b576e47e-9a37-4f57-b2fc-150e4ca17a64.jpg?v=1753186600&width=400",
-    "product_url": "/products/strawberry-dew-tinted-sunscreen-sand-pack-of-2"
+    "product_url": "/products/strawberry-dew-tinted-sunscreen-sand-pack-of-2",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_SDTS03_2"
+    ]
   },
   "DK_SDTS02_2": {
     "handle": "strawberry-dew-tinted-sunscreen-spf-50-warm-ivory-pack-of-2",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard19.jpg?v=1754647616&width=400",
-    "product_url": "/products/strawberry-dew-tinted-sunscreen-spf-50-warm-ivory-pack-of-2"
+    "product_url": "/products/strawberry-dew-tinted-sunscreen-spf-50-warm-ivory-pack-of-2",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_SDTS02_2"
+    ]
   },
   "DK_MLBBC": {
     "handle": "meltie-lipbalm",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_1_2d644e7e-0c53-405c-b586-21a06ca44c86.jpg?v=1769097648&width=400",
-    "product_url": "/products/meltie-lipbalm"
+    "product_url": "/products/meltie-lipbalm",
+    "shade": "Berry Crumble",
+    "available": true,
+    "siblings": [
+      "DK_MLBBC",
+      "DK_MLBCC",
+      "DK_MLBSG"
+    ]
   },
   "DK_MLBSG": {
     "handle": "meltie-lipbalm",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_1_2d644e7e-0c53-405c-b586-21a06ca44c86.jpg?v=1769097648&width=400",
-    "product_url": "/products/meltie-lipbalm"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_b3dbb0f7-5633-401b-9cf5-e12c75cc398c.jpg?v=1769097648&width=400",
+    "product_url": "/products/meltie-lipbalm",
+    "shade": "Strawberry Glaze",
+    "available": true,
+    "siblings": [
+      "DK_MLBBC",
+      "DK_MLBCC",
+      "DK_MLBSG"
+    ]
+  },
+  "DK_MLBCC": {
+    "handle": "meltie-lipbalm",
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_48b3850f-35f5-4967-aa89-e647c15e25fe.jpg?v=1782809779&width=400",
+    "product_url": "/products/meltie-lipbalm",
+    "shade": "Cocoa Crème",
+    "available": true,
+    "siblings": [
+      "DK_MLBBC",
+      "DK_MLBCC",
+      "DK_MLBSG"
+    ]
   },
   "DK_SDTS01": {
     "handle": "strawberry-dew-tinted-sunscreen-spf-50-pa",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_b1e08716-cac1-4066-8010-dfb012ae9f2a.jpg?v=1781243511&width=400",
-    "product_url": "/products/strawberry-dew-tinted-sunscreen-spf-50-pa"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_1_a48406cc-f847-42e5-85ee-edfc4d5c7336.jpg?v=1784100040&width=400",
+    "product_url": "/products/strawberry-dew-tinted-sunscreen-spf-50-pa",
+    "shade": "Porcelain - 01 Light",
+    "available": true,
+    "siblings": [
+      "DK_SDTS00",
+      "DK_SDTS01",
+      "DK_SDTS01A",
+      "DK_SDTS02",
+      "DK_SDTS03",
+      "DK_SDTS05",
+      "DK_SDTS07"
+    ]
   },
   "DK_SDTS02": {
     "handle": "strawberry-dew-tinted-sunscreen-spf-50-pa",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_b1e08716-cac1-4066-8010-dfb012ae9f2a.jpg?v=1781243511&width=400",
-    "product_url": "/products/strawberry-dew-tinted-sunscreen-spf-50-pa"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/WarmIvory_24ff0612-5aa5-4424-898f-dc115e0b54d1.jpg?v=1777372305&width=400",
+    "product_url": "/products/strawberry-dew-tinted-sunscreen-spf-50-pa",
+    "shade": "Warm Ivory  - 02 Light Medium",
+    "available": true,
+    "siblings": [
+      "DK_SDTS00",
+      "DK_SDTS01",
+      "DK_SDTS01A",
+      "DK_SDTS02",
+      "DK_SDTS03",
+      "DK_SDTS05",
+      "DK_SDTS07"
+    ]
   },
   "DK_SDTS03": {
     "handle": "strawberry-dew-tinted-sunscreen-spf-50-pa",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_b1e08716-cac1-4066-8010-dfb012ae9f2a.jpg?v=1781243511&width=400",
-    "product_url": "/products/strawberry-dew-tinted-sunscreen-spf-50-pa"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Sand_b6280498-3271-41b7-9513-c385fd82f407.jpg?v=1777372305&width=400",
+    "product_url": "/products/strawberry-dew-tinted-sunscreen-spf-50-pa",
+    "shade": "Sand - 03 Medium",
+    "available": true,
+    "siblings": [
+      "DK_SDTS00",
+      "DK_SDTS01",
+      "DK_SDTS01A",
+      "DK_SDTS02",
+      "DK_SDTS03",
+      "DK_SDTS05",
+      "DK_SDTS07"
+    ]
   },
   "DK_SDTS00": {
     "handle": "strawberry-dew-tinted-sunscreen-spf-50-pa",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_b1e08716-cac1-4066-8010-dfb012ae9f2a.jpg?v=1781243511&width=400",
-    "product_url": "/products/strawberry-dew-tinted-sunscreen-spf-50-pa"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_de25ac2d-c470-43f2-9217-538f92860f78.jpg?v=1781089202&width=400",
+    "product_url": "/products/strawberry-dew-tinted-sunscreen-spf-50-pa",
+    "shade": "Peony - 00 Very Light",
+    "available": true,
+    "siblings": [
+      "DK_SDTS00",
+      "DK_SDTS01",
+      "DK_SDTS01A",
+      "DK_SDTS02",
+      "DK_SDTS03",
+      "DK_SDTS05",
+      "DK_SDTS07"
+    ]
   },
   "DK_SDTS01A": {
     "handle": "strawberry-dew-tinted-sunscreen-spf-50-pa",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_b1e08716-cac1-4066-8010-dfb012ae9f2a.jpg?v=1781243511&width=400",
-    "product_url": "/products/strawberry-dew-tinted-sunscreen-spf-50-pa"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Rose_e82ff1e9-7bb3-4756-b306-cfa25ca68088.jpg?v=1777372305&width=400",
+    "product_url": "/products/strawberry-dew-tinted-sunscreen-spf-50-pa",
+    "shade": "Rose - 01A Light with Neutral Undertone",
+    "available": true,
+    "siblings": [
+      "DK_SDTS00",
+      "DK_SDTS01",
+      "DK_SDTS01A",
+      "DK_SDTS02",
+      "DK_SDTS03",
+      "DK_SDTS05",
+      "DK_SDTS07"
+    ]
   },
   "DK_SDTS05": {
     "handle": "strawberry-dew-tinted-sunscreen-spf-50-pa",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_b1e08716-cac1-4066-8010-dfb012ae9f2a.jpg?v=1781243511&width=400",
-    "product_url": "/products/strawberry-dew-tinted-sunscreen-spf-50-pa"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Beige_36960f3a-d3f8-451b-9e78-9198a62ebae4.jpg?v=1777372305&width=400",
+    "product_url": "/products/strawberry-dew-tinted-sunscreen-spf-50-pa",
+    "shade": "Beige - 05 Medium Deep",
+    "available": true,
+    "siblings": [
+      "DK_SDTS00",
+      "DK_SDTS01",
+      "DK_SDTS01A",
+      "DK_SDTS02",
+      "DK_SDTS03",
+      "DK_SDTS05",
+      "DK_SDTS07"
+    ]
   },
   "DK_SDTS07": {
     "handle": "strawberry-dew-tinted-sunscreen-spf-50-pa",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_b1e08716-cac1-4066-8010-dfb012ae9f2a.jpg?v=1781243511&width=400",
-    "product_url": "/products/strawberry-dew-tinted-sunscreen-spf-50-pa"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Caramel_f06a6fe0-ecc5-4281-b662-53a7ee9a6b96.jpg?v=1777372305&width=400",
+    "product_url": "/products/strawberry-dew-tinted-sunscreen-spf-50-pa",
+    "shade": "Caramel - 07  Deep",
+    "available": true,
+    "siblings": [
+      "DK_SDTS00",
+      "DK_SDTS01",
+      "DK_SDTS01A",
+      "DK_SDTS02",
+      "DK_SDTS03",
+      "DK_SDTS05",
+      "DK_SDTS07"
+    ]
   },
   "DK_BRIM": {
     "handle": "barrier-repair-intense-moisturizer",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_b8ecdb5f-bb1b-41b0-9e38-fa3859a5bd6a.jpg?v=1770964873&width=400",
-    "product_url": "/products/barrier-repair-intense-moisturizer"
+    "product_url": "/products/barrier-repair-intense-moisturizer",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_BRIM"
+    ]
   },
   "DK_BHBMT": {
     "handle": "blueberry-hydrate-barrier-repair-milky-toner-essence",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_e060a681-2eb5-422f-a25e-ff0d1fd55b1d.jpg?v=1751367041&width=400",
-    "product_url": "/products/blueberry-hydrate-barrier-repair-milky-toner-essence"
+    "product_url": "/products/blueberry-hydrate-barrier-repair-milky-toner-essence",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_BHBMT"
+    ]
   },
   "DK_NVCCBC_2": {
     "handle": "cica-salicylic-gel-face-wash-100g-duo",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/cicafwcopy_66d6575a-2ba9-4c83-9e4e-0bfd635532ef.jpg?v=1750765345&width=400",
-    "product_url": "/products/cica-salicylic-gel-face-wash-100g-duo"
+    "product_url": "/products/cica-salicylic-gel-face-wash-100g-duo",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_NVCCBC_2"
+    ]
   },
   "DK_VCES_WMCS1": {
     "handle": "spf50-sunscreen-duo",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard6_88dc66ad-2f18-4644-97d8-b16fba01a75a.jpg?v=1771415541&width=400",
-    "product_url": "/products/spf50-sunscreen-duo"
+    "product_url": "/products/spf50-sunscreen-duo",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_VCES_WMCS1"
+    ]
   },
   "DK_VCGFW_VCEFS_FNVVCEM_VCES": {
     "handle": "vitamin-c-daily-glow-booster-combo",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard9_e894988b-0b64-4ac7-981d-c97ce4a9b7ec.jpg?v=1771414018&width=400",
-    "product_url": "/products/vitamin-c-daily-glow-booster-combo"
+    "product_url": "/products/vitamin-c-daily-glow-booster-combo",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_VCGFW_VCEFS_FNVVCEM_VCES"
+    ]
   },
   "DK_WMCS_NVWGFC1": {
     "handle": "super-cool-watermelon-duo",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/PO_34ce8a4e-f1a9-4738-91ae-61c03629c69c.jpg?v=1771414406&width=400",
-    "product_url": "/products/super-cool-watermelon-duo"
+    "product_url": "/products/super-cool-watermelon-duo",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_WMCS_NVWGFC1"
+    ]
   },
   "DK_NVCHBFC_2": {
     "handle": "barrier-repair-moisturizer-duo",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/brmoistcopy.jpg?v=1731062834&width=400",
-    "product_url": "/products/barrier-repair-moisturizer-duo"
+    "product_url": "/products/barrier-repair-moisturizer-duo",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_NVCHBFC_2"
+    ]
   },
   "DK_VCGFW175_2": {
     "handle": "vitamin-c-gel-face-wash-pack-of-2",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/vitcfw175-Copycopy.jpg?v=1731498351&width=400",
-    "product_url": "/products/vitamin-c-gel-face-wash-pack-of-2"
+    "product_url": "/products/vitamin-c-gel-face-wash-pack-of-2",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_VCGFW175_2"
+    ]
   },
   "DK_CCGFW175_2": {
     "handle": "cica-salicylic-gel-face-wash-pack-of-2",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/cica175copy.jpg?v=1731498561&width=400",
-    "product_url": "/products/cica-salicylic-gel-face-wash-pack-of-2"
+    "product_url": "/products/cica-salicylic-gel-face-wash-pack-of-2",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CCGFW175_2"
+    ]
   },
   "DK_BRHFW175_2": {
     "handle": "barrier-repair-face-wash-pack-of-2",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/brfw175copy.jpg?v=1731499456&width=400",
-    "product_url": "/products/barrier-repair-face-wash-pack-of-2"
+    "product_url": "/products/barrier-repair-face-wash-pack-of-2",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_BRHFW175_2"
+    ]
   },
   "DK_WMCS_2": {
     "handle": "spf-50-watermelon-sunscreen-50g-pack-of-2",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/watermelonsuncopy.jpg?v=1771417490&width=400",
-    "product_url": "/products/spf-50-watermelon-sunscreen-50g-pack-of-2"
+    "product_url": "/products/spf-50-watermelon-sunscreen-50g-pack-of-2",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_WMCS_2"
+    ]
   },
   "DK_NVWGFC_WPTT_WCIGM1": {
     "handle": "watermelon-luminous-skin-glow-ctm-regime",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/PO_122ec33f-64e3-46f1-b808-9f6c2510a44c.jpg?v=1747472078&width=400",
-    "product_url": "/products/watermelon-luminous-skin-glow-ctm-regime"
+    "product_url": "/products/watermelon-luminous-skin-glow-ctm-regime",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_NVWGFC_WPTT_WCIGM1"
+    ]
   },
   "DK_BROFM50": {
-    "handle": "barrier-repair-oil-free-moisturizer",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-1_cc24a602-1169-487d-8419-5681659434b2.jpg?v=1757933155&width=400",
-    "product_url": "/products/barrier-repair-oil-free-moisturizer"
+    "handle": "barrier-repair-oil-free-moisturizer-15ml-1",
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard13_4cbcdf9f-59da-4d30-ba5e-ff8a0662df80.jpg?v=1752055282&width=400",
+    "product_url": "/products/barrier-repair-oil-free-moisturizer-15ml-1",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_BROFM50"
+    ]
   },
   "DK_SDSM": {
     "handle": "strawberry-dew-sunscreen-mist-spf-50",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1copy_da9956a7-7de6-4cdb-b8d2-1a7dcfda7c56.jpg?v=1746425402&width=400",
-    "product_url": "/products/strawberry-dew-sunscreen-mist-spf-50"
+    "product_url": "/products/strawberry-dew-sunscreen-mist-spf-50",
+    "shade": "",
+    "available": false,
+    "siblings": [
+      "DK_SDSM"
+    ]
   },
   "DK_SBNS": {
     "handle": "10-niacinamide-strawberry-brightening-face-serum",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard_1_f94f4456-d328-4271-ab7e-94bde8c9bbd3.jpg?v=1745323515&width=400",
-    "product_url": "/products/10-niacinamide-strawberry-brightening-face-serum"
+    "product_url": "/products/10-niacinamide-strawberry-brightening-face-serum",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_MNSBNS",
+      "DK_SBNS"
+    ]
   },
   "DK_MNSBNS": {
     "handle": "10-niacinamide-strawberry-brightening-face-serum",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard_1_f94f4456-d328-4271-ab7e-94bde8c9bbd3.jpg?v=1745323515&width=400",
-    "product_url": "/products/10-niacinamide-strawberry-brightening-face-serum"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard_1-_20ml.jpg?v=1752664207&width=400",
+    "product_url": "/products/10-niacinamide-strawberry-brightening-face-serum",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_MNSBNS",
+      "DK_SBNS"
+    ]
   },
   "DK_CCNS2": {
     "handle": "spf-50-cica-niacinamide-sunscreen-50g-pack-of-2",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/cica50.jpg?v=1772019056&width=400",
-    "product_url": "/products/spf-50-cica-niacinamide-sunscreen-50g-pack-of-2"
+    "product_url": "/products/spf-50-cica-niacinamide-sunscreen-50g-pack-of-2",
+    "shade": "",
+    "siblings": [
+      "DK_CCMS_2",
+      "DK_CCNS2"
+    ]
   },
   "DK_WCIGM": {
     "handle": "watermelon-moisturizer-icy-gel",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard1_1f1c4c5a-ebdb-42d0-b276-76e9882b57ec.jpg?v=1768545549&width=400",
-    "product_url": "/products/watermelon-moisturizer-icy-gel"
+    "product_url": "/products/watermelon-moisturizer-icy-gel",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_WCIGM"
+    ]
   },
   "DK_NVMDGS": {
     "handle": "mango-detan-gel-sunscreen-spf-50",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-80g_d8f8e544-52ce-4caf-a6bf-716daca2feb9.jpg?v=1781517746&width=400",
-    "product_url": "/products/mango-detan-gel-sunscreen-spf-50"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-80g_c85ff2fc-4467-46a0-9d5f-8e00af53a082.jpg?v=1783423825&width=400",
+    "product_url": "/products/mango-detan-gel-sunscreen-spf-50",
+    "shade": "",
+    "available": false,
+    "siblings": [
+      "DK_MDGS",
+      "DK_NVMDGS"
+    ]
   },
   "DK_MDGS": {
     "handle": "mango-detan-gel-sunscreen-spf-50",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-80g_d8f8e544-52ce-4caf-a6bf-716daca2feb9.jpg?v=1781517746&width=400",
-    "product_url": "/products/mango-detan-gel-sunscreen-spf-50"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-50g_7a08138c-33d7-419a-b03a-2a3f90bd023b.jpg?v=1783423825&width=400",
+    "product_url": "/products/mango-detan-gel-sunscreen-spf-50",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_MDGS",
+      "DK_NVMDGS"
+    ]
   },
   "DK_PYRS": {
     "handle": "0-2-retinol-complex-face-serum",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-1_1.jpg?v=1761888868&width=400",
-    "product_url": "/products/0-2-retinol-complex-face-serum"
+    "product_url": "/products/0-2-retinol-complex-face-serum",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_PYRS"
+    ]
   },
   "DK_FNVVCEM2": {
     "handle": "vitamin-c-e-moisturizer-pack-of-2",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/vitaminccopy.jpg?v=1735980596&width=400",
-    "product_url": "/products/vitamin-c-e-moisturizer-pack-of-2"
+    "product_url": "/products/vitamin-c-e-moisturizer-pack-of-2",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_FNVVCEM2"
+    ]
   },
   "DK_SDDM2": {
     "handle": "strawberry-niacinamide-moisturizer-pack-of-2",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/strawberrycopy.jpg?v=1735981201&width=400",
-    "product_url": "/products/strawberry-niacinamide-moisturizer-pack-of-2"
+    "product_url": "/products/strawberry-niacinamide-moisturizer-pack-of-2",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_SDDM2"
+    ]
   },
   "DK_NRST2": {
     "handle": "retinol-ceramide-night-cream-pack-of-2",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/retinolcopy.jpg?v=1735980978&width=400",
-    "product_url": "/products/retinol-ceramide-night-cream-pack-of-2"
+    "product_url": "/products/retinol-ceramide-night-cream-pack-of-2",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_NRST2"
+    ]
   },
   "DK_CNOM2": {
     "handle": "cica-calming-oil-free-moisturizer-pack-of-2",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/cicaday2copy.jpg?v=1735980402&width=400",
-    "product_url": "/products/cica-calming-oil-free-moisturizer-pack-of-2"
+    "product_url": "/products/cica-calming-oil-free-moisturizer-pack-of-2",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CNOM2"
+    ]
   },
   "DK_HGPR2": {
     "handle": "72hr-hydrating-lightweight-gel-moisturizer-pack-of-2",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/procopy.jpg?v=1735980200&width=400",
-    "product_url": "/products/72hr-hydrating-lightweight-gel-moisturizer-pack-of-2"
+    "product_url": "/products/72hr-hydrating-lightweight-gel-moisturizer-pack-of-2",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_HGPR",
+      "DK_HGPR2"
+    ]
   },
   "DK_NVWGFC175": {
     "handle": "watermelon-vitamin-c-face-wash-gel-1",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-2.jpg?v=1773549636&width=400",
-    "product_url": "/products/watermelon-vitamin-c-face-wash-gel-1"
+    "product_url": "/products/watermelon-vitamin-c-face-wash-gel-1",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_NVWGFC",
+      "DK_NVWGFC175"
+    ]
   },
   "DK_NVWGFC": {
     "handle": "watermelon-vitamin-c-face-wash-gel-1",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-2.jpg?v=1773549636&width=400",
-    "product_url": "/products/watermelon-vitamin-c-face-wash-gel-1"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_6167dff7-de14-46be-a3b5-7e7c41defd84.jpg?v=1773549636&width=400",
+    "product_url": "/products/watermelon-vitamin-c-face-wash-gel-1",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_NVWGFC",
+      "DK_NVWGFC175"
+    ]
   },
   "DK_CLBSCCP": {
     "handle": "spf-30-vitamin-c-e-lip-balm",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1e.jpg?v=1760127117&width=400",
-    "product_url": "/products/spf-30-vitamin-c-e-lip-balm"
+    "product_url": "/products/spf-30-vitamin-c-e-lip-balm",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CLBCPCM",
+      "DK_CLBSCCM",
+      "DK_CLBSCCP",
+      "DK_LBCM",
+      "DK_LBCM2",
+      "DK_LBCP",
+      "DK_LBCP2",
+      "DK_LBSC",
+      "DK_LBSC2",
+      "DK_LBWMC",
+      "DK_LBWMR"
+    ]
   },
   "DK_CLBSCCM": {
     "handle": "spf-30-vitamin-c-e-lip-balm",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1e.jpg?v=1760127117&width=400",
-    "product_url": "/products/spf-30-vitamin-c-e-lip-balm"
+    "product_url": "/products/spf-30-vitamin-c-e-lip-balm",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CLBCPCM",
+      "DK_CLBSCCM",
+      "DK_CLBSCCP",
+      "DK_LBCM",
+      "DK_LBCM2",
+      "DK_LBCP",
+      "DK_LBCP2",
+      "DK_LBSC",
+      "DK_LBSC2",
+      "DK_LBWMC",
+      "DK_LBWMR"
+    ]
   },
   "DK_CLBCPCM": {
     "handle": "spf-30-vitamin-c-e-lip-balm",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1e.jpg?v=1760127117&width=400",
-    "product_url": "/products/spf-30-vitamin-c-e-lip-balm"
+    "product_url": "/products/spf-30-vitamin-c-e-lip-balm",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CLBCPCM",
+      "DK_CLBSCCM",
+      "DK_CLBSCCP",
+      "DK_LBCM",
+      "DK_LBCM2",
+      "DK_LBCP",
+      "DK_LBCP2",
+      "DK_LBSC",
+      "DK_LBSC2",
+      "DK_LBWMC",
+      "DK_LBWMR"
+    ]
   },
   "DK_LBSC2": {
     "handle": "spf-30-vitamin-c-e-lip-balm",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1e.jpg?v=1760127117&width=400",
-    "product_url": "/products/spf-30-vitamin-c-e-lip-balm"
+    "product_url": "/products/spf-30-vitamin-c-e-lip-balm",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CLBCPCM",
+      "DK_CLBSCCM",
+      "DK_CLBSCCP",
+      "DK_LBCM",
+      "DK_LBCM2",
+      "DK_LBCP",
+      "DK_LBCP2",
+      "DK_LBSC",
+      "DK_LBSC2",
+      "DK_LBWMC",
+      "DK_LBWMR"
+    ]
   },
   "DK_LBCP2": {
     "handle": "spf-30-vitamin-c-e-lip-balm",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1e.jpg?v=1760127117&width=400",
-    "product_url": "/products/spf-30-vitamin-c-e-lip-balm"
+    "product_url": "/products/spf-30-vitamin-c-e-lip-balm",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CLBCPCM",
+      "DK_CLBSCCM",
+      "DK_CLBSCCP",
+      "DK_LBCM",
+      "DK_LBCM2",
+      "DK_LBCP",
+      "DK_LBCP2",
+      "DK_LBSC",
+      "DK_LBSC2",
+      "DK_LBWMC",
+      "DK_LBWMR"
+    ]
   },
   "DK_LBCM2": {
     "handle": "spf-30-vitamin-c-e-lip-balm",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1e.jpg?v=1760127117&width=400",
-    "product_url": "/products/spf-30-vitamin-c-e-lip-balm"
+    "product_url": "/products/spf-30-vitamin-c-e-lip-balm",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CLBCPCM",
+      "DK_CLBSCCM",
+      "DK_CLBSCCP",
+      "DK_LBCM",
+      "DK_LBCM2",
+      "DK_LBCP",
+      "DK_LBCP2",
+      "DK_LBSC",
+      "DK_LBSC2",
+      "DK_LBWMC",
+      "DK_LBWMR"
+    ]
   },
   "DK_CLBCCCN": {
     "handle": "spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/cocoa_cherry_10528c62-39d2-447e-b584-1a32ef7ef065.jpg?v=1732702648&width=400",
-    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2"
+    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
+    "shade": "Cocoa Nude + Cherry Crimson",
+    "available": true,
+    "siblings": [
+      "DK_CLBBBCN",
+      "DK_CLBBBCR",
+      "DK_CLBBBSR",
+      "DK_CLBCCCN",
+      "DK_CLBCCSR",
+      "DK_CLBSRCN",
+      "DK_LBBB2",
+      "DK_LBCCR2",
+      "DK_LBCN2",
+      "DK_LBSR2"
+    ]
   },
   "DK_CLBCCSR": {
     "handle": "spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/cocoa_cherry_10528c62-39d2-447e-b584-1a32ef7ef065.jpg?v=1732702648&width=400",
-    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/straw_cherrycopy_f81b0b84-c987-4f72-bcca-07e7fdcd8e95.jpg?v=1732702677&width=400",
+    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
+    "shade": "Strawberry Red + Cherry Crimson",
+    "available": true,
+    "siblings": [
+      "DK_CLBBBCN",
+      "DK_CLBBBCR",
+      "DK_CLBBBSR",
+      "DK_CLBCCCN",
+      "DK_CLBCCSR",
+      "DK_CLBSRCN",
+      "DK_LBBB2",
+      "DK_LBCCR2",
+      "DK_LBCN2",
+      "DK_LBSR2"
+    ]
   },
   "DK_LBCCR2": {
     "handle": "spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/cocoa_cherry_10528c62-39d2-447e-b584-1a32ef7ef065.jpg?v=1732702648&width=400",
-    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/cherry_cherrycopy_10f9256f-5447-4a7b-8aae-4c6c38be5c96.jpg?v=1732702721&width=400",
+    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
+    "shade": "Cherry Crimson (Pack of 2)",
+    "available": true,
+    "siblings": [
+      "DK_CLBBBCN",
+      "DK_CLBBBCR",
+      "DK_CLBBBSR",
+      "DK_CLBCCCN",
+      "DK_CLBCCSR",
+      "DK_CLBSRCN",
+      "DK_LBBB2",
+      "DK_LBCCR2",
+      "DK_LBCN2",
+      "DK_LBSR2"
+    ]
   },
   "DK_CLBSRCN": {
     "handle": "spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/cocoa_cherry_10528c62-39d2-447e-b584-1a32ef7ef065.jpg?v=1732702648&width=400",
-    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/cocoa_straw_5e5424a0-a1a9-438c-8f85-c1b48901c46a.jpg?v=1732702721&width=400",
+    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
+    "shade": "Cocoa Nude + Strawberry Red",
+    "available": true,
+    "siblings": [
+      "DK_CLBBBCN",
+      "DK_CLBBBCR",
+      "DK_CLBBBSR",
+      "DK_CLBCCCN",
+      "DK_CLBCCSR",
+      "DK_CLBSRCN",
+      "DK_LBBB2",
+      "DK_LBCCR2",
+      "DK_LBCN2",
+      "DK_LBSR2"
+    ]
   },
   "DK_LBSR2": {
     "handle": "spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/cocoa_cherry_10528c62-39d2-447e-b584-1a32ef7ef065.jpg?v=1732702648&width=400",
-    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/straw_strawcopy_6e33ed3a-e86c-4234-baef-7da690a6d3e1.jpg?v=1732702721&width=400",
+    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
+    "shade": "Strawberry Red (Pack of 2)",
+    "available": true,
+    "siblings": [
+      "DK_CLBBBCN",
+      "DK_CLBBBCR",
+      "DK_CLBBBSR",
+      "DK_CLBCCCN",
+      "DK_CLBCCSR",
+      "DK_CLBSRCN",
+      "DK_LBBB2",
+      "DK_LBCCR2",
+      "DK_LBCN2",
+      "DK_LBSR2"
+    ]
   },
   "DK_LBCN2": {
     "handle": "spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/cocoa_cherry_10528c62-39d2-447e-b584-1a32ef7ef065.jpg?v=1732702648&width=400",
-    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/cocoa_cocoacopy_21e9dd6c-dad2-4b81-ba81-f336ad6a773a.jpg?v=1732702721&width=400",
+    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
+    "shade": "Cocoa Nude (Pack of 2)",
+    "available": true,
+    "siblings": [
+      "DK_CLBBBCN",
+      "DK_CLBBBCR",
+      "DK_CLBBBSR",
+      "DK_CLBCCCN",
+      "DK_CLBCCSR",
+      "DK_CLBSRCN",
+      "DK_LBBB2",
+      "DK_LBCCR2",
+      "DK_LBCN2",
+      "DK_LBSR2"
+    ]
   },
   "DK_CLBBBCR": {
     "handle": "spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/cocoa_cherry_10528c62-39d2-447e-b584-1a32ef7ef065.jpg?v=1732702648&width=400",
-    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/blue_cherry_fa60e7f9-d633-4b87-b9d3-7cedbc24a798.jpg?v=1732702721&width=400",
+    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
+    "shade": "Blueberry Bliss + Cherry Crimson",
+    "available": true,
+    "siblings": [
+      "DK_CLBBBCN",
+      "DK_CLBBBCR",
+      "DK_CLBBBSR",
+      "DK_CLBCCCN",
+      "DK_CLBCCSR",
+      "DK_CLBSRCN",
+      "DK_LBBB2",
+      "DK_LBCCR2",
+      "DK_LBCN2",
+      "DK_LBSR2"
+    ]
   },
   "DK_CLBBBCN": {
     "handle": "spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/cocoa_cherry_10528c62-39d2-447e-b584-1a32ef7ef065.jpg?v=1732702648&width=400",
-    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/blue_cocoacopy_507e883b-da0a-45c1-b7eb-37e4ba35a9c9.jpg?v=1732702721&width=400",
+    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
+    "shade": "Blueberry Bliss + Cocoa Nude",
+    "available": true,
+    "siblings": [
+      "DK_CLBBBCN",
+      "DK_CLBBBCR",
+      "DK_CLBBBSR",
+      "DK_CLBCCCN",
+      "DK_CLBCCSR",
+      "DK_CLBSRCN",
+      "DK_LBBB2",
+      "DK_LBCCR2",
+      "DK_LBCN2",
+      "DK_LBSR2"
+    ]
   },
   "DK_CLBBBSR": {
     "handle": "spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/cocoa_cherry_10528c62-39d2-447e-b584-1a32ef7ef065.jpg?v=1732702648&width=400",
-    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/blue_strawcopy_34bee675-bc59-424e-8f80-cdaf0d34b069.jpg?v=1732702721&width=400",
+    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
+    "shade": "Blueberry Bliss + Strawberry Red",
+    "available": true,
+    "siblings": [
+      "DK_CLBBBCN",
+      "DK_CLBBBCR",
+      "DK_CLBBBSR",
+      "DK_CLBCCCN",
+      "DK_CLBCCSR",
+      "DK_CLBSRCN",
+      "DK_LBBB2",
+      "DK_LBCCR2",
+      "DK_LBCN2",
+      "DK_LBSR2"
+    ]
   },
   "DK_LBBB2": {
     "handle": "spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/cocoa_cherry_10528c62-39d2-447e-b584-1a32ef7ef065.jpg?v=1732702648&width=400",
-    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/blue2x_d7ed8222-8131-4bc7-8dbb-50c5a8cb959e.jpg?v=1732702721&width=400",
+    "product_url": "/products/spf-50-barrier-repair-hydrating-lip-balm-pack-of-2",
+    "shade": "Blueberry Bliss (Pack of 2)",
+    "available": true,
+    "siblings": [
+      "DK_CLBBBCN",
+      "DK_CLBBBCR",
+      "DK_CLBBBSR",
+      "DK_CLBCCCN",
+      "DK_CLBCCSR",
+      "DK_CLBSRCN",
+      "DK_LBBB2",
+      "DK_LBCCR2",
+      "DK_LBCN2",
+      "DK_LBSR2"
+    ]
   },
   "DK_BHBFS": {
     "handle": "barrier-repair-serum",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-1_2.jpg?v=1761888895&width=400",
-    "product_url": "/products/barrier-repair-serum"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-30ml.jpg?v=1784205186&width=400",
+    "product_url": "/products/barrier-repair-serum",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_BHBFS"
+    ]
   },
   "DK_SDSS": {
     "handle": "strawberry-sunstick",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1d_2.jpg?v=1767963095&width=400",
-    "product_url": "/products/strawberry-sunstick"
+    "product_url": "/products/strawberry-sunstick",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_SDSS"
+    ]
   },
   "DK_SDDM": {
     "handle": "strawberry-moisturizer",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_copy_3.jpg?v=1765285317&width=400",
-    "product_url": "/products/strawberry-moisturizer"
+    "product_url": "/products/strawberry-moisturizer",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_SDDM"
+    ]
   },
   "DK_VCFW": {
     "handle": "vitamin-c-super-bright-foaming-face-wash",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-Vit-C-Foaming-FW.jpg?v=1738833219&width=400",
-    "product_url": "/products/vitamin-c-super-bright-foaming-face-wash"
+    "product_url": "/products/vitamin-c-super-bright-foaming-face-wash",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_VCFW"
+    ]
   },
   "DK_SDSC": {
     "handle": "strobe-creams-highlighter-moisturizer",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_99c3d207-fea8-4ace-bb02-ebdbffa42aae.jpg?v=1744370583&width=400",
-    "product_url": "/products/strobe-creams-highlighter-moisturizer"
+    "product_url": "/products/strobe-creams-highlighter-moisturizer",
+    "shade": "Strawberry - Pearl Pink",
+    "available": true,
+    "siblings": [
+      "DK_SDSC"
+    ]
   },
   "DK_LBSR": {
     "handle": "hydrating-lip-balm",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_e2b57832-8f88-43e7-9a47-8a547cada069.jpg?v=1755090118&width=400",
-    "product_url": "/products/hydrating-lip-balm"
+    "product_url": "/products/hydrating-lip-balm",
+    "shade": "Strawberry Red - High Tinted",
+    "available": true,
+    "siblings": [
+      "DK_LBBB",
+      "DK_LBCCR",
+      "DK_LBCN",
+      "DK_LBSR"
+    ]
   },
   "DK_LBCCR": {
     "handle": "hydrating-lip-balm",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_e2b57832-8f88-43e7-9a47-8a547cada069.jpg?v=1755090118&width=400",
-    "product_url": "/products/hydrating-lip-balm"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_efefa896-f8ef-4224-b5fd-97e822e75d19.jpg?v=1766572313&width=400",
+    "product_url": "/products/hydrating-lip-balm",
+    "shade": "Cherry Crimson - High Tinted",
+    "available": true,
+    "siblings": [
+      "DK_LBBB",
+      "DK_LBCCR",
+      "DK_LBCN",
+      "DK_LBSR"
+    ]
   },
   "DK_LBCN": {
     "handle": "hydrating-lip-balm",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_e2b57832-8f88-43e7-9a47-8a547cada069.jpg?v=1755090118&width=400",
-    "product_url": "/products/hydrating-lip-balm"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_beb2414d-02b0-4524-8a50-9d3b622b557e.jpg?v=1766572313&width=400",
+    "product_url": "/products/hydrating-lip-balm",
+    "shade": "Cocoa Nude - Medium Tinted",
+    "available": true,
+    "siblings": [
+      "DK_LBBB",
+      "DK_LBCCR",
+      "DK_LBCN",
+      "DK_LBSR"
+    ]
   },
   "DK_LBBB": {
     "handle": "hydrating-lip-balm",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_e2b57832-8f88-43e7-9a47-8a547cada069.jpg?v=1755090118&width=400",
-    "product_url": "/products/hydrating-lip-balm"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_ed4fb780-19de-4a23-9b2f-f9ab2e42c14a.jpg?v=1766572313&width=400",
+    "product_url": "/products/hydrating-lip-balm",
+    "shade": "Blueberry Bliss - Non-Tinted",
+    "available": true,
+    "siblings": [
+      "DK_LBBB",
+      "DK_LBCCR",
+      "DK_LBCN",
+      "DK_LBSR"
+    ]
   },
   "DK_NVCCBC_CNOM1": {
     "handle": "clear-skin-super-cica-duo",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_5fde7382-fc19-4c5b-adba-161e6d24dfdd.jpg?v=1712641601&width=400",
-    "product_url": "/products/clear-skin-super-cica-duo"
+    "product_url": "/products/clear-skin-super-cica-duo",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_NVCCBC_CNOM1"
+    ]
   },
   "DK_MDCM": {
     "handle": "mango-clay-mask",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_2671075a-ae2b-4a43-8935-434211ec2d7f.jpg?v=1727355954&width=400",
-    "product_url": "/products/mango-clay-mask"
+    "product_url": "/products/mango-clay-mask",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_MDCM"
+    ]
   },
   "DK_MDGFW": {
     "handle": "mango-face-wash",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_c05b99e0-c177-4e08-bf58-269833e70161.jpg?v=1754041030&width=400",
-    "product_url": "/products/mango-face-wash"
+    "product_url": "/products/mango-face-wash",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_MDGFW"
+    ]
   },
   "DK_NRST": {
     "handle": "retinol-ceramide-age-defense-night-cream",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_7.jpg?v=1764061107&width=400",
-    "product_url": "/products/retinol-ceramide-age-defense-night-cream"
+    "product_url": "/products/retinol-ceramide-age-defense-night-cream",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_NRST"
+    ]
   },
   "DK_CCMS": {
     "handle": "cica-calming-mattifying-sunscreen-spf-50-pa",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1CicaSunscreenListing1-50g.jpg?v=1778925569&width=400",
-    "product_url": "/products/cica-calming-mattifying-sunscreen-spf-50-pa"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1CicaSunscreenListing1-80g.jpg?v=1778925569&width=400",
+    "product_url": "/products/cica-calming-mattifying-sunscreen-spf-50-pa",
+    "shade": "",
+    "available": false,
+    "siblings": [
+      "DK_CCMS",
+      "DK_CCNS"
+    ]
   },
   "DK_CCNS": {
     "handle": "cica-calming-mattifying-sunscreen-spf-50-pa",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1CicaSunscreenListing1-50g.jpg?v=1778925569&width=400",
-    "product_url": "/products/cica-calming-mattifying-sunscreen-spf-50-pa"
+    "product_url": "/products/cica-calming-mattifying-sunscreen-spf-50-pa",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CCMS",
+      "DK_CCNS"
+    ]
   },
   "DK_HYHS": {
     "handle": "hydrating-hyaluronic-face-serum",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1c_feeeecf5-a597-40aa-94f2-fc367e5df797.jpg?v=1727355174&width=400",
-    "product_url": "/products/hydrating-hyaluronic-face-serum"
+    "product_url": "/products/hydrating-hyaluronic-face-serum",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_HYHS"
+    ]
   },
   "DK_NVCCBC_CCNS1": {
     "handle": "acne-no-more-cica-power-duo",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_3c87dd31-d8f2-46a1-9c35-ca4ee1deb516.jpg?v=1772019357&width=400",
-    "product_url": "/products/acne-no-more-cica-power-duo"
+    "product_url": "/products/acne-no-more-cica-power-duo",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_NVCCBC_CCNS1"
+    ]
   },
   "DK_WGSG": {
     "handle": "watermelon-shower-gel",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-Watermelon-Body-Wash-copy_6e925ee3-052b-4aba-95d3-4e1c5d7b3f15.jpg?v=1721987198&width=400",
-    "product_url": "/products/watermelon-shower-gel"
+    "product_url": "/products/watermelon-shower-gel",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_WGSG"
+    ]
   },
   "DK_WCSBS": {
     "handle": "biphasic-sunscreen-spray",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_446d76ca-995c-4642-8b11-a03e3dcce05e.jpg?v=1746425277&width=400",
-    "product_url": "/products/biphasic-sunscreen-spray"
+    "product_url": "/products/biphasic-sunscreen-spray",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_WCSBS"
+    ]
   },
   "DK_WCUR": {
     "handle": "watermelon-cooling-underarm-roll-on",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard1_964d23f9-19a5-4032-b56c-3e66cbc4be38.jpg?v=1768546241&width=400",
-    "product_url": "/products/watermelon-cooling-underarm-roll-on"
+    "product_url": "/products/watermelon-cooling-underarm-roll-on",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_WCUR"
+    ]
   },
   "DK_VCES_VCGFW1": {
     "handle": "good-to-glow-vitamin-c-combo",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard9_c1fb1a21-dc57-4d32-9948-6dd0f0013b1a.jpg?v=1771416401&width=400",
-    "product_url": "/products/good-to-glow-vitamin-c-combo"
+    "product_url": "/products/good-to-glow-vitamin-c-combo",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_VCES_VCGFW1"
+    ]
   },
   "DK_CMFW": {
     "handle": "high-on-hydration-combo",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/po_32ca1dbe-df03-4dad-a5ce-1f3e2378fcc0.jpg?v=1747392713&width=400",
-    "product_url": "/products/high-on-hydration-combo"
+    "product_url": "/products/high-on-hydration-combo",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CMFW"
+    ]
   },
   "DK_HGPR": {
-    "handle": "hydrating-gel-probiotics-72-hr",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-72-hrs-gel---listing.jpg?v=1744369744&width=400",
-    "product_url": "/products/hydrating-gel-probiotics-72-hr"
+    "handle": "72hr-hydrating-lightweight-gel-moisturizer-pack-of-2",
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/procopy.jpg?v=1735980200&width=400",
+    "product_url": "/products/72hr-hydrating-lightweight-gel-moisturizer-pack-of-2",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_HGPR",
+      "DK_HGPR2"
+    ]
   },
   "DK_LRSSS": {
     "handle": "lime-rush-swim-sports-spf-50-sunscreen",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/0_2002bcb0-12fa-46d5-8163-4f75d3de0772.jpg?v=1781517563&width=400",
-    "product_url": "/products/lime-rush-swim-sports-spf-50-sunscreen"
+    "product_url": "/products/lime-rush-swim-sports-spf-50-sunscreen",
+    "shade": "",
+    "available": false,
+    "siblings": [
+      "DK_LRSSS"
+    ]
   },
   "DK_NVBHBRS": {
     "handle": "barrier-repair-sunscreen",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard_1_copy_c38bbbf3-ec26-4add-9b79-df3f9eb96600.jpg?v=1772446737&width=400",
-    "product_url": "/products/barrier-repair-sunscreen"
+    "product_url": "/products/barrier-repair-sunscreen",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_BHBRS",
+      "DK_NVBHBRS"
+    ]
   },
   "DK_BHBRS": {
     "handle": "barrier-repair-sunscreen",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard_1_copy_c38bbbf3-ec26-4add-9b79-df3f9eb96600.jpg?v=1772446737&width=400",
-    "product_url": "/products/barrier-repair-sunscreen"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard_1_1_b1e61989-679a-489c-8b8a-d45e55dc793a.jpg?v=1775644619&width=400",
+    "product_url": "/products/barrier-repair-sunscreen",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_BHBRS",
+      "DK_NVBHBRS"
+    ]
   },
   "DK_CSSSC": {
     "handle": "instant-dewy-skin-combo",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_5843e4a6-af0f-48a8-a3fe-0e5eb33b10c8.jpg?v=1721906943&width=400",
-    "product_url": "/products/instant-dewy-skin-combo"
+    "product_url": "/products/instant-dewy-skin-combo",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CSSSC"
+    ]
   },
   "DK_BRWN": {
     "handle": "spf-50-barrier-repair-lip-balm",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/3--Warm-Nude-v2.jpg?v=1744710057&width=400",
-    "product_url": "/products/spf-50-barrier-repair-lip-balm"
+    "product_url": "/products/spf-50-barrier-repair-lip-balm",
+    "shade": "Warm Nude",
+    "available": true,
+    "siblings": [
+      "DK_BRPP",
+      "DK_BRRR",
+      "DK_BRWN"
+    ]
   },
   "DK_BRPP": {
     "handle": "spf-50-barrier-repair-lip-balm",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/3--Warm-Nude-v2.jpg?v=1744710057&width=400",
-    "product_url": "/products/spf-50-barrier-repair-lip-balm"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1b.jpg?v=1768561550&width=400",
+    "product_url": "/products/spf-50-barrier-repair-lip-balm",
+    "shade": "Plush Pink",
+    "available": true,
+    "siblings": [
+      "DK_BRPP",
+      "DK_BRRR",
+      "DK_BRWN"
+    ]
   },
   "DK_BRRR": {
     "handle": "spf-50-barrier-repair-lip-balm",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/3--Warm-Nude-v2.jpg?v=1744710057&width=400",
-    "product_url": "/products/spf-50-barrier-repair-lip-balm"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/3--Red-Romance-v2.jpg?v=1768561550&width=400",
+    "product_url": "/products/spf-50-barrier-repair-lip-balm",
+    "shade": "Red Romance",
+    "available": true,
+    "siblings": [
+      "DK_BRPP",
+      "DK_BRRR",
+      "DK_BRWN"
+    ]
   },
   "DK_CFCS": {
     "handle": "moisturize-protect-duo",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/PO_9b3d4e9e-a88e-4b25-abc8-d7e695ca8065.jpg?v=1771413190&width=400",
-    "product_url": "/products/moisturize-protect-duo"
+    "product_url": "/products/moisturize-protect-duo",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CFCS"
+    ]
   },
   "DK_SDMCB": {
     "handle": "strawberry-dew-daily-cleansing-balm",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/2_238f4093-c9a0-4362-8390-6879b32b9444.jpg?v=1727354883&width=400",
-    "product_url": "/products/strawberry-dew-daily-cleansing-balm"
+    "product_url": "/products/strawberry-dew-daily-cleansing-balm",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_SDMCB"
+    ]
   },
   "DK_BRBL": {
     "handle": "barrier-repair-hydrating-body-lotion-1",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1.1.jpg?v=1744620761&width=400",
-    "product_url": "/products/barrier-repair-hydrating-body-lotion-1"
+    "product_url": "/products/barrier-repair-hydrating-body-lotion-1",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_BRBL"
+    ]
   },
   "DK_VCBL": {
     "handle": "vitamin-c-e-super-bright-body-lotion-1",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/2_de4046ce-14f0-428d-9c30-5629ef752a60.jpg?v=1745240682&width=400",
-    "product_url": "/products/vitamin-c-e-super-bright-body-lotion-1"
+    "product_url": "/products/vitamin-c-e-super-bright-body-lotion-1",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_VCBL"
+    ]
   },
   "DK_LBSC": {
     "handle": "spf-30-vitamin-c-e-lip-balm",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1e.jpg?v=1760127117&width=400",
-    "product_url": "/products/spf-30-vitamin-c-e-lip-balm"
+    "product_url": "/products/spf-30-vitamin-c-e-lip-balm",
+    "shade": "Strawberry Crush High Tinted",
+    "available": true,
+    "siblings": [
+      "DK_CLBCPCM",
+      "DK_CLBSCCM",
+      "DK_CLBSCCP",
+      "DK_LBCM",
+      "DK_LBCM2",
+      "DK_LBCP",
+      "DK_LBCP2",
+      "DK_LBSC",
+      "DK_LBSC2",
+      "DK_LBWMC",
+      "DK_LBWMR"
+    ]
   },
   "DK_LBCP": {
     "handle": "spf-30-vitamin-c-e-lip-balm",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1e.jpg?v=1760127117&width=400",
-    "product_url": "/products/spf-30-vitamin-c-e-lip-balm"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_2fb3cf55-ffe0-4eaa-835d-5d81ebe9bb42.jpg?v=1768562025&width=400",
+    "product_url": "/products/spf-30-vitamin-c-e-lip-balm",
+    "shade": "Cherry Pop Medium Tinted",
+    "available": true,
+    "siblings": [
+      "DK_CLBCPCM",
+      "DK_CLBSCCM",
+      "DK_CLBSCCP",
+      "DK_LBCM",
+      "DK_LBCM2",
+      "DK_LBCP",
+      "DK_LBCP2",
+      "DK_LBSC",
+      "DK_LBSC2",
+      "DK_LBWMC",
+      "DK_LBWMR"
+    ]
   },
   "DK_LBWMC": {
     "handle": "spf-30-vitamin-c-e-lip-balm",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1e.jpg?v=1760127117&width=400",
-    "product_url": "/products/spf-30-vitamin-c-e-lip-balm"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_876ec88b-29ce-40a2-bef2-81df20e56a7b.jpg?v=1768562025&width=400",
+    "product_url": "/products/spf-30-vitamin-c-e-lip-balm",
+    "shade": "Watermelon Cool Medium Tinted",
+    "available": true,
+    "siblings": [
+      "DK_CLBCPCM",
+      "DK_CLBSCCM",
+      "DK_CLBSCCP",
+      "DK_LBCM",
+      "DK_LBCM2",
+      "DK_LBCP",
+      "DK_LBCP2",
+      "DK_LBSC",
+      "DK_LBSC2",
+      "DK_LBWMC",
+      "DK_LBWMR"
+    ]
   },
   "DK_LBCM": {
     "handle": "spf-30-vitamin-c-e-lip-balm",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1e.jpg?v=1760127117&width=400",
-    "product_url": "/products/spf-30-vitamin-c-e-lip-balm"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1e_02d9b90c-9942-4f99-8759-0f7bfae9ef5f.jpg?v=1783409248&width=400",
+    "product_url": "/products/spf-30-vitamin-c-e-lip-balm",
+    "shade": "Cocoa Mint Low Tinted",
+    "available": false,
+    "siblings": [
+      "DK_CLBCPCM",
+      "DK_CLBSCCM",
+      "DK_CLBSCCP",
+      "DK_LBCM",
+      "DK_LBCM2",
+      "DK_LBCP",
+      "DK_LBCP2",
+      "DK_LBSC",
+      "DK_LBSC2",
+      "DK_LBWMC",
+      "DK_LBWMR"
+    ]
   },
   "DK_LBWMR": {
     "handle": "spf-30-vitamin-c-e-lip-balm",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1e.jpg?v=1760127117&width=400",
-    "product_url": "/products/spf-30-vitamin-c-e-lip-balm"
+    "product_url": "/products/spf-30-vitamin-c-e-lip-balm",
+    "shade": "Watermelon Rush High Tinted",
+    "available": false,
+    "siblings": [
+      "DK_CLBCPCM",
+      "DK_CLBSCCM",
+      "DK_CLBSCCP",
+      "DK_LBCM",
+      "DK_LBCM2",
+      "DK_LBCP",
+      "DK_LBCP2",
+      "DK_LBSC",
+      "DK_LBSC2",
+      "DK_LBWMC",
+      "DK_LBWMR"
+    ]
   },
   "DK_NVWMCS": {
     "handle": "watermelon-cooling-spf-50-face-sunscreen",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1a_3ef32ac6-5192-495c-b4bb-dafb0e806260.jpg?v=1778839652&width=400",
-    "product_url": "/products/watermelon-cooling-spf-50-face-sunscreen"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1b_099ceeee-3516-4c8b-b14b-0aef59147819.jpg?v=1778839652&width=400",
+    "product_url": "/products/watermelon-cooling-spf-50-face-sunscreen",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_NVWMCS",
+      "DK_WMCS"
+    ]
   },
   "DK_WMCS": {
     "handle": "watermelon-cooling-spf-50-face-sunscreen",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1a_3ef32ac6-5192-495c-b4bb-dafb0e806260.jpg?v=1778839652&width=400",
-    "product_url": "/products/watermelon-cooling-spf-50-face-sunscreen"
+    "product_url": "/products/watermelon-cooling-spf-50-face-sunscreen",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_NVWMCS",
+      "DK_WMCS"
+    ]
   },
   "DK_NVCHBFC": {
     "handle": "dot-key-ceramides-hyaluronic-hydrating-face-cream-i-repairs-skin-barrier-intense-moisturization-sensitive-dry-skin-fragrance-free",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/BRMoisturizerListing1-175g_d7e221bd-de44-4182-b22a-43d0225a5d6a.jpg?v=1757933267&width=400",
-    "product_url": "/products/dot-key-ceramides-hyaluronic-hydrating-face-cream-i-repairs-skin-barrier-intense-moisturization-sensitive-dry-skin-fragrance-free"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-_175g.jpg?v=1783515808&width=400",
+    "product_url": "/products/dot-key-ceramides-hyaluronic-hydrating-face-cream-i-repairs-skin-barrier-intense-moisturization-sensitive-dry-skin-fragrance-free",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CHBFC",
+      "DK_NVCHBFC"
+    ]
   },
   "DK_CHBFC": {
     "handle": "dot-key-ceramides-hyaluronic-hydrating-face-cream-i-repairs-skin-barrier-intense-moisturization-sensitive-dry-skin-fragrance-free",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/BRMoisturizerListing1-175g_d7e221bd-de44-4182-b22a-43d0225a5d6a.jpg?v=1757933267&width=400",
-    "product_url": "/products/dot-key-ceramides-hyaluronic-hydrating-face-cream-i-repairs-skin-barrier-intense-moisturization-sensitive-dry-skin-fragrance-free"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-100g.jpg?v=1783515808&width=400",
+    "product_url": "/products/dot-key-ceramides-hyaluronic-hydrating-face-cream-i-repairs-skin-barrier-intense-moisturization-sensitive-dry-skin-fragrance-free",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CHBFC",
+      "DK_NVCHBFC"
+    ]
   },
   "DK_CNOM": {
     "handle": "cica-5-niacinamide-oil-free-moisturizer-for-dark-spots-acne-fragrance-free-oily-sensitive-acne-prone-skin",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_7f9431fd-0fff-4f9b-92cc-03433d58abae.png?v=1778925484&width=400",
-    "product_url": "/products/cica-5-niacinamide-oil-free-moisturizer-for-dark-spots-acne-fragrance-free-oily-sensitive-acne-prone-skin"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_a546fc74-0b04-4f8a-b155-da1cd1b10052.jpg?v=1784012308&width=400",
+    "product_url": "/products/cica-5-niacinamide-oil-free-moisturizer-for-dark-spots-acne-fragrance-free-oily-sensitive-acne-prone-skin",
+    "shade": "",
+    "siblings": [
+      "DK_CNOM",
+      "DK_CNSOM"
+    ]
   },
   "DK_CNSOM": {
     "handle": "cica-5-niacinamide-oil-free-moisturizer-for-dark-spots-acne-fragrance-free-oily-sensitive-acne-prone-skin",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_7f9431fd-0fff-4f9b-92cc-03433d58abae.png?v=1778925484&width=400",
-    "product_url": "/products/cica-5-niacinamide-oil-free-moisturizer-for-dark-spots-acne-fragrance-free-oily-sensitive-acne-prone-skin"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_96d8fed4-206f-438b-815e-24ae442e62b2.jpg?v=1784012357&width=400",
+    "product_url": "/products/cica-5-niacinamide-oil-free-moisturizer-for-dark-spots-acne-fragrance-free-oily-sensitive-acne-prone-skin",
+    "shade": "",
+    "siblings": [
+      "DK_CNOM",
+      "DK_CNSOM"
+    ]
   },
   "DK_CRNG": {
     "handle": "cica-calming-skin-renewing-night-gel",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_075c2747-6b39-4135-9da9-07001a430971.jpg?v=1778925428&width=400",
-    "product_url": "/products/cica-calming-skin-renewing-night-gel"
+    "product_url": "/products/cica-calming-skin-renewing-night-gel",
+    "shade": "",
+    "available": false,
+    "siblings": [
+      "DK_CRNG"
+    ]
   },
   "DK_PMRM": {
     "handle": "pomegranate-miracle-vitamin-e-revitalizing-moisturizer-spf-30",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_262025d4-8a3e-4d7e-8e45-a5d4d979c758.jpg?v=1744370218&width=400",
-    "product_url": "/products/pomegranate-miracle-vitamin-e-revitalizing-moisturizer-spf-30"
+    "product_url": "/products/pomegranate-miracle-vitamin-e-revitalizing-moisturizer-spf-30",
+    "shade": "",
+    "available": false,
+    "siblings": [
+      "DK_PMRM"
+    ]
   },
   "DK_HCSG": {
     "handle": "hydrating-shower-gel",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-Hydration-Bodywash_8ad56359-03b3-4c8b-9313-82b5904e9b4a.jpg?v=1721987350&width=400",
-    "product_url": "/products/hydrating-shower-gel"
+    "product_url": "/products/hydrating-shower-gel",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_HCSG"
+    ]
   },
   "DK_CSSG": {
     "handle": "salicylic-shower-gel",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-Cica-Body-Wash.jpg?v=1721987269&width=400",
-    "product_url": "/products/salicylic-shower-gel"
+    "product_url": "/products/salicylic-shower-gel",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CSSG"
+    ]
   },
   "DK_VCGFW175": {
     "handle": "vitamin-c-e-gel-facewash",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard1-175ml_a9d72220-eec0-444b-b1b9-b71cee19dec6.jpg?v=1754919216&width=400",
-    "product_url": "/products/vitamin-c-e-gel-facewash"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard1-175ml_2fca068c-8ac9-4302-bf75-ca76c14b7beb.jpg?v=1784205327&width=400",
+    "product_url": "/products/vitamin-c-e-gel-facewash",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_VCGFW",
+      "DK_VCGFW175"
+    ]
   },
   "DK_VCGFW": {
     "handle": "vitamin-c-e-gel-facewash",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard1-175ml_a9d72220-eec0-444b-b1b9-b71cee19dec6.jpg?v=1754919216&width=400",
-    "product_url": "/products/vitamin-c-e-gel-facewash"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard1-100ml_85d847af-b82d-4a00-b589-cccace9d81d2.jpg?v=1784205327&width=400",
+    "product_url": "/products/vitamin-c-e-gel-facewash",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_VCGFW",
+      "DK_VCGFW175"
+    ]
   },
   "DK_CVCMSU": {
     "handle": "glow-protect-vitamin-c-duo",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard6_0dca08e6-c01e-494d-9c87-fb552a542cbb.jpg?v=1771416856&width=400",
-    "product_url": "/products/glow-protect-vitamin-c-duo"
+    "product_url": "/products/glow-protect-vitamin-c-duo",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CVCMSU"
+    ]
   },
   "DK_CVCMSE": {
     "handle": "vitamin-c-daily-essential-combo",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/po_b182136c-1204-46fa-a739-5533ef16f7a2.jpg?v=1747393359&width=400",
-    "product_url": "/products/vitamin-c-daily-essential-combo"
+    "product_url": "/products/vitamin-c-daily-essential-combo",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CVCMSE"
+    ]
   },
   "DK_WCEP": {
     "handle": "watermelon-cooling-hydrogel-eye-patches",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1c-Eye-Patch_8a533c07-83b8-4f57-a1dd-8f765d17d6e5.jpg?v=1758114635&width=400",
-    "product_url": "/products/watermelon-cooling-hydrogel-eye-patches"
+    "product_url": "/products/watermelon-cooling-hydrogel-eye-patches",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_WCEP"
+    ]
   },
   "DK_PREC": {
     "handle": "retinol-eye-cream",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-Retinol-Eye-Cream_0dbf6882-9197-4d09-8d3f-55c8f95c1984.jpg?v=1727356057&width=400",
-    "product_url": "/products/retinol-eye-cream"
+    "product_url": "/products/retinol-eye-cream",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_PREC"
+    ]
   },
   "DK_HMVD": {
     "handle": "hydration-must-have-duo-1",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/PO.jpg?v=1747392637&width=400",
-    "product_url": "/products/hydration-must-have-duo-1"
+    "product_url": "/products/hydration-must-have-duo-1",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_HMVD"
+    ]
   },
   "DK_MNLSMH": {
     "handle": "lip-plumping-sleeping-mask",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-LINGONBERRY_08970825-37fa-40fa-b2c1-9d2a2c7d6d5a.jpg?v=1727355354&width=400",
-    "product_url": "/products/lip-plumping-sleeping-mask"
+    "product_url": "/products/lip-plumping-sleeping-mask",
+    "shade": "Turmeric Oil and Lingonberry Medium Tinted",
+    "available": true,
+    "siblings": [
+      "DK_MNLSMH"
+    ]
   },
   "DK_BRHFW175": {
     "handle": "dot-key-barrier-repair-gentle-hydrating-face-wash-with-5-essential-ceramides-hyaluronic-ph-5-5-fragrance-sulphate-free-for-sensitive-dry-skin",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-BRfacewash-Listing-175ml.jpg?v=1754918416&width=400",
-    "product_url": "/products/dot-key-barrier-repair-gentle-hydrating-face-wash-with-5-essential-ceramides-hyaluronic-ph-5-5-fragrance-sulphate-free-for-sensitive-dry-skin"
+    "product_url": "/products/dot-key-barrier-repair-gentle-hydrating-face-wash-with-5-essential-ceramides-hyaluronic-ph-5-5-fragrance-sulphate-free-for-sensitive-dry-skin",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_BRHFW",
+      "DK_BRHFW175"
+    ]
   },
   "DK_BRHFW": {
     "handle": "dot-key-barrier-repair-gentle-hydrating-face-wash-with-5-essential-ceramides-hyaluronic-ph-5-5-fragrance-sulphate-free-for-sensitive-dry-skin",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-BRfacewash-Listing-175ml.jpg?v=1754918416&width=400",
-    "product_url": "/products/dot-key-barrier-repair-gentle-hydrating-face-wash-with-5-essential-ceramides-hyaluronic-ph-5-5-fragrance-sulphate-free-for-sensitive-dry-skin"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-BRfacewash-Listing_7f3ad808-96ce-41d0-86b7-4a913f7db960.jpg?v=1754918416&width=400",
+    "product_url": "/products/dot-key-barrier-repair-gentle-hydrating-face-wash-with-5-essential-ceramides-hyaluronic-ph-5-5-fragrance-sulphate-free-for-sensitive-dry-skin",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_BRHFW",
+      "DK_BRHFW175"
+    ]
   },
   "DK_WPTT": {
     "handle": "watermelon-superglow-pore-tightening-toner",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_4371d891-7fd2-40f8-b74b-1584f4148a9c.jpg?v=1765796934&width=400",
-    "product_url": "/products/watermelon-superglow-pore-tightening-toner"
+    "product_url": "/products/watermelon-superglow-pore-tightening-toner",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_WPTT"
+    ]
   },
   "DK_HRMFC": {
     "handle": "all-day-hydration-trio-1",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/products/1_45.jpg?v=1692438042&width=400",
-    "product_url": "/products/all-day-hydration-trio-1"
+    "product_url": "/products/all-day-hydration-trio-1",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_HRMFC"
+    ]
   },
   "DK_NVDPMFC": {
     "handle": "deep-pore-clean-milky-foam-cleanser-120ml",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-Deep-Pore-Cleanser_1.jpg?v=1705741985&width=400",
-    "product_url": "/products/deep-pore-clean-milky-foam-cleanser-120ml"
+    "product_url": "/products/deep-pore-clean-milky-foam-cleanser-120ml",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_NVDPMFC"
+    ]
   },
   "DK_MAHC": {
     "handle": "moringa-argan-oil-hair-conditioner-with-keratin-vitamin-e-for-frizzy-dry-hair-controls-hair-fall-for-strong-smooth-hair-silicone-free-120ml",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/moringacond_8978ef52-d543-481e-9fed-18eb66e96d44.jpg?v=1727356312&width=400",
-    "product_url": "/products/moringa-argan-oil-hair-conditioner-with-keratin-vitamin-e-for-frizzy-dry-hair-controls-hair-fall-for-strong-smooth-hair-silicone-free-120ml"
+    "product_url": "/products/moringa-argan-oil-hair-conditioner-with-keratin-vitamin-e-for-frizzy-dry-hair-controls-hair-fall-for-strong-smooth-hair-silicone-free-120ml",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_MAHC"
+    ]
   },
   "DK_RPHT": {
     "handle": "rice-water-probiotics-hydrating-toner-alcohol-free-new",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_1_1c2f5f30-8e90-47e2-b6a6-8dc756b09d22.jpg?v=1765796994&width=400",
-    "product_url": "/products/rice-water-probiotics-hydrating-toner-alcohol-free-new"
+    "product_url": "/products/rice-water-probiotics-hydrating-toner-alcohol-free-new",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_RPHT"
+    ]
   },
   "DK_CSCT": {
     "handle": "cica-calming-skin-clarifying-toner",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_2_87c2f2cf-90da-4ec5-82ce-0e8415d76c59.jpg?v=1765797060&width=400",
-    "product_url": "/products/cica-calming-skin-clarifying-toner"
+    "product_url": "/products/cica-calming-skin-clarifying-toner",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CSCT"
+    ]
   },
   "DK_CCGFW175": {
     "handle": "cica-calming-blemish-clearing-face-wash",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/175ml.jpg?v=1781243494&width=400",
-    "product_url": "/products/cica-calming-blemish-clearing-face-wash"
+    "product_url": "/products/cica-calming-blemish-clearing-face-wash",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CCGFW175",
+      "DK_NVCCBC"
+    ]
   },
   "DK_NVCCBC": {
     "handle": "cica-calming-blemish-clearing-face-wash",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/175ml.jpg?v=1781243494&width=400",
-    "product_url": "/products/cica-calming-blemish-clearing-face-wash"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/100ml.png?v=1778925669&width=400",
+    "product_url": "/products/cica-calming-blemish-clearing-face-wash",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CCGFW175",
+      "DK_NVCCBC"
+    ]
   },
   "DK_BCSR": {
     "handle": "best-of-vitamin-c-skincare-trio",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_6_2886d659-1aef-4710-99e2-e0ea81b106b7.jpg?v=1744262961&width=400",
-    "product_url": "/products/best-of-vitamin-c-skincare-trio"
+    "product_url": "/products/best-of-vitamin-c-skincare-trio",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_BCSR"
+    ]
   },
   "DK_CST3": {
     "handle": "cica-superstar-trio",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_6.jpg?v=1744262423&width=400",
-    "product_url": "/products/cica-superstar-trio"
+    "product_url": "/products/cica-superstar-trio",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CST3"
+    ]
   },
   "DK_VPCM": {
     "handle": "vitamin-c-pink-clay-mask",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-Pink-Clay-Mask.jpg?v=1727355949&width=400",
-    "product_url": "/products/vitamin-c-pink-clay-mask"
+    "product_url": "/products/vitamin-c-pink-clay-mask",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_VPCM"
+    ]
   },
   "DK_AGCM": {
     "handle": "acne-green-clay-mask",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_526949b7-3f81-40b9-be91-962510dc191e.jpg?v=1780568870&width=400",
-    "product_url": "/products/acne-green-clay-mask"
+    "product_url": "/products/acne-green-clay-mask",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_AGCM"
+    ]
   },
   "DK_MPAM": {
     "handle": "pea-peptide-strengthening-moringa-argan-hair-mask",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/moringahairmask.jpg?v=1706167118&width=400",
-    "product_url": "/products/pea-peptide-strengthening-moringa-argan-hair-mask"
+    "product_url": "/products/pea-peptide-strengthening-moringa-argan-hair-mask",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_MPAM"
+    ]
   },
   "DK_WSGS": {
     "handle": "watermelon-10-glycolic-super-glow-serum-for-smooth-luminous-glowing-skin-controls-pigmentation-excess-oil-oily-dull-skin",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1c_bf1a6898-07b2-4b81-9196-efa403cb403c.jpg?v=1721218648&width=400",
-    "product_url": "/products/watermelon-10-glycolic-super-glow-serum-for-smooth-luminous-glowing-skin-controls-pigmentation-excess-oil-oily-dull-skin"
+    "product_url": "/products/watermelon-10-glycolic-super-glow-serum-for-smooth-luminous-glowing-skin-controls-pigmentation-excess-oil-oily-dull-skin",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_MNWSGS",
+      "DK_WSGS"
+    ]
   },
   "DK_MNWSGS": {
     "handle": "watermelon-10-glycolic-super-glow-serum-for-smooth-luminous-glowing-skin-controls-pigmentation-excess-oil-oily-dull-skin",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1c_bf1a6898-07b2-4b81-9196-efa403cb403c.jpg?v=1721218648&width=400",
-    "product_url": "/products/watermelon-10-glycolic-super-glow-serum-for-smooth-luminous-glowing-skin-controls-pigmentation-excess-oil-oily-dull-skin"
+    "product_url": "/products/watermelon-10-glycolic-super-glow-serum-for-smooth-luminous-glowing-skin-controls-pigmentation-excess-oil-oily-dull-skin",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_MNWSGS",
+      "DK_WSGS"
+    ]
   },
   "DK_CCZS": {
     "handle": "dot-key-cica-2-salicylic-acne-control-serum-with-zinc-for-clear-skin-reduces-blackheads-whiteheads-oily-acne-prone-skin",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard1copy_c9675994-8c27-4894-9bea-a1955aaa404f.jpg?v=1754039836&width=400",
-    "product_url": "/products/dot-key-cica-2-salicylic-acne-control-serum-with-zinc-for-clear-skin-reduces-blackheads-whiteheads-oily-acne-prone-skin"
+    "product_url": "/products/dot-key-cica-2-salicylic-acne-control-serum-with-zinc-for-clear-skin-reduces-blackheads-whiteheads-oily-acne-prone-skin",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CCZS",
+      "DK_MNCCZS"
+    ]
   },
   "DK_MNCCZS": {
     "handle": "dot-key-cica-2-salicylic-acne-control-serum-with-zinc-for-clear-skin-reduces-blackheads-whiteheads-oily-acne-prone-skin",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard1copy_c9675994-8c27-4894-9bea-a1955aaa404f.jpg?v=1754039836&width=400",
-    "product_url": "/products/dot-key-cica-2-salicylic-acne-control-serum-with-zinc-for-clear-skin-reduces-blackheads-whiteheads-oily-acne-prone-skin"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Artboard11500.jpg?v=1754039974&width=400",
+    "product_url": "/products/dot-key-cica-2-salicylic-acne-control-serum-with-zinc-for-clear-skin-reduces-blackheads-whiteheads-oily-acne-prone-skin",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CCZS",
+      "DK_MNCCZS"
+    ]
   },
   "DK_CNGS": {
     "handle": "dot-key-cica-10-niacinamide-serum-for-blemish-free-spotless-glowing-skin-3-tranexamic-reduces-acne-dark-spots-oily-acne-prone-sensitive-skin",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_224ccda5-d63e-416b-90a9-bb4ea3ee7990.jpg?v=1780055142&width=400",
-    "product_url": "/products/dot-key-cica-10-niacinamide-serum-for-blemish-free-spotless-glowing-skin-3-tranexamic-reduces-acne-dark-spots-oily-acne-prone-sensitive-skin"
+    "product_url": "/products/dot-key-cica-10-niacinamide-serum-for-blemish-free-spotless-glowing-skin-3-tranexamic-reduces-acne-dark-spots-oily-acne-prone-sensitive-skin",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CNGS",
+      "DK_MNCNGS"
+    ]
   },
   "DK_MNCNGS": {
     "handle": "dot-key-cica-10-niacinamide-serum-for-blemish-free-spotless-glowing-skin-3-tranexamic-reduces-acne-dark-spots-oily-acne-prone-sensitive-skin",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_224ccda5-d63e-416b-90a9-bb4ea3ee7990.jpg?v=1780055142&width=400",
-    "product_url": "/products/dot-key-cica-10-niacinamide-serum-for-blemish-free-spotless-glowing-skin-3-tranexamic-reduces-acne-dark-spots-oily-acne-prone-sensitive-skin"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-20ml.jpg?v=1780569547&width=400",
+    "product_url": "/products/dot-key-cica-10-niacinamide-serum-for-blemish-free-spotless-glowing-skin-3-tranexamic-reduces-acne-dark-spots-oily-acne-prone-sensitive-skin",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_CNGS",
+      "DK_MNCNGS"
+    ]
   },
   "DK_VCEFS": {
     "handle": "dot-key-10-vitamin-c-e-5-niacinamide-serum-for-glowing-skin-beginner-friendly",
     "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-1_b4ae866f-e0a8-43d1-971f-1d143d76f01c.jpg?v=1761888942&width=400",
-    "product_url": "/products/dot-key-10-vitamin-c-e-5-niacinamide-serum-for-glowing-skin-beginner-friendly"
+    "product_url": "/products/dot-key-10-vitamin-c-e-5-niacinamide-serum-for-glowing-skin-beginner-friendly",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_MNVCEFS",
+      "DK_VCEFS"
+    ]
   },
   "DK_MNVCEFS": {
     "handle": "dot-key-10-vitamin-c-e-5-niacinamide-serum-for-glowing-skin-beginner-friendly",
-    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1-1_b4ae866f-e0a8-43d1-971f-1d143d76f01c.jpg?v=1761888942&width=400",
-    "product_url": "/products/dot-key-10-vitamin-c-e-5-niacinamide-serum-for-glowing-skin-beginner-friendly"
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1080.jpg?v=1768387906&width=400",
+    "product_url": "/products/dot-key-10-vitamin-c-e-5-niacinamide-serum-for-glowing-skin-beginner-friendly",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_MNVCEFS",
+      "DK_VCEFS"
+    ]
+  },
+  "DK_VCGFW175_BRHFW175": {
+    "handle": "br-facewash-and-vit-c-facewash",
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Rectangle_700_ac652476-c13b-4c6f-bb69-45baa35a41ff.png?v=1780296840&width=400",
+    "product_url": "/products/br-facewash-and-vit-c-facewash",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_VCGFW175_BRHFW175"
+    ]
+  },
+  "DK_NVWMCS_NVCHBFC": {
+    "handle": "hydrate-cool-daily-duo",
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Rectangle_700_1_5857e5b4-4d37-4e61-b9b7-fc1487474aa1.png?v=1780292226&width=400",
+    "product_url": "/products/hydrate-cool-daily-duo",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_NVWMCS_NVCHBFC"
+    ]
+  },
+  "DK_NVVCES_VCEFS": {
+    "handle": "c-the-glow-vitamin-c-duo",
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Rectangle_700_a3bc949b-4341-4564-847a-8473b53494e6.png?v=1780404689&width=400",
+    "product_url": "/products/c-the-glow-vitamin-c-duo",
+    "shade": "",
+    "available": false,
+    "siblings": [
+      "DK_NVVCES_VCEFS"
+    ]
+  },
+  "DK_NVWMCS_CCMS": {
+    "handle": "cica-sunscreen-and-watermelon-sunscreen",
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/Rectangle_700_2.png?v=1780306827&width=400",
+    "product_url": "/products/cica-sunscreen-and-watermelon-sunscreen",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_NVWMCS_CCMS"
+    ]
+  },
+  "DK_SDMFW": {
+    "handle": "strawberry-micellar-facewash",
+    "image_url": "https://cdn.shopify.com/s/files/1/0361/8553/8692/files/1_ea8d3318-c257-4ad9-ac6e-35558008eb8d.jpg?v=1779882491&width=400",
+    "product_url": "/products/strawberry-micellar-facewash",
+    "shade": "",
+    "available": true,
+    "siblings": [
+      "DK_SDMFW"
+    ]
   }
 }

@@ -10,19 +10,11 @@ as context and formats it into one conversational sentence.
 """
 
 import logging
-import os
 from typing import AsyncGenerator
 
+from backend.retrieval import get_graph as _get_graph
+
 _log = logging.getLogger(__name__)
-
-
-def _get_graph():
-    from falkordb import FalkorDB
-    db = FalkorDB(
-        host=os.getenv("FALKORDB_HOST", "localhost"),
-        port=int(os.getenv("FALKORDB_PORT", 6379)),
-    )
-    return db.select_graph(os.getenv("FALKORDB_GRAPH", "dotandkey"))
 
 
 # ---------------------------------------------------------------------------

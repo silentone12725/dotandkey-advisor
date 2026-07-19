@@ -69,7 +69,6 @@ FREE_FROM_LABELS = {
 }
 
 MAX_KEYWORDS = 3
-MAX_EXPLANATION_CHIPS = 5
 
 # The 5 core skin types in the graph (excludes the "all" sentinel tag).
 # A product matching every one of these (or carrying the explicit "all" tag)
@@ -117,68 +116,3 @@ def build_keywords(
         _add(FREE_FROM_LABELS.get(allergen))
 
     return tags[:MAX_KEYWORDS]
-
-
-# Capability axis → chip label for explanation chips
-_CAP_CHIP_LABELS: dict[str, str] = {
-    "oil_control":    "Oil-control",
-    "hydration":      "Hydrating",
-    "barrier_repair": "Barrier-repair",
-    "brightening":    "Brightening",
-    "pigmentation":   "Tone-evening",
-    "acne":           "Anti-acne",
-    "pore_care":      "Pore-clearing",
-    "sensitivity":    "Calming",
-    "sun_protection": "SPF",
-    "lip_repair":     "Lip-repair",
-}
-
-_CAP_STRONG_THRESHOLD = 6.5   # above this → show as a positive chip
-_CAP_WEAK_THRESHOLD   = 2.5   # below this for a user concern → show as tradeoff chip
-
-
-def build_explanation_chips(product: dict, user_concerns: list[str]) -> list[str]:
-    """Return up to MAX_EXPLANATION_CHIPS extended capability chips for top-pick cards.
-
-    These complement the 3 base keywords with evidence-backed capability tags
-    like "Oil-control: 9.4" and tradeoff tags like "⚠ Lower brightening".
-
-    Pure function — reads cap_* properties already on the product dict.
-    """
-    chips: list[str] = []
-    seen: set[str] = set()
-
-    # Strong capability highlights (score ≥ threshold)
-    cap_axes = [
-        "oil_control", "hydration", "barrier_repair", "brightening",
-        "pigmentation", "acne", "pore_care", "sensitivity",
-        "sun_protection", "lip_repair",
-    ]
-    scored = [
-        (ax, float(product.get(f"cap_{ax}") or 0))
-        for ax in cap_axes
-    ]
-    scored.sort(key=lambda x: -x[1])
-
-    for ax, score in scored:
-        if score >= _CAP_STRONG_THRESHOLD:
-            label = _CAP_CHIP_LABELS.get(ax, ax.title())
-            chip = f"{label}: {score:.1f}"
-            if chip not in seen:
-                seen.add(chip)
-                chips.append(chip)
-
-    # Tradeoff chips for user concerns where this product scores low
-    for concern in (user_concerns or []):
-        from graph.capability_schema import CONCERN_TO_CAPABILITY
-        axes = CONCERN_TO_CAPABILITY.get(concern, [])
-        for ax in axes:
-            score = float(product.get(f"cap_{ax}") or 0)
-            if score < _CAP_WEAK_THRESHOLD:
-                label = _CAP_CHIP_LABELS.get(ax, ax.title())
-                chip = f"⚠ Limited {label}"
-                if chip not in seen:
-                    seen.add(chip)
-                    chips.append(chip)
-
-    return chips[:MAX_EXPLANATION_CHIPS]
