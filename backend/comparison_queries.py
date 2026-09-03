@@ -162,17 +162,30 @@ async def run(
     sku    = router_args.get("sku", "")
     sku_b  = router_args.get("sku_b", "")
 
+    # No SKU context — user asked a comparison question before seeing any
+    # recommendations.  Ask them to get a recommendation first.
+    if not sku:
+        async for token in stream_response(
+            build_system_prompt(profile_id),
+            profile_id,
+            "Tell the user in one friendly sentence that you need to show them "
+            "some products first before you can compare or explain them — invite "
+            "them to tell you their skin type or what they're looking for.",
+        ):
+            yield token
+        return
+
     # Build the structured answer from graph
     answer: dict = {}
     try:
         if intent == "why_ranked":
             answer = answer_why_ranked_first(sku, profile_id)
         elif intent == "compare_products":
-            answer = answer_what_do_i_gain(sku_b, sku) if sku_b else {}
+            answer = answer_what_do_i_gain(sku_b, sku) if sku_b else answer_why_ranked_first(sku, profile_id)
         elif intent == "find_alternative":
             answer = answer_closest_fragrance_free(sku, router_args.get("category", ""))
         elif intent == "key_difference":
-            answer = answer_key_difference(sku, sku_b) if sku_b else {}
+            answer = answer_key_difference(sku, sku_b) if sku_b else answer_why_ranked_first(sku, profile_id)
     except Exception as e:
         _log.exception("comparison_queries.run failed: %s", e)
 

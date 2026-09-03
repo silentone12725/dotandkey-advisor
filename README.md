@@ -24,7 +24,7 @@ backend/        FastAPI application
 frontend/
   widget.js       Vanilla JS widget, Shadow DOM, no build step
 extension/        Manifest V3 Chrome extension (injects widget on dotandkey.com)
-tests/            628 backend tests (pytest), 49 jsdom, 6 extension tests
+tests/            974 backend tests (pytest), 167 jsdom, 6 extension tests
 ```
 
 ## Ranking Pipeline
@@ -103,7 +103,7 @@ Starts FalkorDB on `:6379` / `:3000` (browser UI) and the backend on `:8000`.
 ## Tests
 
 ```fish
-# Backend (628 tests, ~35 s, no live services needed for most)
+# Backend (974 tests, ~60 s, no live services needed for most)
 pytest
 
 # Frontend widget (49 jsdom tests)
@@ -147,7 +147,7 @@ Sensitivity statements are detected once and persist across sessions:
 
 ## Design Constraints
 
-- **Not an agent** — the router picks one of 6 fixed playbooks. Retrieval is deterministic Cypher; the LLM only writes one short sentence.
+- **Not an agent** — the router picks one of 9 fixed playbooks. Retrieval is deterministic Cypher; the LLM only writes one short sentence.
 - **No LLM product selection** — products are chosen by the graph. The LLM never sees the full catalog.
 - **FalkorDB ordering rule** — all hard `MATCH` clauses must precede every `OPTIONAL MATCH` in the same chain (FalkorDB requirement).
 
