@@ -54,7 +54,7 @@ def _make_client() -> tuple[AsyncOpenAI, str]:
     elif provider == "google":
         client = AsyncOpenAI(
             api_key=os.getenv("GOOGLE_API_KEY", ""),
-            base_url="https://generativelanguage.googleapis.com/v1beta/openai",
+            base_url=os.getenv("GOOGLE_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai"),
         )
         model = os.getenv("GOOGLE_MODEL", "gemini-2.0-flash")
 

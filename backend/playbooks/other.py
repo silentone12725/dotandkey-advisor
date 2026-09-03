@@ -19,10 +19,9 @@ from backend.playbooks.base import (
     stream_response,
 )
 
-# Dot & Key's order tracking is handled by ClickPost, not a Shopify-native
-# page — confirmed with the project owner (not discoverable from the repo).
-CLICKPOST_TRACKING_URL = "https://dotandkey.clickpost.ai/"
+from backend.order_tracking import CLICKPOST_BASE_URL
 
+CLICKPOST_TRACKING_URL = f"{CLICKPOST_BASE_URL}/"
 TRACK_ORDER_LINK_CHIP = {"label": "Track my order", "url": CLICKPOST_TRACKING_URL}
 
 
@@ -32,23 +31,28 @@ async def track_order(
     router_args: dict,
     product_context: dict | None = None,
 ) -> AsyncGenerator[str, None]:
-    """Order tracking — fixed deterministic response, no LLM call.
+    """Order tracking — tries inline ClickPost lookup first, falls back to link chip.
 
-    Previously "track my order" / "where is my order" fell into the
-    generic `handoff` playbook, which just told the user to email support
-    — a dead end for a question that already has a real answer (Dot & Key
-    uses ClickPost for tracking). Kept deterministic rather than routed
-    through stream_response() like the other playbooks here because an
-    LLM has no reason to ever touch this URL — there's nothing to phrase.
-
-    Emits a link_chips UI payload (rendered as a real <a href> button by
-    the widget, not just a URL sitting in plain chat text) so the user can
-    tap straight through to ClickPost instead of copying a link out of
-    the message bubble.
+    If the user's message contains an order ID + phone/email (or an AWB),
+    we call the ClickPost API directly and return the status inline.
+    Otherwise we ask for the details and show the portal link chip.
     """
+    from backend.order_tracking import extract_tracking_info
+
+    info = extract_tracking_info(user_message)
+    if info:
+        # Delegate the actual ClickPost fetch to the widget (runs in the user's
+        # browser where Cloudflare is already cleared). Backend emits a
+        # track_request payload; widget fetches and renders the result inline.
+        yield "Looking up your order…"
+        yield emit_ui_data({"track_request": info, "link_chips": [TRACK_ORDER_LINK_CHIP]})
+        return
+
+    # No tracking info in message — ask for it and provide the portal link
     yield (
-        "You can track your order below — enter your order ID or the "
-        "phone/email used at checkout to see its status."
+        "To track your order, share your **order ID** and the **mobile number** "
+        "used at checkout — I'll pull the status for you. "
+        "Or use the link below to check directly:"
     )
     yield emit_ui_data({"link_chips": [TRACK_ORDER_LINK_CHIP]})
 
@@ -75,6 +79,53 @@ async def allergen_check(
         yield token
 
 
+def _fetch_last_product_graph_data(profile_id: str) -> str:
+    """Query graph for the last recommended product — injected into general QA
+    so questions like 'what ingredients does this have / is it for dry skin'
+    are answered from real graph data, not LLM training knowledge."""
+    try:
+        from backend.profile import load_profile
+        from backend.retrieval import get_graph
+        raw = load_profile(profile_id)
+        skus_raw = raw.get("last_shown_skus", b"[]")
+        if isinstance(skus_raw, bytes):
+            skus_raw = skus_raw.decode()
+        skus = json.loads(skus_raw) if skus_raw else []
+        if not skus:
+            return ""
+        graph = get_graph()
+        rows = graph.query(
+            "MATCH (p:Product {sku: $sku}) "
+            "OPTIONAL MATCH (p)-[:CONTAINS_INGREDIENT]->(i:Ingredient) "
+            "OPTIONAL MATCH (p)-[:TARGETS_CONCERN]->(c:Concern) "
+            "OPTIONAL MATCH (p)-[:SUITS_SKIN_TYPE]->(s:SkinType) "
+            "OPTIONAL MATCH (p)-[:FREE_FROM]->(af:AllergenClass) "
+            "OPTIONAL MATCH (p)-[:HAS_CLAIM]->(cl:Claim) "
+            "OPTIONAL MATCH (p)-[:HAS_FAQ]->(f:FAQ) "
+            "RETURN p.title, p.description, p.ingredients_text, p.benefits_text, "
+            "       collect(DISTINCT i.name), collect(DISTINCT c.name), "
+            "       collect(DISTINCT s.name), collect(DISTINCT af.name), "
+            "       collect(DISTINCT cl.name), collect(DISTINCT f.question)",
+            {"sku": skus[0]},
+        ).result_set
+        if not rows:
+            return ""
+        r = rows[0]
+        parts = [f"Product: {r[0]}"]
+        if r[1]: parts.append(f"Description: {r[1]}")
+        if r[2]: parts.append(f"Ingredients: {r[2]}")
+        elif r[4]: parts.append(f"Key ingredients: {', '.join(r[4])}")
+        if r[3]: parts.append(f"Benefits: {r[3]}")
+        if r[5]: parts.append(f"Targets: {', '.join(r[5])}")
+        if r[6]: parts.append(f"Suitable for: {', '.join(r[6])} skin")
+        if r[7]: parts.append(f"Free from: {', '.join(r[7])}")
+        if r[8]: parts.append(f"Claims: {', '.join(r[8])}")
+        if r[9]: parts.append(f"FAQs: {'; '.join(r[9][:5])}")
+        return "\n".join(parts)
+    except Exception:
+        return ""
+
+
 async def general_qa(
     profile_id: str,
     user_message: str,
@@ -91,6 +142,14 @@ async def general_qa(
         .replace("{user_message}", user_message)
         .replace("{product_context_json}", ctx_json)
     )
+
+    # Inject graph data for the last recommended product so product-specific
+    # questions ("what ingredients", "is this for dry skin", "how do I use it")
+    # are answered from the knowledge graph, not from LLM training data.
+    product_graph_data = _fetch_last_product_graph_data(profile_id)
+    if product_graph_data:
+        extra += f"\n\nProduct knowledge graph data:\n<product_graph>\n{product_graph_data}\n</product_graph>"
+
     system = build_system_prompt(profile_id, extra_context=extra)
     async for token in stream_response(system, profile_id, user_message):
         yield token

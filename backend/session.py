@@ -23,6 +23,7 @@ import httpx
 import redis as redis_lib
 
 from backend.llm_adapter import one_shot
+from backend.order_tracking import CLICKPOST_BASE_URL
 from backend.profile import (
     compact_profile_for_prompt,
     get_redis,
@@ -140,8 +141,13 @@ async def _get_weather(client: httpx.AsyncClient, city: str) -> dict:
 
 
 def _classify_season(month: int, humidity: float, temp: float) -> str:
-    """India 4-season classifier."""
-    if 7 <= month <= 9 and humidity >= 65:
+    """India 4-season classifier.
+
+    July–September is always monsoon regardless of momentary humidity — a
+    humidity gate here mis-tags desert cities (and API defaults of 60%) as
+    "summer" during the actual monsoon months.
+    """
+    if month in (7, 8, 9):
         return "monsoon"
     if month in (10, 11):
         return "post_monsoon"
@@ -308,5 +314,5 @@ async def init_session(
                 {"value": "concerns", "label": "Have concerns with a previous purchase"},
             ],
         },
-        "track_order": {"label": "Track my order", "url": "https://dotandkey.clickpost.ai/"},
+        "track_order": {"label": "Track my order", "url": f"{CLICKPOST_BASE_URL}/"},
     }

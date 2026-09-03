@@ -9,9 +9,16 @@
  * Usage: node extension/test_inject.js
  */
 
-const { JSDOM } = require("jsdom");
 const fs = require("fs");
 const path = require("path");
+
+// jsdom lives in frontend/node_modules — this suite has no package.json of
+// its own, so resolve from there as well as locally.
+const { JSDOM } = require(
+    require.resolve("jsdom", {
+        paths: [__dirname, path.join(__dirname, "..", "frontend")],
+    })
+);
 
 let passed = 0;
 let failed = 0;

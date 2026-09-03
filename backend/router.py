@@ -220,7 +220,7 @@ _ROUTINE_TRIGGERS = [
 ]
 
 _HANDOFF_TRIGGERS = [
-    "return", "exchange", "shipping", "delivery", "refund",
+    "return", "exchange", "shipping", "refund",
     "talk to someone", "speak to", "human", "customer care", "support",
 ]
 
@@ -231,6 +231,8 @@ _TRACKING_TRIGGERS = [
     "where is my order", "track my order", "track order",
     "where is my", "order status", "tracking number",
     "track my package", "track my shipment", "shipment status",
+    "delivery status", "delivery update", "where is my delivery",
+    "when will my delivery", "my delivery",
 ]
 
 _COMPARISON_TRIGGERS = [
@@ -329,11 +331,6 @@ def _fast_classify(message: str, profile: dict) -> str | None:
 
     # Comparison / explanation intent — check before everything else
     if any(kw in t for kw in _COMPARISON_TRIGGERS):
-        intent = "why_ranked"
-        if any(x in t for x in ["gain", "lose", "difference", "compare", "vs ", "better"]):
-            intent = "compare_products"
-        if any(x in t for x in ["alternative", "replacement", "similar", "closest", "instead"]):
-            intent = "find_alternative"
         return "compare_products"
 
     return None   # ambiguous → LLM router
@@ -359,7 +356,33 @@ async def classify(user_message: str, profile: dict | None = None) -> dict:
     # Layer 1: fast path
     fast = _fast_classify(user_message, p)
     if fast:
-        args = {"raw_input": user_message} if fast == "intake_profile" else {}
+        if fast == "intake_profile":
+            args = {"raw_input": user_message}
+        elif fast == "compare_products":
+            import json as _json
+            # Pull SKUs of the products last shown to this user.
+            # Ordinal words ("first", "second") map to position in that list.
+            raw_skus = p.get("last_shown_skus", "[]")
+            if isinstance(raw_skus, bytes):
+                raw_skus = raw_skus.decode()
+            skus = _json.loads(raw_skus) if raw_skus else []
+            t = user_message.lower()
+            # Detect which product slot "this" / "first" / "second" refers to.
+            idx_a = 1 if any(x in t for x in ["second", "2nd", "number two", "#2"]) else 0
+            idx_b = 0 if idx_a == 1 else 1
+            # Detect intent sub-type
+            intent = "why_ranked"
+            if any(x in t for x in ["gain", "lose", "difference", "compare", "vs ", "between", "better"]):
+                intent = "compare_products"
+            if any(x in t for x in ["alternative", "replacement", "similar", "closest", "instead"]):
+                intent = "find_alternative"
+            args = {
+                "intent": intent,
+                "sku":    skus[idx_a] if len(skus) > idx_a else "",
+                "sku_b":  skus[idx_b] if len(skus) > idx_b else "",
+            }
+        else:
+            args = {}
         return {"playbook": fast, "args": args}
 
     # Layer 2: LLM router with profile context injected

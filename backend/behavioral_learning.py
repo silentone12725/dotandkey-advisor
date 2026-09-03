@@ -230,14 +230,28 @@ def record_behavior(profile_id: str, product: dict, event_type: str) -> None:
     _log.debug("BEHAVIORAL | event=%s product=%s signals=%s",
                event_type, product.get("sku"), signals)
 
+    r = _get_redis()
+    bkey = _bkey(profile_id)
+    raw_all = r.hgetall(bkey)
+
+    updated: dict[str, str] = {}
     for field in ("ingredients", "textures", "claims", "attributes"):
         entries = signals.get(field, [])
         if not entries:
             continue
-        data = _load(profile_id, field)
+        try:
+            data = json.loads(raw_all[field]) if field in raw_all else {}
+        except Exception:
+            data = {}
         for signal in entries:
             _accumulate(data, signal, weight)
-        _save(profile_id, field, data)
+        updated[field] = json.dumps(data)
+
+    if updated:
+        pipe = r.pipeline(transaction=False)
+        pipe.hset(bkey, mapping=updated)
+        pipe.expire(bkey, TTL_SECONDS)
+        pipe.execute()
 
 
 def get_behavioral_prefs(profile_id: str) -> dict:
@@ -253,9 +267,13 @@ def get_behavioral_prefs(profile_id: str) -> dict:
     Positive values = preferred, negative = avoided.
     Values near 0 are filtered out (|effective| < 0.5).
     """
+    raw_all = _get_redis().hgetall(_bkey(profile_id))
     prefs: dict[str, dict[str, float]] = {}
     for field in ("ingredients", "textures", "claims", "attributes"):
-        data = _load(profile_id, field)
+        try:
+            data = json.loads(raw_all[field]) if field in raw_all else {}
+        except Exception:
+            data = {}
         effective: dict[str, float] = {}
         for signal, entry in data.items():
             eff = entry.get("score", 0.0) * _decay_factor(entry.get("ts", time.time()))
