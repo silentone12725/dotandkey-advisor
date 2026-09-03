@@ -59,6 +59,35 @@
 
     var PROFILE_ID = getOrCreateProfileId();
 
+    // Signed proof that this browser owns PROFILE_ID. Issued by /session/init
+    // and required by every other endpoint — the bare id is no longer enough,
+    // so knowing someone's id doesn't grant access to their profile.
+    var TOKEN_KEY = "dk_advisor_token";
+
+    function getProfileToken() {
+        try {
+            return localStorage.getItem(TOKEN_KEY) || "";
+        } catch (e) {
+            return window.__dkAdvisorToken || "";
+        }
+    }
+
+    function setProfileToken(token) {
+        if (!token) return;
+        window.__dkAdvisorToken = token;   // survives when storage is blocked
+        try {
+            localStorage.setItem(TOKEN_KEY, token);
+        } catch (e) { /* private browsing — in-memory only, per page load */ }
+    }
+
+    /** Headers carrying identity. Token when we have one, id for /session/init. */
+    function authHeaders() {
+        var h = { "X-Profile-Id": PROFILE_ID };
+        var t = getProfileToken();
+        if (t) h["X-Profile-Token"] = t;
+        return h;
+    }
+
     // ===========================================================================
     // Page detection
     // ===========================================================================
@@ -388,13 +417,13 @@
     function streamChat(message, productContext, onToken, onDone, onError) {
         var internal = window.__dkAdvisor._internal;
 
+        var chatHeaders = authHeaders();
+        chatHeaders["Content-Type"] = "application/json";
+        chatHeaders["Accept"] = "text/event-stream";
+
         fetch(internal.API_BASE + "/chat", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-Profile-Id": internal.PROFILE_ID,
-                "Accept": "text/event-stream",
-            },
+            headers: chatHeaders,
             body: JSON.stringify({
                 message: message,
                 product_context: productContext || null,
@@ -445,16 +474,19 @@
     /** Non-streaming POST helper for /session/init and /context/product. */
     function postJSON(path, body) {
         var internal = window.__dkAdvisor._internal;
+        var headers = authHeaders();
+        headers["Content-Type"] = "application/json";
         return fetch(internal.API_BASE + path, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-Profile-Id": internal.PROFILE_ID,
-            },
+            headers: headers,
             body: JSON.stringify(body || {}),
         }).then(function (res) {
             if (!res.ok) throw new Error(path + " failed: " + res.status);
             return res.json();
+        }).then(function (data) {
+            // /session/init returns the signed token; store it for later calls.
+            if (data && data.profile_token) setProfileToken(data.profile_token);
+            return data;
         });
     }
 

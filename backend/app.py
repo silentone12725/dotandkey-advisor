@@ -27,11 +27,12 @@ logging.basicConfig(
 _log = logging.getLogger(__name__)
 
 import httpx
-from fastapi import FastAPI, Header, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, Response, StreamingResponse
 from pydantic import BaseModel, Field
 
+from backend.auth import issue_token, resolve_profile_id
 from backend.profile import append_turn, record_event
 from backend.router import classify
 from backend.session import init_session
@@ -61,7 +62,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=_origins,
     allow_methods=["POST", "GET", "OPTIONS"],
-    allow_headers=["Content-Type", "X-Profile-Id"],
+    allow_headers=["Content-Type", "X-Profile-Id", "X-Profile-Token"],
     allow_credentials=False,
 )
 
@@ -122,6 +123,29 @@ class OrderWebhookRequest(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Identity
+# ---------------------------------------------------------------------------
+
+async def current_profile_id(
+    x_profile_token: str | None = Header(None, alias="X-Profile-Token"),
+    x_profile_id: str | None = Header(None, alias="X-Profile-Id"),
+) -> str:
+    """Resolve the caller's profile id from their signed token.
+
+    Every endpoint that reads or writes profile-scoped data depends on this,
+    so that ownership is proven in exactly one place. A bare X-Profile-Id is
+    accepted only under ALLOW_UNSIGNED_PROFILE_ID (migration escape hatch).
+    """
+    profile_id = resolve_profile_id(x_profile_token, x_profile_id)
+    if not profile_id:
+        raise HTTPException(
+            status_code=401,
+            detail="Missing or invalid profile token — call /session/init first.",
+        )
+    return profile_id
+
+
+# ---------------------------------------------------------------------------
 # Health
 # ---------------------------------------------------------------------------
 
@@ -139,7 +163,21 @@ async def session_init(
     body: SessionInitRequest,
     request: Request,
     x_profile_id: str = Header(..., alias="X-Profile-Id"),
+    x_profile_token: str | None = Header(None, alias="X-Profile-Token"),
 ):
+    """Start a session and mint the caller's profile token.
+
+    This is the only endpoint that accepts a bare X-Profile-Id, because it is
+    what issues the token. A returning caller presents their existing token and
+    keeps their profile; a caller without one gets their claimed id bound to a
+    fresh token. Claiming someone else's id here yields a token for it, but
+    that is no worse than today and is the price of a no-login widget — the
+    protection is that ids are unguessable UUIDs and every *other* endpoint now
+    demands a signature.
+    """
+    existing = resolve_profile_id(x_profile_token, None)
+    profile_id = existing or x_profile_id
+
     # X-Forwarded-For is client-settable unless a trusted proxy overwrites it.
     # Honouring it unconditionally lets anyone spoof their location and mint
     # unlimited distinct ip2city:{ip} cache keys / ip-api.com lookups (free
@@ -154,10 +192,13 @@ async def session_init(
         client_ip = request.client.host if request.client else "127.0.0.1"
 
     result = await init_session(
-        profile_id=x_profile_id,
+        profile_id=profile_id,
         client_ip=client_ip,
         page_context=body.page_context,
     )
+    # The widget stores this and sends it as X-Profile-Token on every
+    # subsequent request; the bare id is no longer sufficient anywhere else.
+    result["profile_token"] = issue_token(profile_id)
     return result
 
 
@@ -240,11 +281,11 @@ async def _event_stream(
 @app.post("/chat")
 async def chat(
     body: ChatRequest,
-    x_profile_id: str = Header(..., alias="X-Profile-Id"),
+    profile_id: str = Depends(current_profile_id),
 ):
     return StreamingResponse(
         _event_stream(
-            x_profile_id,
+            profile_id,
             body.message,
             body.product_context.model_dump() if body.product_context else None,
         ),
@@ -263,10 +304,10 @@ async def chat(
 @app.post("/context/product")
 async def product_context(
     body: ProductContextRequest,
-    x_profile_id: str = Header(..., alias="X-Profile-Id"),
+    profile_id: str = Depends(current_profile_id),
 ):
     from backend.profile import load_profile
-    profile = load_profile(x_profile_id)
+    profile = load_profile(profile_id)
     season = profile.get("season", "summer")
     ctx = get_product_context(body.title, season)
     return ctx
@@ -338,8 +379,11 @@ async def order_webhook(
 @app.get("/explain/{sku}")
 async def explain_product(
     sku: str,
-    profile_id: str,
+    profile_id: str = Depends(current_profile_id),
 ):
+    # profile_id used to be a query parameter, so any URL naming someone else's
+    # id returned their personalised explanation — and landed in logs and
+    # Referer headers on the way. It now comes from the signed token only.
     from backend.explain_api import build_explain_payload
     from backend.retrieval import get_graph
 
