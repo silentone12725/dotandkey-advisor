@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -70,6 +71,42 @@ def extract_faq_pairs(html: str) -> list[dict[str, str]]:
     faqs: list[dict[str, str]] = []
     seen: set[str] = set()
 
+    def _add(question: str, answer: str) -> None:
+        if not question or not answer:
+            return
+        key = question.lower()[:200]
+        if key in seen:
+            return
+        seen.add(key)
+        faqs.append({"question": question, "answer": answer[:1000],
+                     "merge_key": question[:120]})
+
+    # Structured pass: themes that mark question and answer with paired class
+    # names (Shopify accordions do this — dotandkey uses
+    # collapsable-faq__question / __answer). Must run before the heading-based
+    # heuristics below, which only look inside h1-h4/strong/summary/button and
+    # therefore miss questions marked up as <p>.
+    for q_el in soup.select("[class*='question']"):
+        question = clean_text(q_el.get_text(" "))
+        if not question or "?" not in question:
+            continue
+        answer = ""
+        for sib in q_el.find_next_siblings():
+            classes = " ".join(sib.get("class") or [])
+            if "answer" in classes.lower():
+                answer = clean_text(sib.get_text(" "))
+                break
+        if not answer:
+            parent = q_el.parent
+            if parent:
+                a_el = parent.select_one("[class*='answer']")
+                if a_el:
+                    answer = clean_text(a_el.get_text(" "))
+        _add(question, answer)
+
+    if faqs:
+        return faqs
+
     blocks = soup.select(".faq-item, .faq, details, .accordion-item, [class*='faq']")
     for block in blocks:
         question = None
@@ -122,42 +159,72 @@ def extract_faq_pairs(html: str) -> list[dict[str, str]]:
     return pairs[:10]
 
 
-def fetch_page_via_browser(url: str, headless: bool = True, timeout: int = 45) -> str:
-    """Render a page in a browser and return the final HTML.
+_UA = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+       "(KHTML, like Gecko) Chrome/124.0 Safari/537.36")
+
+
+def _render(page: Any, url: str, timeout: int = 45) -> str:
+    """Navigate an existing page to url and return settled HTML.
 
     Shopify pages often keep background network activity alive, so waiting for
     "networkidle" is unreliable. We instead wait for the main product DOM and
     then capture the page content after a short settle period.
     """
+    page.goto(url, wait_until="domcontentloaded", timeout=timeout * 1000)
+
+    for selector in ("main", "article", "h1", ".product", "#MainContent", "body"):
+        try:
+            page.wait_for_selector(selector, timeout=10_000)
+            break
+        except Exception:
+            continue
+
+    page.wait_for_timeout(2000)
+    return page.content()
+
+
+@contextmanager
+def browser_session(headless: bool = True):
+    """Yield a fetch(url) -> html callable backed by ONE browser instance.
+
+    Bulk scraping reuses a single Chromium across every product page. Launching
+    per page costs roughly a second of startup each, which dominates a
+    150-product run and buys nothing.
+    """
     try:
         from playwright.sync_api import sync_playwright
     except ImportError as exc:  # pragma: no cover
         raise RuntimeError(
-            "Playwright is not installed. Run: pip install playwright && python -m playwright install chromium"
+            "Playwright is not installed. Run: pip install playwright && "
+            "python -m playwright install chromium"
         ) from exc
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=headless)
         page = browser.new_page(viewport={"width": 1440, "height": 2200})
-        page.set_extra_http_headers({"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"})
-        page.goto(url, wait_until="domcontentloaded", timeout=timeout * 1000)
-
-        selectors = ["main", "article", "h1", ".product", "#MainContent", "body"]
-        for selector in selectors:
-            try:
-                page.wait_for_selector(selector, timeout=10_000)
-                break
-            except Exception:
-                continue
-
-        page.wait_for_timeout(2000)
-        html = page.content()
-        browser.close()
-        return html
+        page.set_extra_http_headers({"User-Agent": _UA})
+        try:
+            yield lambda url: _render(page, url)
+        finally:
+            browser.close()
 
 
-def scrape_all_products(limit: int | None = None, headless: bool = True) -> list[dict[str, Any]]:
-    """Scrape every product URL enumerated in product_media.json and return structured results."""
+def fetch_page_via_browser(url: str, headless: bool = True, timeout: int = 45) -> str:
+    """Render a single page in a throwaway browser and return the final HTML."""
+    with browser_session(headless=headless) as fetch:
+        return fetch(url)
+
+
+def scrape_all_products(
+    limit: int | None = None,
+    headless: bool = True,
+    out_path: Path | None = None,
+) -> list[dict[str, Any]]:
+    """Scrape every product URL enumerated in product_media.json.
+
+    When out_path is given, results are written after every page so an
+    interrupted run keeps what it already fetched.
+    """
     if not MEDIA_PATH.exists():
         return []
 
@@ -171,21 +238,40 @@ def scrape_all_products(limit: int | None = None, headless: bool = True) -> list
         handles = handles[:limit]
 
     results: list[dict[str, Any]] = []
-    for idx, handle in enumerate(handles, start=1):
-        url = f"https://www.dotandkey.com/products/{handle}"
-        try:
-            html = fetch_page_via_browser(url, headless=headless)
-        except Exception as exc:  # pragma: no cover - live-browser dependent path
-            results.append({"url": url, "error": str(exc), "product_text": "", "faqs": []})
-            continue
+    with browser_session(headless=headless) as fetch:
+        for idx, handle in enumerate(handles, start=1):
+            url = f"https://www.dotandkey.com/products/{handle}"
+            try:
+                html = fetch(url)
+            except Exception as exc:  # pragma: no cover - live-browser dependent path
+                print(f"  [{idx}/{len(handles)}] {handle} — FAILED: {exc}")
+                results.append({"url": url, "error": str(exc),
+                                "product_text": "", "faqs": [], "index": idx})
+                continue
 
-        results.append({
-            "url": url,
-            "product_text": extract_product_text(html),
-            "faqs": extract_faq_pairs(html),
-            "index": idx,
-        })
+            entry = {
+                "url": url,
+                "product_text": extract_product_text(html),
+                "faqs": extract_faq_pairs(html),
+                "index": idx,
+            }
+            results.append(entry)
+            print(f"  [{idx}/{len(handles)}] {handle} — "
+                  f"{len(entry['product_text'])} chars, {len(entry['faqs'])} FAQs")
+
+            # Checkpoint after every page: a 150-page live scrape that dies at
+            # page 140 must not lose the first 139.
+            if out_path is not None:
+                _write_results(out_path, results)
+
     return results
+
+
+def _write_results(out_path: Path, results: list[dict[str, Any]]) -> None:
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(
+        json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
 
 
 def main() -> None:
@@ -195,12 +281,25 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=None, help="Optional limit for bulk scraping")
     parser.add_argument("--headless", action="store_true", default=True)
     parser.add_argument("--json", action="store_true", help="Print JSON output")
+    parser.add_argument(
+        "--out",
+        help="Write results to this file (checkpointed after every page). "
+             "Prefer this over shell redirection for bulk runs.",
+    )
     args = parser.parse_args()
 
     if args.all_products:
-        results = scrape_all_products(limit=args.limit, headless=args.headless)
-        if args.json:
-            print(json.dumps(results, ensure_ascii=False, indent=2)[:120000])
+        out_path = Path(args.out) if args.out else None
+        results = scrape_all_products(
+            limit=args.limit, headless=args.headless, out_path=out_path,
+        )
+        if out_path:
+            _write_results(out_path, results)
+            ok = sum(1 for r in results if not r.get("error"))
+            faqs = sum(len(r.get("faqs") or []) for r in results)
+            print(f"\nWrote {len(results)} entries ({ok} ok, {faqs} FAQs) → {out_path}")
+        elif args.json:
+            print(json.dumps(results, ensure_ascii=False, indent=2))
         else:
             for item in results:
                 print(f"{item.get('index', '')} | {item['url']}")
