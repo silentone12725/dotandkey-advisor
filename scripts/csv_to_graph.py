@@ -328,6 +328,38 @@ def combo_to_cypher(combo):
     return stmts
 
 
+def _apply_unique_constraints(args) -> None:
+    """Enforce sku uniqueness for Product and Combo.
+
+    schema.cypher can't express this: FalkorDB rejects Cypher's
+    CREATE CONSTRAINT and requires the GRAPH.CONSTRAINT Redis command, so it
+    has to be issued through a raw redis client.
+
+    Without it a re-ingest silently doubles the catalog — the code currently
+    compensates downstream (dedupe_top_picks in retrieval.py, the combo
+    name-dedup in combo_retrieval.py) rather than preventing it at the source.
+    Constraint creation is asynchronous; it returns PENDING and fails if
+    existing data already violates uniqueness.
+    """
+    import redis as _redis
+
+    client = _redis.Redis(host=args.host, port=args.port, decode_responses=True)
+    for label in ("Product", "Combo"):
+        try:
+            client.execute_command(
+                "GRAPH.CONSTRAINT", "CREATE", args.graph,
+                "UNIQUE", "NODE", label, "PROPERTIES", "1", "sku",
+            )
+            print(f"  unique constraint on {label}.sku -> requested")
+        except Exception as e:
+            msg = str(e).lower()
+            if "already" in msg or "exist" in msg:
+                print(f"  unique constraint on {label}.sku -> already present")
+            else:
+                # Never block ingest on this; report and continue.
+                print(f"  unique constraint on {label}.sku -> skipped ({e})")
+
+
 def run(args):
     products, skipped_free, skipped_no_category = build_products()
     combos, skipped_malformed = build_combos()
@@ -385,6 +417,8 @@ def run(args):
                 pass  # index exists from a previous ingest run, safe to skip
             else:
                 raise
+
+    _apply_unique_constraints(args)
 
     print(f"Ingesting {len(products)} products ...")
     for p in products:

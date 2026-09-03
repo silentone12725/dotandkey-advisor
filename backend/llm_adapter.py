@@ -16,6 +16,7 @@ from typing import AsyncGenerator, Optional
 
 _log = logging.getLogger(__name__)
 
+import httpx
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
 
@@ -26,6 +27,14 @@ load_dotenv(override=False)  # override=False so Docker-injected env vars win ov
 # Client factory
 # ---------------------------------------------------------------------------
 
+# The OpenAI SDK defaults to a 600s timeout. /chat holds an SSE connection open
+# for the whole call, so a hung provider would pin a worker for ten minutes.
+# Generous enough for a slow first token, short enough to fail visibly.
+LLM_TIMEOUT = httpx.Timeout(
+    float(os.getenv("LLM_TIMEOUT_SECONDS", "30")), connect=10.0
+)
+
+
 def _make_client() -> tuple[AsyncOpenAI, str]:
     """Return (client, model_name) for the configured provider."""
     provider = os.getenv("LLM_PROVIDER", "nim").lower()
@@ -34,6 +43,7 @@ def _make_client() -> tuple[AsyncOpenAI, str]:
         client = AsyncOpenAI(
             api_key=os.getenv("NIM_API_KEY", ""),
             base_url=os.getenv("NIM_BASE_URL", "https://integrate.api.nvidia.com/v1"),
+            timeout=LLM_TIMEOUT,
         )
         model = os.getenv("NIM_MODEL", "qwen/qwen3.5-122b-a10b")
 
@@ -41,6 +51,7 @@ def _make_client() -> tuple[AsyncOpenAI, str]:
         client = AsyncOpenAI(
             api_key="ollama",           # Ollama ignores the key
             base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1"),
+            timeout=LLM_TIMEOUT,
         )
         model = os.getenv("OLLAMA_MODEL", "qwen3.5:4b")
 
@@ -48,6 +59,7 @@ def _make_client() -> tuple[AsyncOpenAI, str]:
         client = AsyncOpenAI(
             api_key=os.getenv("OPENAI_API_KEY", ""),
             base_url=os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1"),
+            timeout=LLM_TIMEOUT,
         )
         model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
@@ -55,6 +67,7 @@ def _make_client() -> tuple[AsyncOpenAI, str]:
         client = AsyncOpenAI(
             api_key=os.getenv("GOOGLE_API_KEY", ""),
             base_url=os.getenv("GOOGLE_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai"),
+            timeout=LLM_TIMEOUT,
         )
         model = os.getenv("GOOGLE_MODEL", "gemini-2.0-flash")
 

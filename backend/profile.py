@@ -289,12 +289,14 @@ def record_event(profile_id: str, sku: str, category: str,
     member = f"{sku}|{cat_code}|{event}|{int(price)}|{date_str}"
     score = time.time()
 
-    r.zadd(key, {member: score})
-    r.expire(key, HISTORY_TTL)
-
-    # prune entries older than 365 days
-    cutoff = time.time() - HISTORY_TTL
-    r.zremrangebyscore(key, "-inf", cutoff)
+    # One transaction: a crash between the zadd and the expire would otherwise
+    # leave history:{id} with no TTL, i.e. permanently retained user data.
+    cutoff = time.time() - HISTORY_TTL      # prune entries older than 365 days
+    pipe = r.pipeline(transaction=True)
+    pipe.zadd(key, {member: score})
+    pipe.expire(key, HISTORY_TTL)
+    pipe.zremrangebyscore(key, "-inf", cutoff)
+    pipe.execute()
 
 
 def load_history(profile_id: str) -> dict:

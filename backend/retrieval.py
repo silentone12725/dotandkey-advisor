@@ -285,7 +285,10 @@ def _build_query(profile, include_season, include_texture,
     )
     lines.append(
         "RETURN p.sku AS sku, p.title AS title, p.price AS price, "
-        "p.category_raw AS category_raw, p.description AS description, "
+        # Truncate in-query: the caller only keeps 400 chars, and this
+        # projection is re-run for every relaxation round × budget tier
+        # (up to 16 times per turn) over the whole category.
+        "p.category_raw AS category_raw, left(p.description, 400) AS description, "
         "(skin_score + concern_score) AS match_score, "
         "coalesce(p.url, '') AS url, coalesce(p.image_url, '') AS image_url, "
         "matched_skin_types, matched_concerns, free_from, ingredients, "

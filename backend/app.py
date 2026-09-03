@@ -24,13 +24,13 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(levelname)s %(name)s %(message)s",
 )
+_log = logging.getLogger(__name__)
 
 import httpx
 from fastapi import FastAPI, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, Response, StreamingResponse
-from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from backend.profile import append_turn, record_event
 from backend.router import classify
@@ -70,19 +70,51 @@ app.add_middleware(
 # Request / response models
 # ---------------------------------------------------------------------------
 
+# Trust-boundary caps. Every one of these values reaches Redis, the LLM prompt,
+# or the graph, so they are bounded here rather than at each call site.
+MAX_MESSAGE_CHARS = 2000
+MAX_PAGE_CONTEXT_CHARS = 500
+MAX_WEBHOOK_LINE_ITEMS = 100
+
+
+class ProductContext(BaseModel):
+    """Product page context, as produced by /context/product.
+
+    The widget receives this from us and echoes it back on each chat turn, so
+    by the time it returns it is client-controlled. It gets json.dumps'd into
+    the system prompt (playbooks/other.py), which makes an unconstrained dict a
+    direct prompt-injection channel — hence the explicit field list and caps.
+    Unknown keys are dropped rather than forwarded.
+    """
+    model_config = {"extra": "ignore"}
+
+    found: bool = False
+    sku: str = Field("", max_length=128)
+    title: str = Field("", max_length=300)
+    price: float = 0.0
+    description: str = Field("", max_length=500)
+    texture: str = Field("", max_length=64)
+    category: str = Field("", max_length=64)
+    skin_types: list[str] = Field(default_factory=list, max_length=20)
+    concerns: list[str] = Field(default_factory=list, max_length=30)
+    ingredients: list[str] = Field(default_factory=list, max_length=50)
+    allergen_free: list[str] = Field(default_factory=list, max_length=20)
+    seasons: list[str] = Field(default_factory=list, max_length=8)
+
+
 class SessionInitRequest(BaseModel):
-    page_context: str = "homepage"   # "homepage" | "product:{name}"
+    page_context: str = Field("homepage", max_length=MAX_PAGE_CONTEXT_CHARS)
 
 
 class ChatRequest(BaseModel):
-    message: str
-    product_context: dict | None = None   # injected by widget on product pages
+    message: str = Field(..., max_length=MAX_MESSAGE_CHARS)
+    product_context: ProductContext | None = None   # injected by widget on product pages
 
 
 class ProductContextRequest(BaseModel):
-    handle: str
-    title: str
-    tags: list[str] = []
+    handle: str = Field(..., max_length=200)
+    title: str = Field("", max_length=300)
+    tags: list[str] = Field(default_factory=list, max_length=50)
 
 
 class OrderWebhookRequest(BaseModel):
@@ -108,7 +140,16 @@ async def session_init(
     request: Request,
     x_profile_id: str = Header(..., alias="X-Profile-Id"),
 ):
-    client_ip = request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
+    # X-Forwarded-For is client-settable unless a trusted proxy overwrites it.
+    # Honouring it unconditionally lets anyone spoof their location and mint
+    # unlimited distinct ip2city:{ip} cache keys / ip-api.com lookups (free
+    # tier: 45 req/min), which would push every real user to the fallback city.
+    client_ip = ""
+    if os.getenv("TRUST_PROXY_HEADERS", "").lower() in ("1", "true", "yes"):
+        # Rightmost entry is the one our own proxy appended; earlier hops are
+        # attacker-supplied.
+        xff = request.headers.get("X-Forwarded-For", "")
+        client_ip = xff.split(",")[-1].strip() if xff else ""
     if not client_ip:
         client_ip = request.client.host if request.client else "127.0.0.1"
 
@@ -202,7 +243,11 @@ async def chat(
     x_profile_id: str = Header(..., alias="X-Profile-Id"),
 ):
     return StreamingResponse(
-        _event_stream(x_profile_id, body.message, body.product_context),
+        _event_stream(
+            x_profile_id,
+            body.message,
+            body.product_context.model_dump() if body.product_context else None,
+        ),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
@@ -233,24 +278,57 @@ async def product_context(
 
 @app.post("/webhook/order")
 async def order_webhook(
+    request: Request,
     body: OrderWebhookRequest,
     x_profile_id: str = Header(None, alias="X-Profile-Id"),
 ):
     """Called by Shopify when a purchase completes.
     Shopify doesn't send X-Profile-Id — match by note or customer tag.
     For now: accept profile_id from a custom order note attribute.
+
+    Writes "P" (purchased) events, which feed behavioural ranking and the
+    system prompt, so the request must be proven to come from Shopify.
     """
     if not x_profile_id:
         return {"status": "skipped", "reason": "no profile_id"}
 
-    for item in body.line_items:
-        sku      = item.get("sku", "")
-        price    = float(item.get("price", 0))
-        category = item.get("product_type", "").lower().replace(" ", "_")
-        if sku:
-            record_event(x_profile_id, sku, category, "P", price)
+    # Verify Shopify's HMAC. Without this, any unauthenticated POST can forge
+    # purchase history for an arbitrary profile id.
+    secret = os.getenv("SHOPIFY_WEBHOOK_SECRET", "")
+    if secret:
+        import base64
+        import hashlib
+        import hmac
+        sent = request.headers.get("X-Shopify-Hmac-Sha256", "")
+        digest = base64.b64encode(
+            hmac.new(secret.encode(), await request.body(), hashlib.sha256).digest()
+        ).decode()
+        if not hmac.compare_digest(sent, digest):
+            _log.warning("order webhook rejected: bad HMAC for profile %s", x_profile_id)
+            return Response('{"status":"unauthorized"}', status_code=401,
+                            media_type="application/json")
+    else:
+        _log.error(
+            "SHOPIFY_WEBHOOK_SECRET is unset — /webhook/order is refusing "
+            "requests rather than accepting unauthenticated purchase events"
+        )
+        return Response('{"status":"unconfigured"}', status_code=503,
+                        media_type="application/json")
 
-    return {"status": "recorded", "items": len(body.line_items)}
+    recorded = 0
+    for item in body.line_items[:MAX_WEBHOOK_LINE_ITEMS]:
+        sku = str(item.get("sku") or "")[:128]
+        if not sku:
+            continue
+        try:
+            price = float(item.get("price", 0))
+        except (TypeError, ValueError):
+            price = 0.0          # malformed price must not 500 the webhook
+        category = str(item.get("product_type") or "").lower().replace(" ", "_")[:64]
+        record_event(x_profile_id, sku, category, "P", price)
+        recorded += 1
+
+    return {"status": "recorded", "items": recorded}
 
 
 # ---------------------------------------------------------------------------
@@ -262,16 +340,12 @@ async def explain_product(
     sku: str,
     profile_id: str,
 ):
-    from falkordb import FalkorDB
     from backend.explain_api import build_explain_payload
+    from backend.retrieval import get_graph
 
-    db = FalkorDB(
-        host=os.getenv("FALKORDB_HOST", "localhost"),
-        port=int(os.getenv("FALKORDB_PORT", 6379)),
-    )
-    graph = db.select_graph(os.getenv("FALKORDB_GRAPH", "dotandkey"))
-
-    return build_explain_payload(sku, profile_id, graph)
+    # Use the shared singleton — constructing FalkorDB() per request opened a
+    # new TCP connection each time and exhausted file descriptors under load.
+    return build_explain_payload(sku, profile_id, get_graph())
 
 
 # ---------------------------------------------------------------------------
@@ -283,7 +357,14 @@ _STRIP_RESP_HEADERS = {
     "content-encoding", "transfer-encoding", "connection",
     "content-security-policy", "x-frame-options",
 }
-_STRIP_REQ_HEADERS = {"host", "content-encoding", "transfer-encoding", "connection"}
+
+# Allowlist rather than denylist: the proxy talks to a third party, so anything
+# not named here (Cookie, Authorization, X-Profile-Id, ...) must not leave our
+# origin. A denylist silently forwards every new header a client invents.
+_FORWARD_REQ_HEADERS = {
+    "accept", "accept-language", "cache-control", "content-type",
+    "user-agent", "referer", "pragma",
+}
 
 
 @app.get("/static/widget.js")
@@ -304,7 +385,7 @@ async def proxy_dotandkey(path: str, request: Request):
         target += f"?{request.url.query}"
 
     fwd = {k: v for k, v in request.headers.items()
-           if k.lower() not in _STRIP_REQ_HEADERS}
+           if k.lower() in _FORWARD_REQ_HEADERS}
     fwd["host"] = "www.dotandkey.com"
     fwd["accept-encoding"] = "gzip"  # brotli needs extra dep; gzip is enough
 
@@ -315,7 +396,10 @@ async def proxy_dotandkey(path: str, request: Request):
                 request.method, target, headers=fwd, content=body, timeout=10.0
             )
     except Exception as exc:
-        return Response(f"Proxy error: {exc}", status_code=502, media_type="text/plain")
+        # httpx exception text carries the resolved upstream URL and connection
+        # details — log it, don't hand it to the client.
+        _log.warning("proxy request to %s failed: %s", target, exc)
+        return Response("Upstream unavailable", status_code=502, media_type="text/plain")
 
     content_type = resp.headers.get("content-type", "")
 
@@ -328,9 +412,19 @@ async def proxy_dotandkey(path: str, request: Request):
         return Response(resp.content, status_code=resp.status_code,
                         headers=headers, media_type=content_type)
 
-    host = request.headers.get("host", "localhost:8000")
-    scheme = request.headers.get("x-forwarded-proto", "http")
-    api_base = f"{scheme}://{host}"
+    # api_base is interpolated into the injected <script src> and into every
+    # rewritten link, so it must never come from a request header — a spoofed
+    # Host would point the widget (and its profile id + chat stream) at an
+    # attacker, and a quote in the value would break out of the attribute.
+    # PUBLIC_BASE_URL is the deployed origin; the header fallback is dev-only
+    # and is scrubbed of anything that isn't host:port.
+    api_base = os.getenv("PUBLIC_BASE_URL", "").rstrip("/")
+    if not api_base:
+        host = request.headers.get("host", "localhost:8000")
+        if not re.fullmatch(r"[A-Za-z0-9.\-]+(?::\d{1,5})?", host):
+            host = "localhost:8000"
+        scheme = "https" if request.url.scheme == "https" else "http"
+        api_base = f"{scheme}://{host}"
 
     html = resp.text
     # Relative URLs on dotandkey.com resolve against the real domain.
@@ -364,6 +458,8 @@ async def proxy_dotandkey(path: str, request: Request):
     return HTMLResponse(html, status_code=resp.status_code)
 
 
-import pathlib as _pathlib
-if _pathlib.Path(_FRONTEND_DIR).is_dir():
-    app.mount("/static", StaticFiles(directory=_FRONTEND_DIR), name="static")
+# NOTE: there is deliberately no StaticFiles mount for /static.
+# It would be dead code here (the /{path:path} proxy above is registered first
+# and wins), and if it were ever moved above the proxy it would publish the
+# whole frontend/ directory — node_modules, test_widget.js, demo.html included.
+# widget.js is served explicitly by serve_widget_js() instead.
