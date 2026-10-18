@@ -8,6 +8,7 @@
 // -----------------------------------------------------------------------------
 // Product        {sku, title, variant, category_raw, price, compare_at_price,
 //                 description, active, size_g, url, image_url,
+//                 ingredients_text, benefits_text, claims,
 //                 cap_oil_control, cap_hydration, cap_barrier_repair,
 //                 cap_brightening, cap_pigmentation, cap_acne,
 //                 cap_pore_care, cap_sensitivity, cap_sun_protection, cap_lip_repair}
@@ -15,6 +16,7 @@
 // Combo          {sku, title, price, compare_at_price, url, image_url, active}
 // SkinType       {name}
 // Concern        {name}
+// Claim          {name}
 // Season         {name}
 // Ingredient     {name}
 // AllergenClass  {name}
@@ -35,6 +37,7 @@
 // (Product)-[:FREE_FROM]->(AllergenClass)
 // (Product)-[:IN_CATEGORY]->(Category)
 // (Product)-[:HAS_TEXTURE]->(Texture)
+// (Product)-[:HAS_CLAIM]->(Claim)
 // (Product)-[:HAS_TYPE]->(ProductType)        — assigned by build_product_types.py
 //
 // (Combo)-[:INCLUDES]->(Product)
@@ -85,6 +88,7 @@ CREATE INDEX FOR (p:Product) ON (p.sku);
 CREATE INDEX FOR (c:Combo) ON (c.sku);
 CREATE INDEX FOR (n:SkinType) ON (n.name);
 CREATE INDEX FOR (n:Concern) ON (n.name);
+CREATE INDEX FOR (n:Claim) ON (n.name);
 CREATE INDEX FOR (n:Season) ON (n.name);
 CREATE INDEX FOR (n:Ingredient) ON (n.name);
 CREATE INDEX FOR (n:AllergenClass) ON (n.name);

@@ -119,14 +119,18 @@ def save_profile(profile_id: str, updates: dict) -> dict:
     now = datetime.now(timezone.utc).isoformat()
     updates["last_seen"] = now
 
-    existing = r.hgetall(key)
-    if not existing:
-        updates.setdefault("created_at", now)
-        r.hset(key, mapping={**EMPTY_PROFILE, **updates})
-    else:
-        r.hset(key, mapping=updates)
-
-    r.expire(key, PROFILE_TTL)
+    # Set defaults atomically for new profiles: HSETNX only writes a field when
+    # it does not already exist, so concurrent first-session writes can't
+    # clobber each other. Then unconditionally write the caller-supplied updates
+    # (which always win over defaults).
+    pipe = r.pipeline(transaction=False)
+    defaults = {**EMPTY_PROFILE, "created_at": now}
+    for k, v in defaults.items():
+        if k not in updates:
+            pipe.hsetnx(key, k, v)
+    pipe.hset(key, mapping=updates)
+    pipe.expire(key, PROFILE_TTL)
+    pipe.execute()
     return r.hgetall(key)
 
 
@@ -217,17 +221,33 @@ def load_session(profile_id: str) -> list[dict]:
     return json.loads(raw)
 
 
+# Lua script: atomic read-modify-write for the 4-turn sliding window.
+# Eliminates the race where two concurrent appends both read the same history,
+# each append their own turn, and the second write silently drops the first.
+_APPEND_TURN_LUA = """
+local raw = redis.call('HGET', KEYS[1], 'history')
+local history = cjson.decode(raw or '[]')
+table.insert(history, cjson.decode(ARGV[1]))
+local start = math.max(1, #history - 3)
+local trimmed = {}
+for i = start, #history do trimmed[#trimmed + 1] = history[i] end
+redis.call('HSET', KEYS[1], 'history', cjson.encode(trimmed))
+redis.call('EXPIRE', KEYS[1], tonumber(ARGV[2]))
+return 1
+"""
+_append_turn_script = None
+
+
 def append_turn(profile_id: str, role: str, content: str) -> None:
     """Append one turn and keep only the last 4 turns (2 user + 2 assistant).
     Older context is captured in the profile — no need to repeat it.
     """
+    global _append_turn_script
     r = get_redis()
     key = _session_key(profile_id)
-    history = load_session(profile_id)
-    history.append({"role": role, "content": content})
-    history = history[-4:]          # sliding window: last 4 turns
-    r.hset(key, "history", json.dumps(history))
-    r.expire(key, SESSION_TTL)
+    if _append_turn_script is None:
+        _append_turn_script = r.register_script(_APPEND_TURN_LUA)
+    _append_turn_script(keys=[key], args=[json.dumps({"role": role, "content": content}), SESSION_TTL])
 
 
 def clear_session(profile_id: str) -> None:
@@ -269,12 +289,14 @@ def record_event(profile_id: str, sku: str, category: str,
     member = f"{sku}|{cat_code}|{event}|{int(price)}|{date_str}"
     score = time.time()
 
-    r.zadd(key, {member: score})
-    r.expire(key, HISTORY_TTL)
-
-    # prune entries older than 365 days
-    cutoff = time.time() - HISTORY_TTL
-    r.zremrangebyscore(key, "-inf", cutoff)
+    # One transaction: a crash between the zadd and the expire would otherwise
+    # leave history:{id} with no TTL, i.e. permanently retained user data.
+    cutoff = time.time() - HISTORY_TTL      # prune entries older than 365 days
+    pipe = r.pipeline(transaction=True)
+    pipe.zadd(key, {member: score})
+    pipe.expire(key, HISTORY_TTL)
+    pipe.zremrangebyscore(key, "-inf", cutoff)
+    pipe.execute()
 
 
 def load_history(profile_id: str) -> dict:

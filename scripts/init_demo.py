@@ -4,12 +4,16 @@ scripts/init_demo.py
 Idempotent one-shot graph seeding for demo / first-run Docker deployment.
 
 Run order:
-  1. csv_to_graph        — MERGE product nodes + apply existing product_media.json
-  2. fetch_product_media — pull image URLs / availability from Shopify
-                          (skipped when data/product_media.json already present)
-  3. media re-apply      — patch nodes with freshly fetched URLs (only when step 2 ran)
-  4. build_graph_pipeline — LLM enrichment
-                          (skipped when cap_* scores already present on >20 products)
+  1. csv_to_graph           — MERGE product nodes + apply existing product_media.json
+  2. fetch_product_media    — pull image URLs / availability from Shopify
+                             (skipped when data/product_media.json already present)
+  3. media re-apply         — patch nodes with freshly fetched URLs (only when step 2 ran)
+  4. build_graph_pipeline   — LLM enrichment
+                             (skipped when cap_* scores already present on >20 products)
+  5. enrich_product_graph   — page scrape for ingredients_text, FAQ, Claim nodes
+                             (skipped when >20 products already have enriched_from_page=true)
+  6. enrich_ingredient_knowledge — dermatological concern mapping + skincare-db scrape
+                             (skipped when ADDRESSES edges already exist)
 
 Usage (invoked by Docker Compose graph-init service):
     python3 -m scripts.init_demo --host falkordb
@@ -43,10 +47,11 @@ def run(args):
         dry_run=False, host=args.host, port=args.port, graph=args.graph,
     ))
 
-    # ── 2. fetch_product_media — skip if JSON already populated ───────────────
+    # ── 2. fetch_product_media — intentionally refresh when requested ─────────
     media_path = Path("data/product_media.json")
     media_fetched = False
-    if media_path.exists() and media_path.stat().st_size > 10_000:
+    should_refresh_media = getattr(args, "force_media_refresh", False)
+    if media_path.exists() and media_path.stat().st_size > 10_000 and not should_refresh_media:
         print("[2/4] data/product_media.json present — skip Shopify fetch")
     else:
         print("[2/4] fetching product media from Shopify ...")
@@ -99,6 +104,33 @@ def run(args):
         for name, fn in ALL_STEPS:
             log_step(name, fn, pipeline_args)
 
+    # ── 5. enrich_product_graph — skip if already done ────────────────────────
+    graph = _get_graph(args)
+    n_enriched_pages = _count(
+        graph,
+        "MATCH (p:Product) WHERE p.enriched_from_page = true RETURN count(p) AS n",
+    )
+    if n_enriched_pages > 20:
+        print(f"[5/5] {n_enriched_pages} page-enriched products found — skip")
+    else:
+        print(f"[5/5] running page enrichment ({n_enriched_pages} enriched so far) ...")
+        from scripts.enrich_product_graph import run as enrich_run
+        enrich_run(argparse.Namespace(
+            host=args.host, port=args.port, graph=args.graph,
+        ))
+
+    # ── 6. enrich_ingredient_knowledge — skip if ADDRESSES edges already exist ─
+    graph = _get_graph(args)
+    n_addresses = _count(graph, "MATCH ()-[:ADDRESSES]->() RETURN count(*) AS n")
+    if n_addresses > 5:
+        print(f"[6/6] {n_addresses} ADDRESSES edges found — skip ingredient enrichment")
+    else:
+        print(f"[6/6] enriching ingredient nodes with dermatological data ...")
+        from scripts.enrich_ingredient_knowledge import run as ing_run
+        ing_run(argparse.Namespace(
+            host=args.host, port=args.port, graph=args.graph, cosing="",
+        ))
+
     print(f"\n=== init complete in {time.time() - t0:.0f}s ===\n")
 
 
@@ -107,4 +139,6 @@ if __name__ == "__main__":
     parser.add_argument("--host",  default=os.getenv("FALKORDB_HOST", "localhost"))
     parser.add_argument("--port",  type=int, default=int(os.getenv("FALKORDB_PORT", "6379")))
     parser.add_argument("--graph", default=os.getenv("FALKORDB_GRAPH", "dotandkey"))
+    parser.add_argument("--force-media-refresh", action="store_true",
+                        help="Always refresh product_media.json from Shopify, even if the file exists")
     run(parser.parse_args())

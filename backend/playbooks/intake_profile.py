@@ -21,13 +21,12 @@ import re
 from typing import AsyncGenerator
 
 from backend.profile import (
-    compact_profile_for_prompt,
     load_profile,
     parse_profile,
     profile_missing_fields,
     save_profile,
 )
-from backend.playbooks.base import build_system_prompt, load_prompt, stream_response, emit_ui_data
+from backend.playbooks.base import emit_ui_data
 
 # ---------------------------------------------------------------------------
 # Keyword extraction — no LLM call
@@ -289,21 +288,22 @@ async def run(
             yield token
         return
 
-    # 4. Build prompt with extracted context
-    intake_prompt = load_prompt("intake.md")
-    extra = (
-        intake_prompt
-        .replace("{user_message}", user_message)
-        .replace("{extracted_json}", json.dumps(extracted, indent=2))
-        .replace("{profile_line}", compact_profile_for_prompt(profile_id))
-        .replace("{next_field}", next_field)
-    )
+    # 4. Deterministic question text — no LLM call.
+    # Each next_field maps to a fixed question. Chips below provide the options.
+    # This prevents the LLM from generating a question about one field while the
+    # chip options are for a different field (the real next missing field).
+    _NEXT_QUESTION = {
+        "category":      "What kind of product are you looking for?",
+        "skin_types":    "What's your skin type?",
+        "allergen_free": "Any ingredients you'd like to avoid?",
+        "price_tier":    "What's your budget?",
+        "size_pref":     "Any size preference?",
+        "concerns":      "Any specific skin concerns you'd like to target?",
+    }
 
-    system = build_system_prompt(profile_id, extra_context=extra)
-
-    # 5. Stream response (only LLM call in this playbook)
-    async for token in stream_response(system, profile_id, user_message):
-        yield token
+    # 5. Emit the question — purely deterministic, zero LLM calls during intake
+    if next_field in _NEXT_QUESTION:
+        yield _NEXT_QUESTION[next_field]
 
     # 6. Attach chip suggestions for the next question — lets the widget
     # render tappable options instead of forcing the user to type.

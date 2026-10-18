@@ -80,7 +80,7 @@ if test -f scripts/fetch_product_media.py
         end
     end
     if test $is_stale = true
-        echo "       product_media.json stale - refreshing..."
+        echo "       product_media.json stale (older than 24h) - refreshing..."
         python3 scripts/fetch_product_media.py 2>/dev/null
         and echo "       product_media.json updated"
         or  echo "       media fetch skipped (non-fatal)"

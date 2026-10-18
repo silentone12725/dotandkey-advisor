@@ -1,6 +1,41 @@
 # Dot & Key Skin Advisor
 
+> **Graph Hacks: Context for AI Agents — Track 02: Agent Memory and Coordination**
+>
+> A conversational skincare advisor where FalkorDB is the central context layer: the product knowledge graph drives every retrieval decision, and two distinct memory systems (sensitivity memory + behavioral learning) persist and update across sessions — per user, with signed profile isolation.
+
 A retrieval-grounded conversational product advisor for [dotandkey.com](https://www.dotandkey.com) — an Indian skincare D2C brand. Runs as an embeddable widget and as a Chrome extension that injects directly onto the real site.
+
+## How FalkorDB Powers This
+
+FalkorDB is not a side component — it **is** the agent's context layer:
+
+| Role | FalkorDB Contribution |
+|---|---|
+| **Product knowledge graph** | Nodes: Product, SkinType, Concern, Ingredient, Category, Claim. Relationships connect them so Cypher multi-hop queries find the right products. |
+| **Ranking context** | Every recommendation runs a Cypher query; graph match scores (skin×30 + concern×25) are core to the ranking formula. |
+| **Memory anchor** | Sensitivity flags and behavioral signals are keyed to profile IDs that reference graph entities (ingredients, claims). Memory without the graph is noise; the graph without memory is stateless. |
+| **Explainability** | `match_keywords.py` re-queries the graph to derive "why this fits" tags shown on each product card — no LLM prose, just graph-derived evidence. |
+
+## Memory Architecture (Track 02 alignment)
+
+```
+Episodic memory   → sensitivity_memory.py
+                     Detects once, persists forever per user:
+                     avoid_fragrance, eczema_prone, allergy_prone, reactive_skin …
+                     "I react to fragrance" → fragrance-free products always ranked higher
+
+Semantic memory   → behavioral_learning.py
+                     Learns ingredient / texture / claim preferences from events:
+                     click (+2), shortlist (+5), purchase (+10), reject (−8)
+                     Time-decay: ×0.9 at 30d, ×0.7 at 90d, ×0.5 at 180d
+                     Stored in separate Redis key: behavioral:{profile_id}
+
+Per-user isolation → profile.py + signed JWT profile tokens
+                     Each user gets an isolated profile_id, signed with HMAC-SHA256.
+                     Memories are never shared across users.
+                     60-day TTL; users can reset any memory with natural language.
+```
 
 ## Architecture
 
@@ -24,7 +59,7 @@ backend/        FastAPI application
 frontend/
   widget.js       Vanilla JS widget, Shadow DOM, no build step
 extension/        Manifest V3 Chrome extension (injects widget on dotandkey.com)
-tests/            628 backend tests (pytest), 49 jsdom, 6 extension tests
+tests/            974 backend tests (pytest), 167 jsdom, 6 extension tests
 ```
 
 ## Ranking Pipeline
@@ -103,7 +138,7 @@ Starts FalkorDB on `:6379` / `:3000` (browser UI) and the backend on `:8000`.
 ## Tests
 
 ```fish
-# Backend (628 tests, ~35 s, no live services needed for most)
+# Backend (974 tests, ~60 s, no live services needed for most)
 pytest
 
 # Frontend widget (49 jsdom tests)
@@ -147,9 +182,10 @@ Sensitivity statements are detected once and persist across sessions:
 
 ## Design Constraints
 
-- **Not an agent** — the router picks one of 6 fixed playbooks. Retrieval is deterministic Cypher; the LLM only writes one short sentence.
-- **No LLM product selection** — products are chosen by the graph. The LLM never sees the full catalog.
+- **Workflow with an LLM phrasing layer, not an open agent** — the router picks one of 9 fixed playbooks. Retrieval is deterministic Cypher; the LLM only writes one short sentence. This makes memory influence traceable and auditable.
+- **No LLM product selection** — products are chosen by the graph + memory pipeline. The LLM never sees the full catalog. Graph-derived results are explainable by design.
 - **FalkorDB ordering rule** — all hard `MATCH` clauses must precede every `OPTIONAL MATCH` in the same chain (FalkorDB requirement).
+- **Memory priority** — explicit query intent always overrides memory (qi×80 ≈ 8000+ per matched ingredient). Users stay in control.
 
 ## Stack
 

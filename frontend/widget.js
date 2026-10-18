@@ -59,6 +59,35 @@
 
     var PROFILE_ID = getOrCreateProfileId();
 
+    // Signed proof that this browser owns PROFILE_ID. Issued by /session/init
+    // and required by every other endpoint — the bare id is no longer enough,
+    // so knowing someone's id doesn't grant access to their profile.
+    var TOKEN_KEY = "dk_advisor_token";
+
+    function getProfileToken() {
+        try {
+            return localStorage.getItem(TOKEN_KEY) || "";
+        } catch (e) {
+            return window.__dkAdvisorToken || "";
+        }
+    }
+
+    function setProfileToken(token) {
+        if (!token) return;
+        window.__dkAdvisorToken = token;   // survives when storage is blocked
+        try {
+            localStorage.setItem(TOKEN_KEY, token);
+        } catch (e) { /* private browsing — in-memory only, per page load */ }
+    }
+
+    /** Headers carrying identity. Token when we have one, id for /session/init. */
+    function authHeaders() {
+        var h = { "X-Profile-Id": PROFILE_ID };
+        var t = getProfileToken();
+        if (t) h["X-Profile-Token"] = t;
+        return h;
+    }
+
     // ===========================================================================
     // Page detection
     // ===========================================================================
@@ -217,6 +246,24 @@
            a chip that sends a chat message. text-decoration/display reset
            since <a> isn't a button by default. */
         ".dk-chip-link { text-decoration:none; display:inline-flex; align-items:center; gap:4px; }" +
+        /* ── order tracking card ─────────────────────────────────────────── */
+        ".dk-tracking-card { background:var(--dk-white); border:1.5px solid var(--dk-border); border-radius:10px; padding:12px 14px; margin:4px 0; display:flex; flex-direction:column; gap:10px; }" +
+        ".dk-tracking-item { display:flex; flex-direction:column; gap:6px; }" +
+        ".dk-tracking-header { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }" +
+        ".dk-tracking-name { font-size:13px; font-weight:600; color:var(--dk-ink); flex:1; min-width:0; }" +
+        ".dk-tracking-badge { font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px; background:var(--dk-pink); color:#fff; white-space:nowrap; }" +
+        ".dk-tracking-meta { font-size:11px; color:var(--dk-ink-muted); }" +
+        ".dk-tracking-note { font-size:11px; color:var(--dk-ink-muted); }" +
+        ".dk-tracking-timeline { display:flex; flex-direction:column; gap:0; margin-top:2px; padding-left:14px; border-left:2px solid var(--dk-border); }" +
+        ".dk-tracking-scan { display:flex; align-items:flex-start; gap:8px; padding:6px 0; position:relative; color:var(--dk-ink-muted); }" +
+        ".dk-tracking-scan.dk-scan-done { color:var(--dk-ink); }" +
+        ".dk-scan-dot { width:10px; height:10px; border-radius:50%; background:var(--dk-border); flex-shrink:0; position:absolute; left:-16px; top:8px; border:2px solid var(--dk-white); }" +
+        ".dk-scan-done .dk-scan-dot { background:var(--dk-pink); }" +
+        ".dk-scan-info { display:flex; flex-direction:column; gap:1px; }" +
+        ".dk-scan-label { font-size:12px; font-weight:600; }" +
+        ".dk-scan-ts { font-size:11px; opacity:0.7; }" +
+        ".dk-track-detail-btn { display:inline-block; margin-top:4px; font-size:11px; color:var(--dk-pink); text-decoration:none; }" +
+        ".dk-track-detail-btn:hover { text-decoration:underline; }" +
         /* ── combo bundle cards ───────────────────────────────────────────
            Shown ABOVE individual product picks. Full-width cards with a
            distinct coral/pink gradient header band so they stand out as
@@ -370,13 +417,13 @@
     function streamChat(message, productContext, onToken, onDone, onError) {
         var internal = window.__dkAdvisor._internal;
 
+        var chatHeaders = authHeaders();
+        chatHeaders["Content-Type"] = "application/json";
+        chatHeaders["Accept"] = "text/event-stream";
+
         fetch(internal.API_BASE + "/chat", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-Profile-Id": internal.PROFILE_ID,
-                "Accept": "text/event-stream",
-            },
+            headers: chatHeaders,
             body: JSON.stringify({
                 message: message,
                 product_context: productContext || null,
@@ -427,16 +474,19 @@
     /** Non-streaming POST helper for /session/init and /context/product. */
     function postJSON(path, body) {
         var internal = window.__dkAdvisor._internal;
+        var headers = authHeaders();
+        headers["Content-Type"] = "application/json";
         return fetch(internal.API_BASE + path, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-Profile-Id": internal.PROFILE_ID,
-            },
+            headers: headers,
             body: JSON.stringify(body || {}),
         }).then(function (res) {
             if (!res.ok) throw new Error(path + " failed: " + res.status);
             return res.json();
+        }).then(function (data) {
+            // /session/init returns the signed token; store it for later calls.
+            if (data && data.profile_token) setProfileToken(data.profile_token);
+            return data;
         });
     }
 
@@ -675,6 +725,196 @@
         body.appendChild(container);
         scrollToBottom(body);
         return container;
+    }
+
+    var _CP_HOST = "https://dotandkey.clickpost.ai";
+
+    function _cpFetch(path, body) {
+        return fetch(_CP_HOST + path, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(body),
+        }).then(function(r) { return r.json(); });
+    }
+
+    // Format "2026-06-30 18:45:00" → "30 Jun, 6:45 PM"
+    function _fmtTs(ts) {
+        if (!ts) return "";
+        var d = new Date(ts.replace(" ", "T"));
+        if (isNaN(d)) return ts.slice(0, 10);
+        var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        var h = d.getHours(), m = d.getMinutes();
+        var ampm = h >= 12 ? "PM" : "AM";
+        h = h % 12 || 12;
+        var mStr = m > 0 ? ":" + (m < 10 ? "0" : "") + m : "";
+        return d.getDate() + " " + months[d.getMonth()] + (mStr || h !== 12 ? ", " + h + mStr + " " + ampm : "");
+    }
+
+    // Derive 4 milestones from the scan array (newest-first).
+    // Takes the OLDEST scan per bucket so each milestone shows when that phase started.
+    function _milestones(scans, orderDate) {
+        var byBucket = {};
+        // iterate newest→oldest; last write wins = oldest per bucket
+        scans.forEach(function(s) { byBucket[s.clickpost_status_bucket] = s; });
+
+        var steps = [
+            { label: "Order Placed",     bucket: 1, fallbackTs: orderDate },
+            { label: "Dispatched",       bucket: 2, fallbackTs: null },
+            { label: "Out for Delivery", bucket: 4, fallbackTs: null },
+        ];
+
+        // final state: Delivered (6) > Failed delivery (5) > else pending
+        var finalLabel = "Delivery Pending";
+        var finalBucket = byBucket[6] || byBucket[5];
+        if (byBucket[6]) finalLabel = "Delivered";
+        else if (byBucket[5]) finalLabel = "Delivery Attempted";
+        steps.push({ label: finalLabel, bucket: byBucket[6] ? 6 : 5, fallbackTs: null });
+
+        var currentBucket = scans.length ? scans[0].clickpost_status_bucket : 0;
+
+        return steps.map(function(step) {
+            var scan = byBucket[step.bucket];
+            var ts   = scan ? scan.timestamp : step.fallbackTs;
+            var loc  = scan ? scan.location  : "";
+            var done = currentBucket >= step.bucket;
+            return { label: step.label, ts: ts, location: loc, done: done };
+        });
+    }
+
+    function _renderTrackingCard(body, orderId, items, trackMap) {
+        var wrap = el("div", "dk-tracking-card");
+
+        items.forEach(function(item) {
+            var awb      = item.tracking_info__awb || "";
+            var td       = trackMap[awb] || {};
+            var scans    = td.scans    || [];
+            var cpName   = td.cp_name  || "";
+            var orderDate= td.order_date || "";
+            var dtTaken  = td.delivery_time_taken; // {days,hours,minutes} or null
+            var latestScan = scans[0];
+
+            var statusLabel = item.order_cancelled ? "Cancelled"
+                : (latestScan ? latestScan.clickpost_status_bucket_description : "In progress");
+
+            // ── header: product name + status badge ──
+            var section = el("div", "dk-tracking-item");
+            var hdr = el("div", "dk-tracking-header");
+            hdr.appendChild(el("span", "dk-tracking-name", escapeHtml(item.description)));
+            hdr.appendChild(el("span", "dk-tracking-badge", escapeHtml(statusLabel)));
+            section.appendChild(hdr);
+
+            // ── meta row: carrier · delivery time ──
+            var meta = [];
+            if (cpName)  meta.push("via " + cpName);
+            if (dtTaken && dtTaken.days != null) {
+                var parts = [];
+                if (dtTaken.days)    parts.push(dtTaken.days + "d");
+                if (dtTaken.hours)   parts.push(dtTaken.hours + "h");
+                if (parts.length) meta.push("Delivered in " + parts.join(" "));
+            }
+            if (meta.length) {
+                section.appendChild(el("div", "dk-tracking-meta", escapeHtml(meta.join(" · "))));
+            }
+
+            // ── milestone timeline ──
+            if (scans.length) {
+                var steps = _milestones(scans, orderDate);
+                var tl = el("div", "dk-tracking-timeline");
+                steps.forEach(function(step, i) {
+                    var row  = el("div", "dk-tracking-scan" + (step.done ? " dk-scan-done" : ""));
+                    var dot  = el("span", "dk-scan-dot");
+                    var info = el("div", "dk-scan-info");
+                    info.appendChild(el("span", "dk-scan-label", escapeHtml(step.label)));
+                    if (step.ts) {
+                        var sub = step.ts ? _fmtTs(step.ts) : "";
+                        if (step.location) sub += " · " + step.location;
+                        info.appendChild(el("span", "dk-scan-ts", escapeHtml(sub)));
+                    }
+                    row.appendChild(dot);
+                    row.appendChild(info);
+                    tl.appendChild(row);
+                });
+                section.appendChild(tl);
+            }
+
+            // ── return note ──
+            if (item.non_return_reason) {
+                section.appendChild(el("div", "dk-tracking-note", "⚠ " + escapeHtml(item.non_return_reason)));
+            }
+
+            wrap.appendChild(section);
+        });
+
+        // Fallback: "View full tracking" link to ClickPost portal
+        var detailLink = el("a", "dk-track-detail-btn", "View full tracking →");
+        detailLink.href = _CP_HOST + "/";
+        detailLink.target = "_blank";
+        detailLink.rel = "noopener noreferrer";
+        wrap.appendChild(detailLink);
+
+        body.appendChild(wrap);
+        scrollToBottom(body);
+    }
+
+    /**
+     * Two-step ClickPost lookup from the user's browser (bypasses Cloudflare):
+     *   1. /api/returns  — validate order ID + phone, get per-item AWBs + item info
+     *   2. /api/tracking — full scan timeline, carrier, delivery time per AWB
+     */
+    function _doOrderLookup(info, body) {
+        var payload = {domain: "dotandkey", email: info.email || ""};
+        if (info.waybill) {
+            payload.waybill = info.waybill;
+        } else {
+            payload.reference_number = info.reference_number;
+            payload.phone_number     = info.phone_number;
+        }
+
+        _cpFetch("/api/returns?isTrackLogin=true", payload)
+        .then(function(data) {
+            var meta   = (data.data || {}).meta || {};
+            var result = (data.data || {}).result || {};
+            if (!meta.success) {
+                var errDiv = el("div", "dk-message dk-message-assistant");
+                errDiv.textContent = "Couldn't find that order — " +
+                    (meta.message || "please check your order ID and mobile number.").toLowerCase();
+                body.appendChild(errDiv);
+                scrollToBottom(body);
+                return;
+            }
+
+            var items   = result.item_info || [];
+            var orderId = result.reference_number || info.reference_number || "";
+            var awbs    = items.map(function(i) { return i.tracking_info__awb; }).filter(Boolean);
+
+            var scanPromises = awbs.map(function(awb) {
+                return _cpFetch("/api/tracking", {waybill: awb, domain: "dotandkey"})
+                .then(function(d) {
+                    var r = (d.data || {}).result || {};
+                    var td = r[awb] || {};
+                    return {
+                        awb:                awb,
+                        scans:              td.scans    || [],
+                        cp_name:            r.cp_name   || "",
+                        order_date:         (r.config || {}).order_date || "",
+                        delivery_time_taken: (td.additional || {}).delivery_time_taken || null,
+                    };
+                })
+                .catch(function() { return {awb: awb, scans: [], cp_name: "", order_date: "", delivery_time_taken: null}; });
+            });
+
+            Promise.all(scanPromises).then(function(results) {
+                var trackMap = {};
+                results.forEach(function(r) { trackMap[r.awb] = r; });
+                _renderTrackingCard(body, orderId, items, trackMap);
+            });
+        })
+        .catch(function() {
+            var errDiv = el("div", "dk-message dk-message-assistant");
+            errDiv.textContent = "Couldn't reach the tracking service — please try the link above.";
+            body.appendChild(errDiv);
+            scrollToBottom(body);
+        });
     }
 
     /**
@@ -1497,6 +1737,9 @@
                 }
                 if (pendingDone.link_chips && pendingDone.link_chips.length) {
                     renderLinkChips(els.body, pendingDone.link_chips);
+                }
+                if (pendingDone.track_request) {
+                    _doOrderLookup(pendingDone.track_request, els.body);
                 }
                 if (pendingDone.combos && pendingDone.combos.length) {
                     renderCombos(els.body, pendingDone.combos);

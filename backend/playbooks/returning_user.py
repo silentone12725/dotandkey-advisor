@@ -59,13 +59,28 @@ def _session_key(profile_id: str) -> str:
     return f"session:{profile_id}"
 
 
+def _hset_with_ttl(profile_id: str, field: str, value: str) -> None:
+    """HSET on the session hash, always refreshing the 30-min TTL."""
+    from backend.profile import SESSION_TTL
+    r = get_redis()
+    key = _session_key(profile_id)
+    pipe = r.pipeline(transaction=False)
+    pipe.hset(key, field, value)
+    pipe.expire(key, SESSION_TTL)
+    pipe.execute()
+
+
 def get_returning_step(profile_id: str) -> str:
     val = get_redis().hget(_session_key(profile_id), "returning_step")
     return val or ""
 
 
 def set_returning_step(profile_id: str, step: str) -> None:
-    get_redis().hset(_session_key(profile_id), "returning_step", step)
+    # HSET creates the key when absent, and at session-init time the previous
+    # session hash has usually already expired — so without an explicit EXPIRE
+    # this leaks a permanent key for every returning user who never sends a
+    # message. append_turn's Lua script sets the TTL, but only if they do.
+    _hset_with_ttl(profile_id, "returning_step", step)
 
 
 def clear_returning_step(profile_id: str) -> None:
@@ -86,7 +101,7 @@ def _get_pending_factors(profile_id: str) -> list[str]:
 
 
 def _set_pending_factors(profile_id: str, factors: list[str]) -> None:
-    get_redis().hset(_session_key(profile_id), "returning_pending_factors", json.dumps(factors))
+    _hset_with_ttl(profile_id, "returning_pending_factors", json.dumps(factors))
 
 
 # ---------------------------------------------------------------------------

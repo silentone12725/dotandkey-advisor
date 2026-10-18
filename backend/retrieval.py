@@ -40,15 +40,22 @@ PRICE_TIER_TO_MAX: dict[str, float | None] = {
 BUDGET_TIER_LADDER = ["under_300", "under_600", "under_1000", "any"]
 
 
+_graph = None
+
+
 def get_graph():
-    """Return the product FalkorDB graph. Shared by all backend modules."""
-    import os
-    from falkordb import FalkorDB
-    db = FalkorDB(
-        host=os.getenv("FALKORDB_HOST", "localhost"),
-        port=int(os.getenv("FALKORDB_PORT", 6379)),
-    )
-    return db.select_graph(os.getenv("FALKORDB_GRAPH", "dotandkey"))
+    """Return the product FalkorDB graph. Module-level singleton — one TCP
+    connection per process, matching the pattern used by get_redis()."""
+    global _graph
+    if _graph is None:
+        import os
+        from falkordb import FalkorDB
+        db = FalkorDB(
+            host=os.getenv("FALKORDB_HOST", "localhost"),
+            port=int(os.getenv("FALKORDB_PORT", 6379)),
+        )
+        _graph = db.select_graph(os.getenv("FALKORDB_GRAPH", "dotandkey"))
+    return _graph
 
 
 # size_pref → (min_g, max_g) range — None = no bound
@@ -116,7 +123,7 @@ def dedupe_top_picks(products: list[dict], limit: int = 3) -> tuple[list, list]:
     remaining: list = []
     for p in products:
         url = (p.get("url") or "").strip()
-        key = url if url else p["title"].strip().lower()
+        key = url if url else (p.get("title") or "").strip().lower()
         if key in seen_keys:
             continue          # duplicate variant — swatch/pill covers selection
         seen_keys.add(key)
@@ -278,7 +285,10 @@ def _build_query(profile, include_season, include_texture,
     )
     lines.append(
         "RETURN p.sku AS sku, p.title AS title, p.price AS price, "
-        "p.category_raw AS category_raw, p.description AS description, "
+        # Truncate in-query: the caller only keeps 400 chars, and this
+        # projection is re-run for every relaxation round × budget tier
+        # (up to 16 times per turn) over the whole category.
+        "p.category_raw AS category_raw, left(p.description, 400) AS description, "
         "(skin_score + concern_score) AS match_score, "
         "coalesce(p.url, '') AS url, coalesce(p.image_url, '') AS image_url, "
         "matched_skin_types, matched_concerns, free_from, ingredients, "
@@ -370,9 +380,11 @@ def _run_relaxation_rounds(
         last_query = query
         try:
             rows = graph.query(query, params).result_set
-        except Exception:
-            # Graph unavailable (timeout, connection error, etc.) — degrade
-            # gracefully by returning empty rather than propagating the exception.
+        except Exception as _exc:
+            import logging as _logging
+            _logging.getLogger(__name__).error(
+                "graph query failed (round %d): %s", i, _exc
+            )
             return [], dropped, last_query
 
         if rows:

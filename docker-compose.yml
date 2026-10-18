@@ -15,7 +15,12 @@ services:
       - "6379:6379"
       - "3000:3000"
     volumes:
-      - falkordb_data:/data
+      # MUST match the server's `dir` (/var/lib/falkordb/data), not /data.
+      # The image symlinks /data/data -> /var/lib/falkordb/data, so mounting at
+      # /data captures only the symlink and leaves dump.rdb in the container's
+      # writable layer: the graph then survives `restart` but is destroyed by
+      # `compose down && up`, which recreates the container.
+      - falkordb_data:/var/lib/falkordb/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "-p", "6379", "ping"]

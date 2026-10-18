@@ -35,6 +35,7 @@ from backend.profile import (
     load_profile,
     parse_profile,
     record_event,
+    save_profile,
 )
 from backend.retrieval import retrieve, PRICE_TIER_TO_MAX, get_graph
 from backend.match_keywords import build_keywords
@@ -363,6 +364,15 @@ async def run(
             "so I found the closest options."
         )
     yield emit_ui_data(payload)
+
+    # Save top-pick SKUs so comparison follow-up queries ("why is this good
+    # for me", "which is better") can reference the products just shown.
+    try:
+        save_profile(profile_id, {
+            "last_shown_skus": json.dumps([p["sku"] for p in result.top_picks[:5]])
+        })
+    except Exception:
+        pass
 
     # ── 6. Post-stream: sync user graph + record events ───────────────────────
     category = raw_profile.get("category", "")
