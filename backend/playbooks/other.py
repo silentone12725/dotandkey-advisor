@@ -50,8 +50,8 @@ async def track_order(
 
     # No usable details yet — ask in chat. Nothing is stored (see app.py).
     yield (
-        "Happy to help! Please share your **order ID** and the **mobile number** "
-        "or **email** used at checkout (or your courier **AWB number**), and I'll "
+        "Happy to help! Please share your order ID and the mobile number "
+        "or email used at checkout (or your courier AWB number), and I'll "
         "pull up the status right here. I don't save these details."
     )
 
