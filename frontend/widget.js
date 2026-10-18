@@ -1868,7 +1868,7 @@
                 state.isReturning = data.is_returning;
 
                 if (state.pageCtx.type === "product" && state.pageCtx.handle) {
-                    if (data.track_order) renderLinkChips(els.body, [data.track_order]);
+                    if (data.track_order) renderChips(els.body, { multi_select: false, options: [{ value: "track_order", label: data.track_order.label }] }, sendMessage);
                     loadProductContext(state.pageCtx.handle);
                     return;
                 }
@@ -1879,7 +1879,7 @@
 
                 var chips = data.is_returning ? data.returning_chips : data.initial_chips;
                 if (chips) renderChips(els.body, chips, sendMessage);
-                if (data.track_order) renderLinkChips(els.body, [data.track_order]);
+                if (data.track_order) renderChips(els.body, { multi_select: false, options: [{ value: "track_order", label: data.track_order.label }] }, sendMessage);
             })
             .catch(function (err) {
                 loadingEl.remove();

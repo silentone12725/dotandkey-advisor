@@ -31,11 +31,11 @@ async def track_order(
     router_args: dict,
     product_context: dict | None = None,
 ) -> AsyncGenerator[str, None]:
-    """Order tracking — tries inline ClickPost lookup first, falls back to link chip.
+    """Order tracking — inline ClickPost lookup; asks for details if missing.
 
     If the user's message contains an order ID + phone/email (or an AWB),
     we call the ClickPost API directly and return the status inline.
-    Otherwise we ask for the details and show the portal link chip.
+    Otherwise we ask for the details in chat.
     """
     from backend.order_tracking import extract_tracking_info
 
@@ -48,13 +48,12 @@ async def track_order(
         yield emit_ui_data({"track_request": info, "link_chips": [TRACK_ORDER_LINK_CHIP]})
         return
 
-    # No tracking info in message — ask for it and provide the portal link
+    # No usable details yet — ask in chat. Nothing is stored (see app.py).
     yield (
-        "To track your order, share your **order ID** and the **mobile number** "
-        "used at checkout — I'll pull the status for you. "
-        "Or use the link below to check directly:"
+        "Happy to help! Please share your **order ID** and the **mobile number** "
+        "or **email** used at checkout (or your courier **AWB number**), and I'll "
+        "pull up the status right here. I don't save these details."
     )
-    yield emit_ui_data({"link_chips": [TRACK_ORDER_LINK_CHIP]})
 
 
 async def allergen_check(

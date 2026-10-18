@@ -274,8 +274,9 @@ async def _event_stream(
 
     # 7. Persist turn to session history (after streaming, no latency impact)
     complete_response = "".join(full_response)
-    append_turn(profile_id, "user",      message)
-    append_turn(profile_id, "assistant", complete_response)
+    if playbook_name != "track_order":  # order IDs / phone numbers are never stored
+        append_turn(profile_id, "user",      message)
+        append_turn(profile_id, "assistant", complete_response)
 
 
 @app.post("/chat")

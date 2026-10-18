@@ -1210,14 +1210,13 @@ async function testShadeRegistry() {
 }
 
 // ---------------------------------------------------------------------------
-// Test 10 — "Track my order" hyperlink chip: rendered on homepage open AND
-// surfaced again in chat responses to tracking questions. Must be a real
-// <a href target=_blank> (not a chip that sends a chat message), so a tap
-// goes straight to ClickPost instead of round-tripping through /chat.
+// Test 10 — "Track my order" chip: rendered on homepage open as a normal chat
+// chip. Tapping it sends "Track my order" to /chat (the agent then asks for
+// order details in-conversation) — it must NOT redirect to an external page.
 // ---------------------------------------------------------------------------
 
 async function testTrackOrderLinkChip() {
-  section("Test 10: track-order hyperlink chip");
+  section("Test 10: track-order chat chip");
 
   const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>", {
     url: "https://www.dotandkey.com/",
@@ -1244,9 +1243,8 @@ async function testTrackOrderLinkChip() {
     if (typeof url === "string" && url.indexOf("/chat") > -1) {
       const encoder = new TextEncoder();
       const events = [
-        'data: {"token": "You can track your order below."}\n\n',
-        'data: {"done": true, "playbook": "track_order", ' +
-        '"link_chips": [{"label": "Track my order", "url": "https://dotandkey.clickpost.ai/"}]}\n\n',
+        'data: {"token": "Please share your order ID and mobile number."}\n\n',
+        'data: {"done": true, "playbook": "track_order"}\n\n',
       ];
       let i = 0;
       return Promise.resolve({
@@ -1279,33 +1277,20 @@ async function testTrackOrderLinkChip() {
 
   const body = shadow.querySelector(".dk-body");
 
-  // Homepage opening: link chip rendered alongside the entry chips
-  const openingLinkChip = Array.from(body.querySelectorAll("a.dk-chip-link"))
-    .find((a) => a.textContent === "Track my order");
-  check("homepage: 'Track my order' link chip rendered on open",
-    !!openingLinkChip);
-  check("homepage: link chip href is the real ClickPost URL",
-    !!openingLinkChip && openingLinkChip.href === "https://dotandkey.clickpost.ai/");
-  check("homepage: link chip opens in a new tab",
-    !!openingLinkChip && openingLinkChip.target === "_blank");
-  check("homepage: link chip has rel=noopener (no window.opener leak)",
-    !!openingLinkChip && openingLinkChip.rel.indexOf("noopener") > -1);
-  check("link chip is a real <a> tag, not a chat-sending div",
-    !!openingLinkChip && openingLinkChip.tagName === "A");
+  const trackChip = Array.from(body.querySelectorAll(".dk-chip"))
+    .find((c) => c.textContent === "Track my order");
+  check("homepage: 'Track my order' chip rendered on open", !!trackChip);
+  check("homepage: chip is a chat chip, not an external <a> link",
+    !!trackChip && trackChip.tagName !== "A" &&
+    body.querySelectorAll("a.dk-chip-link").length === 0);
 
-  // User explicitly asks — chat response's link_chips also renders one
-  const input = shadow.querySelector(".dk-input");
-  const sendBtn = shadow.querySelector(".dk-send-btn");
-  input.value = "where is my order";
-  input.dispatchEvent(new window.Event("input", { bubbles: true }));
-  await new Promise((r) => setTimeout(r, 5));
-  sendBtn.dispatchEvent(new window.Event("click", { bubbles: true }));
+  trackChip.dispatchEvent(new window.Event("click", { bubbles: true }));
   await new Promise((r) => setTimeout(r, 200));
 
-  const linkChipsAfterChat = Array.from(body.querySelectorAll("a.dk-chip-link"))
-    .filter((a) => a.textContent === "Track my order");
-  check("chat: asking 'where is my order' surfaces a second link chip from link_chips",
-    linkChipsAfterChat.length >= 2);
+  check("clicking the chip sends a /chat request (no redirect)",
+    fetchLog.some((f) => f.url.indexOf("/chat") > -1));
+  check("agent's ask for order details is shown in chat",
+    body.textContent.indexOf("share your order ID") > -1);
 }
 
 // ---------------------------------------------------------------------------

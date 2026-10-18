@@ -38,17 +38,24 @@ def _link_chips(tokens):
 class TestTrackOrder:
 
     @pytest.mark.asyncio
-    async def test_response_includes_link_chips_with_exact_url(self):
+    async def test_without_details_asks_in_chat_and_has_no_redirect_chip(self):
         tokens = await _collect(track_order("pid", "where is my order", {}))
-        chips = _link_chips(tokens)
-        assert chips is not None
-        assert chips[0]["url"] == CLICKPOST_TRACKING_URL
+        assert _link_chips(tokens) is None
+        text = "".join(t for t in tokens if try_extract_ui_data(t) is None).lower()
+        assert "order id" in text and "mobile" in text
+        assert "don't save" in text
 
     @pytest.mark.asyncio
-    async def test_link_chip_label_is_track_my_order(self):
-        tokens = await _collect(track_order("pid", "where is my order", {}))
-        chips = _link_chips(tokens)
-        assert chips[0]["label"] == "Track my order"
+    async def test_with_details_emits_track_request_and_fallback_link(self):
+        tokens = await _collect(track_order("pid", "order 1234567 phone 9876543210", {}))
+        data = next(d for d in map(try_extract_ui_data, tokens) if d is not None)
+        assert data["track_request"]["reference_number"] == "1234567"
+        assert data["link_chips"][0]["url"] == CLICKPOST_TRACKING_URL
+
+    def test_track_order_turns_are_not_persisted(self):
+        import inspect, backend.app as app
+        src = inspect.getsource(app)
+        assert 'playbook_name != "track_order"' in src
 
     @pytest.mark.asyncio
     async def test_url_is_the_real_clickpost_domain(self):
