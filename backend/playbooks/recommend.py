@@ -154,6 +154,31 @@ def _compact_product(p: dict) -> dict:
     return {"title": p["title"]}
 
 
+_MAX_INTRO_CHARS = 220
+
+
+async def _first_sentence_only(tokens):
+    """Pass tokens through until the first sentence ends, then stop.
+
+    Enforces the one-sentence rule in code: weaker/local models ignore the
+    prompt and write numbered product lists (sometimes invented products).
+    """
+    emitted = 0
+    async for token in tokens:
+        for j, ch in enumerate(token):
+            if emitted + j >= _MAX_INTRO_CHARS or ch == "\n":
+                if token[:j]:
+                    yield token[:j]
+                return
+            if ch in ".!?":
+                nxt = token[j + 1] if j + 1 < len(token) else ""
+                if not nxt.isdigit():
+                    yield token[: j + 1]
+                    return
+        yield token
+        emitted += len(token)
+
+
 def _card_product(p: dict, with_keywords: bool = False,
                    parsed_profile: dict | None = None) -> dict:
     """Trimmed product dict for the WIDGET.
@@ -304,7 +329,9 @@ async def run(
 
     system = build_system_prompt(profile_id, extra_context=extra)
 
-    async for token in stream_response(system, profile_id, user_message):
+    async for token in _first_sentence_only(
+        stream_response(system, profile_id, user_message)
+    ):
         yield token
 
     # ── 5. Profile summary chips ──────────────────────────────────────────────

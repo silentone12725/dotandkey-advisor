@@ -288,6 +288,24 @@ def _row_full(sku, title, price, score, all_skin_types=None, **kwargs):
 
 class TestRetrieveFallbackLadder:
 
+    def test_tiny_strict_match_set_is_topped_up_from_looser_rounds(self):
+        """Regression (live): dry + dryness + 3 allergen filters matched exactly
+        1 product, and the ladder returned it alone. It must keep relaxing
+        until MIN_RESULTS, strict matches first, no duplicates."""
+        graph = FakeGraph(responses=[
+            [],                                              # round 0 (season on)
+            [_row("A", "Strict Match", 495, 5)],             # round 1 -> only 1
+            [_row("A", "Strict Match", 495, 5)],             # round 2 (same)
+            [_row("A", "Strict Match", 495, 5),              # round 3 -> relaxed
+             _row("B", "Looser One", 450, 3),
+             _row("C", "Looser Two", 420, 2)],
+        ])
+        result = retrieve(graph, {"category": "moisturizer", "season": "post_monsoon",
+                                  "allergen_free": ["fragrance"]})
+        skus = [p["sku"] for p in result.top_picks + result.remaining]
+        assert skus == ["A", "B", "C"]
+        assert "allergen_free" in result.dropped_filters
+
     def test_all_skin_types_maps_through_when_present(self):
         """Regression test: a product graph-tagged for all 5 skin types
         must surface that via all_skin_types, independent of which single
@@ -403,8 +421,8 @@ class TestRetrieveFallbackLadder:
         assert result.top_picks[0]["variant"] == ""
 
     def test_first_round_success_no_filters_dropped(self):
-        """If the strictest query returns results immediately, no filters
-        should be reported as dropped."""
+        """A strict match is kept first; since it is below MIN_RESULTS the
+        ladder keeps probing looser rounds to top up (none found here)."""
         graph = FakeGraph(responses=[
             [_row("A", "Product A", 445, 3)],
         ])
@@ -413,9 +431,9 @@ class TestRetrieveFallbackLadder:
             "season": "monsoon", "allergen_free": ["fragrance"], "max_price": 600,
         }
         result = retrieve(graph, profile)
-        assert result.dropped_filters == []
         assert result.total == 1
-        assert len(graph.queries_seen) == 1   # only one query needed
+        assert result.top_picks[0]["sku"] == "A"
+        assert len(graph.queries_seen) == 5   # probed every round to top up
 
     def test_season_dropped_when_first_round_empty(self):
         """Round 1 (with season) returns nothing -> round 2 (no season)
@@ -447,7 +465,7 @@ class TestRetrieveFallbackLadder:
             "allergen_free": ["fragrance"], "max_price": 600,
         }
         result = retrieve(graph, profile)
-        assert result.dropped_filters == ["season", "texture", "allergen_free"]
+        assert result.dropped_filters == ["season", "texture", "allergen_free", "max_price"]
         assert result.total == 1
 
     def test_all_rounds_empty_returns_empty_result(self):

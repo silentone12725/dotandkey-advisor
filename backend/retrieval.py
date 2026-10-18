@@ -351,6 +351,11 @@ def _rows_to_products(rows: list) -> list[dict]:
     return products
 
 
+# A strict-but-tiny match set (e.g. 1 product) is topped up from looser rounds
+# so the user always sees a full row of top picks.
+MIN_RESULTS = 3
+
+
 def _run_relaxation_rounds(
     graph, profile: dict, include_price: bool
 ) -> tuple[list, list, str]:
@@ -368,6 +373,8 @@ def _run_relaxation_rounds(
     ]
     dropped: list[str] = []
     last_query = ""
+    collected: list = []
+    seen_skus: set = set()
 
     for i, flags in enumerate(rounds):
         query, params = _build_query(
@@ -385,10 +392,15 @@ def _run_relaxation_rounds(
             _logging.getLogger(__name__).error(
                 "graph query failed (round %d): %s", i, _exc
             )
-            return [], dropped, last_query
+            return _rows_to_products(collected), dropped, last_query
 
-        if rows:
-            return _rows_to_products(rows), dropped, query
+        # Strict matches stay first; looser rounds only top the list up.
+        for r in rows:
+            if r[0] not in seen_skus:
+                seen_skus.add(r[0])
+                collected.append(r)
+        if len(collected) >= MIN_RESULTS:
+            return _rows_to_products(collected), dropped, query
 
         if i == 0 and profile.get("season"):
             dropped.append("season")
@@ -397,7 +409,7 @@ def _run_relaxation_rounds(
         elif i == 2 and profile.get("allergen_free"):
             dropped.append("allergen_free")
 
-    return [], dropped, last_query
+    return _rows_to_products(collected), dropped, last_query
 
 
 import logging as _logging
@@ -495,6 +507,8 @@ def retrieve(graph, profile, user_message: str = "", vague_tokens: "list[str] | 
     ]
     dropped: list[str] = []
     last_query = ""
+    collected: list = []
+    seen_skus: set = set()
 
     for i, flags in enumerate(rounds):
         query, params = _build_query(
@@ -511,8 +525,13 @@ def retrieve(graph, profile, user_message: str = "", vague_tokens: "list[str] | 
             return RetrievalResult(top_picks=[], remaining=[], dropped_filters=dropped,
                                    query_used=last_query)
 
-        if rows:
-            products = rerank_by_query_intent(_rows_to_products(rows), query_tokens)
+        for r in rows:
+            if r[0] not in seen_skus:
+                seen_skus.add(r[0])
+                collected.append(r)
+
+        if len(collected) >= MIN_RESULTS or (collected and i == len(rounds) - 1):
+            products = rerank_by_query_intent(_rows_to_products(collected), query_tokens)
             products = apply_sensitivity_ranking(products, sensitivity)
             top_picks, remaining = dedupe_top_picks(products, limit=3)
             return RetrievalResult(
@@ -531,6 +550,12 @@ def retrieve(graph, profile, user_message: str = "", vague_tokens: "list[str] | 
         elif i == 3 and profile.get("max_price"):
             dropped.append("max_price")
 
+    if collected:
+        products = rerank_by_query_intent(_rows_to_products(collected), query_tokens)
+        products = apply_sensitivity_ranking(products, sensitivity)
+        top_picks, remaining = dedupe_top_picks(products, limit=3)
+        return RetrievalResult(top_picks=top_picks, remaining=remaining,
+                               dropped_filters=dropped, query_used=last_query)
     return RetrievalResult(
         top_picks=[], remaining=[], dropped_filters=dropped, query_used=last_query
     )
