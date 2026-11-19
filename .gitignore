@@ -38,7 +38,7 @@ htmlcov/
 # FalkorDB / Redis data
 dump.rdb
 
-# Node (extension / frontend tests)
+# Node (frontend tests)
 node_modules/
 
 # Claude Code local tooling (machine-specific paths)

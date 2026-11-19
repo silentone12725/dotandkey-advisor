@@ -16,7 +16,7 @@ PROFILE_TOKEN_SECRET, so a caller can only ever address the profile the server
 issued to them.
 
 Transport is a header rather than a cookie deliberately. The widget runs on
-www.dotandkey.com (extension), on the proxy origin, or on a local demo page,
+the proxy origin (injected into dotandkey.com), or on a local demo page,
 and calls the backend on a different origin — cross-site, so a cookie would
 need SameSite=None; Secure and therefore HTTPS on both ends, which breaks
 local development. A header works unchanged in all three. The tradeoff is that

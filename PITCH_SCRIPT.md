@@ -146,8 +146,8 @@ build. The demo carries the first; three short architecture asides carry the sec
 > genuine Dot & Key site. Not a mockup, not a staging clone.
 >
 > There's a reverse proxy that serves the real storefront and injects the
-> widget before the closing body tag — and a Chrome extension that does the
-> same thing client-side. Which means this can be evaluated on the live site
+> widget before the closing body tag — all hosted from a single Docker image.
+> Which means this can be evaluated on the live site
 > with zero integration work from the brand's side. Nothing to deploy, no
 > engineering ticket, no risk to the storefront.
 >

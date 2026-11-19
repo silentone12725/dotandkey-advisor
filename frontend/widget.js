@@ -18,8 +18,7 @@
 (function () {
     "use strict";
 
-    // Version marker — increment when syncing to extension/widget.js so a
-    // hard-refresh of the extension confirms the new bundle is active.
+    // Version marker — confirms the new bundle is active after a hard refresh.
     console.log("[dk-advisor] WIDGET_VERSION 2 — image-based swatches, variant hint, 2-col grid");
 
     // ===========================================================================
@@ -2047,9 +2046,7 @@
 
         state.pageCtx = detectPageContext();
         state.initialized = false;
-        // Use the promise fired by prefetch.js (document_start) if available,
-        // otherwise start our own request now (demo page / non-extension context).
-        state.sessionPromise = window.__dkSessionPromise ||
+        state.sessionPromise =
             postJSON("/session/init", { page_context: "homepage" })
                 .catch(function () { return null; });
 

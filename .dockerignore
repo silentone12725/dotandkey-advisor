@@ -8,7 +8,6 @@ __pycache__/
 *.pyc
 *.pyo
 tests/
-extension/
 *.md
 *.html
 !frontend/index.html

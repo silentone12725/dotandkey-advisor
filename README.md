@@ -4,7 +4,7 @@
 >
 > A conversational skincare advisor where FalkorDB is the central context layer: the product knowledge graph drives every retrieval decision, and two distinct memory systems (sensitivity memory + behavioral learning) persist and update across sessions — per user, with signed profile isolation.
 
-A retrieval-grounded conversational product advisor for [dotandkey.com](https://www.dotandkey.com) — an Indian skincare D2C brand. Runs as an embeddable widget and as a Chrome extension that injects directly onto the real site.
+A retrieval-grounded conversational product advisor for [dotandkey.com](https://www.dotandkey.com) — an Indian skincare D2C brand. Runs as an embeddable widget, and as a Docker-hosted reverse proxy that serves the real site with the widget injected.
 
 ## How FalkorDB Powers This
 
@@ -58,8 +58,7 @@ backend/        FastAPI application
     other.py           Allergen check, routine, handoff playbooks
 frontend/
   widget.js       Vanilla JS widget, Shadow DOM, no build step
-extension/        Manifest V3 Chrome extension (injects widget on dotandkey.com)
-tests/            974 backend tests (pytest), 167 jsdom, 6 extension tests
+tests/            974 backend tests (pytest), 165 jsdom tests
 ```
 
 ## Ranking Pipeline
@@ -138,23 +137,18 @@ Starts FalkorDB on `:6379` / `:3000` (browser UI) and the backend on `:8000`.
 ## Tests
 
 ```fish
-# Backend (974 tests, ~60 s, no live services needed for most)
+# Backend (1000 tests, ~35 s, no live services needed for most)
 pytest
 
-# Frontend widget (49 jsdom tests)
+# Frontend widget (165 jsdom tests)
 cd frontend && node test_widget.js
-
-# Extension content-script (6 tests)
-cd extension && node test_inject.js
 ```
 
 The live-graph regression suite (`tests/test_retrieval_regression.py`) requires a running FalkorDB instance with the catalog loaded — it's skipped automatically when FalkorDB is unreachable.
 
-## Chrome Extension
+## Docker Deployment & Site Injection
 
-Load `extension/` as an unpacked extension in Chrome developer mode. The extension injects `widget.js` onto `https://www.dotandkey.com/*` via a content script.
-
-> **Note**: Chrome may block `fetch('http://localhost:8000/...')` as mixed content on an HTTPS page. See `extension/README.md` for the HTTPS workaround using a self-signed certificate.
+`docker compose up` starts FalkorDB, a one-shot `graph-init` seeding job, and the backend. The backend doubles as a reverse proxy: `GET /{path}` fetches the page from `https://www.dotandkey.com`, rewrites its links to the proxy origin, and injects `widget.js` before `</body>`. Set `PUBLIC_BASE_URL` to the deployed origin.
 
 ## Behavioral Learning
 
@@ -196,5 +190,5 @@ Sensitivity statements are detected once and persist across sessions:
 | Backend | FastAPI + Server-Sent Events |
 | LLM | Provider-agnostic (NIM/Ollama/OpenAI/Google) |
 | Frontend | Vanilla JS, Shadow DOM, no build step |
-| Extension | Chrome MV3 |
+| Deployment | Docker Compose; FastAPI reverse proxy injects the widget |
 | Tests | pytest, fakeredis, jsdom |
